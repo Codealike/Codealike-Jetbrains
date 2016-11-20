@@ -146,7 +146,7 @@ public class ApiClient {
 	}
 
 	public ApiResponse<Version> version() {
-		WebTarget target = apiTarget.path("version").queryParam("client", "Eclipse");
+		WebTarget target = apiTarget.path("version").queryParam("client", "intellij");
 		return doGet(target, Version.class);
 	}
 

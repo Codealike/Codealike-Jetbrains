@@ -5,7 +5,11 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.codealike.client.core.internal.model.IProject;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
@@ -54,19 +58,9 @@ public class TrackingService extends Observable {
 		this.tracker.startTracking();
 		
 		startFlushExecutor();
-		/*
-		IProject[] currentProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i = 0; i < currentProjects.length; i++) {
-			IProject project = currentProjects[i];
-			startTracking(project);
-		};*/
 		
 		//We need to start tracking unassigned project for states like "debugging" which does not belong to any project.
 		startTrackingUnassignedProject();
-
-		/*
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this.changesListener, IResourceChangeEvent.POST_CHANGE 
-																	| IResourceChangeEvent.PRE_DELETE | IResourceChangeEvent.PRE_CLOSE);*/
 		
 		this.isTracking = true;
 		setChanged();
@@ -119,17 +113,26 @@ public class TrackingService extends Observable {
 	public void enableTracking() {
 		if (context.isAuthenticated()) {
 			startTracking();
-			//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is tracking your projects");
 
+			Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+					"CodealikeApplicationComponent",
+					"Codealike  is tracking your projects",
+					NotificationType.INFORMATION);
+			Notifications.Bus.notify(note);
 		}
 	}
 
 	public void disableTracking() {
 		stopTracking(true);
-		//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is not tracking your projects");
+
+		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+				"CodealikeApplicationComponent",
+				"Codealike  is not tracking your projects",
+				NotificationType.INFORMATION);
+		Notifications.Bus.notify(note);
 	}
 
-	public synchronized void startTracking(IProject project) {
+	public synchronized void startTracking(Project project) {
 		if (!project.isOpen()) {
 			return;
 		}
@@ -142,7 +145,7 @@ public class TrackingService extends Observable {
 		}
 		else {
 			LogManager.INSTANCE.logWarn(String.format("Could not track project %s. "
-					+ "If you have a duplicated UUID in any of your \"com.codealike.client.eclipse.prefs\" please delete one of those to generate a new UUID for"
+					+ "If you have a duplicated UUID in any of your \"com.codealike.client.intellij.prefs\" please delete one of those to generate a new UUID for"
 					+ "that project", project.getName()));
 		}
 	}
@@ -155,11 +158,11 @@ public class TrackingService extends Observable {
 		}
 	}
 
-	public boolean isTracked(IProject project) {
+	public boolean isTracked(Project project) {
 		return this.trackedProjectManager.isTracked(project);
 	}
 
-	public void stopTracking(IProject project) {
+	public void stopTracking(Project project) {
 		this.trackedProjectManager.stopTrackingProject(project);
 	}
 
@@ -167,15 +170,15 @@ public class TrackingService extends Observable {
 		return this.trackedProjectManager;
 	}
 
-	public UUID getUUID(IProject project) {
+	public UUID getUUID(Project project) {
 		return this.trackedProjectManager.getTrackedProjectId(project);
 	}
 
-	public IProject getProject(UUID projectId) {
+	public Project getProject(UUID projectId) {
 		return this.trackedProjectManager.getTrackedProject(projectId);
 	}
 
-	public BiMap<IProject, UUID> getTrackedProjects() {
+	public BiMap<Project, UUID> getTrackedProjects() {
 		return this.trackedProjectManager.getTrackedProjects();
 	}
 

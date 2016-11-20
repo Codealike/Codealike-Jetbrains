@@ -1,5 +1,7 @@
 package com.codealike.client.intellij;
 
+import com.codealike.client.core.internal.services.IdentityService;
+import com.codealike.client.core.internal.services.TrackingService;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
@@ -42,6 +44,10 @@ public class CodealikeProjectComponent implements ProjectComponent {
                     "Levanto un projecto" + _project.getName(),
                     NotificationType.INFORMATION);
             Notifications.Bus.notify(note);
+        }
+
+        if (TrackingService.getInstance().isTracking()) {
+            TrackingService.getInstance().startTracking(_project);
         }
     }
 

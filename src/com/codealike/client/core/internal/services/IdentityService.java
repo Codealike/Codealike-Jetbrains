@@ -16,6 +16,9 @@ import com.codealike.client.core.internal.model.TrackActivity;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.utils.LogManager;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 //import com.codealike.client.core.internal.utils.WorkbenchUtils;
 
 public class IdentityService extends Observable {
@@ -48,7 +51,12 @@ public class IdentityService extends Observable {
 	}
 
 	public boolean login(String identity, String token, boolean storeCredentials, boolean rememberMe) {
-		//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is connecting...");
+		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+				"CodealikeApplicationComponent",
+				"Codealike  is connecting...",
+				NotificationType.INFORMATION);
+		Notifications.Bus.notify(note);
+
 		if (this.isAuthenticated) {
 			setChanged();
 			notifyObservers();
@@ -177,7 +185,12 @@ public class IdentityService extends Observable {
 	}
 
 	public void logOff() {
-		//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is disconnecting...");
+		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+				"CodealikeApplicationComponent",
+				"Codealike  is disconnecting...",
+				NotificationType.INFORMATION);
+		Notifications.Bus.notify(note);
+
 		PluginContext.getInstance().getTrackingService().flushRecorder(this.identity, this.token);
 		
 		this.isAuthenticated = false;

@@ -39,6 +39,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;*/
 import com.codealike.client.core.internal.model.*;
+import com.intellij.openapi.project.Project;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
@@ -353,7 +354,7 @@ public class StateTracker {
 		});
 	}
 	*/
-	public void startTrackingProject(IProject project, UUID projectId, DateTime startWorkspaceDate) {
+	public void startTrackingProject(Project project, UUID projectId, DateTime startWorkspaceDate) {
 		ActivityEvent openSolutionEvent = new ActivityEvent(projectId, ActivityType.OpenSolution, contextCreator.createCodeContext(project));
 		openSolutionEvent.setCreationTime(startWorkspaceDate);
 		ActivityState systemState = ActivityState.createSystemState(projectId);

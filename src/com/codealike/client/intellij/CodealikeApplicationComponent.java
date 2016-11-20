@@ -44,29 +44,6 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
 
         start();
 
-        Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-                "CodealikeApplicationComponent",
-                "Levanto la aplicacion",
-                NotificationType.INFORMATION);
-        Notifications.Bus.notify(note);
-
-        /*
-        setupQueueProcessor();
-
-        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-
-        String token = propertiesComponent.getValue("codealike.token", "");
-
-        if (token == "") {
-            // ask user for a valid token
-            token = "F8D0D2EF-DDBE-4C97-910B-6BC935AFD320";
-
-            propertiesComponent.setValue("codealike.token", token);
-        }
-
-        log.debug("Token: " + token);
-        */
-
         //setupEventListeners();
     }
 
@@ -113,7 +90,7 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
         {
             try {
                 ApiClient client = ApiClient.tryCreateNew();
-                client.logHealth(new HealthInfo(e, "Plugin could not start.", "eclipse", HealthInfo.HealthInfoType.Error, pluginContext.getIdentityService().getIdentity()));
+                client.logHealth(new HealthInfo(e, "Plugin could not start.", "intellij", HealthInfo.HealthInfoType.Error, pluginContext.getIdentityService().getIdentity()));
             }
             catch (KeyManagementException e1) {
                 e1.printStackTrace();
@@ -169,7 +146,6 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
 
         @Override
         public void update(Observable o, Object arg1) {
-            Notification note;
             if (o == pluginContext.getIdentityService()) {
                 TrackingService trackingService = pluginContext.getTrackingService();
                 IdentityService identityService = pluginContext.getIdentityService();
@@ -182,8 +158,7 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
                         }
                         case AskEveryTime:
                         case Never:
-                            //WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is not tracking your projects");
-                            note = new Notification("CodealikeApplicationComponent.Notifications",
+                            Notification note = new Notification("CodealikeApplicationComponent.Notifications",
                                     "CodealikeApplicationComponent",
                                     "Codealike  is not tracking your projects",
                                     NotificationType.INFORMATION);

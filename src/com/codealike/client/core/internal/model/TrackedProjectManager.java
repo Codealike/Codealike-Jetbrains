@@ -11,11 +11,12 @@ import java.util.UUID;
 import com.codealike.client.core.internal.utils.TrackingConsole;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.intellij.openapi.project.Project;
 
 public class TrackedProjectManager {
 	
 	private List<String> trackedProjectsLabels;
-	private BiMap<IProject, UUID> trackedProjects;
+	private BiMap<Project, UUID> trackedProjects;
 	
 	public TrackedProjectManager() {
 		this.trackedProjects = HashBiMap.create();
@@ -57,7 +58,7 @@ public class TrackedProjectManager {
 		changeSupport.firePropertyChange(propertyName, oldValue, newValue);
 	}
 
-	public boolean trackProject(IProject project, UUID projectId) {
+	public boolean trackProject(Project project, UUID projectId) {
 		if (trackedProjects.containsKey(project) || trackedProjects.containsValue(projectId)) {
 			return false;
 		}
@@ -70,23 +71,23 @@ public class TrackedProjectManager {
 		return true;
 	}
 
-	public UUID getTrackedProjectId(IProject project) {
+	public UUID getTrackedProjectId(Project project) {
 		return this.trackedProjects.get(project);
 	}
 
-	public IProject getTrackedProject(UUID projectId) {
+	public Project getTrackedProject(UUID projectId) {
 		return this.trackedProjects.inverse().get(projectId);
 	}
 
-	public BiMap<IProject, UUID> getTrackedProjects() {
+	public BiMap<Project, UUID> getTrackedProjects() {
 		return this.trackedProjects;
 	}
 
-	public boolean isTracked(IProject project) {
+	public boolean isTracked(Project project) {
 		return project != null && this.trackedProjects.get(project) != null;
 	}
 
-	public void stopTrackingProject(IProject project) {
+	public void stopTrackingProject(Project project) {
 		if (!this.trackedProjects.containsKey(project)) {
 			return;
 		}
@@ -100,8 +101,8 @@ public class TrackedProjectManager {
 	}
 	
 	public void stopTracking() {
-		Set<IProject> projects = new HashSet<IProject>(trackedProjects.keySet());
-		for (IProject trackedProject : projects) {
+		Set<Project> projects = new HashSet<Project>(trackedProjects.keySet());
+		for (Project trackedProject : projects) {
 			stopTrackingProject(trackedProject);
 		}
 	}

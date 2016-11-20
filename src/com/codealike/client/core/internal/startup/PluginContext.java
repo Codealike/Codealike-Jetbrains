@@ -13,7 +13,8 @@ import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.PlatformUI;*/
-import com.codealike.client.core.internal.model.IProject;
+import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.project.Project;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -114,16 +115,16 @@ public class PluginContext {
 		}
 	}
 
-	public UUID getOrCreateUUID(IProject project) {
+	public UUID getOrCreateUUID(Project project) {
 		UUID solutionId = null;
 		
 		try {
 			String solutionIdString = null;
-			/*ProjectPreferences projectNode = getProjectPreferences(project);
+			PropertiesComponent projectNode = PropertiesComponent.getInstance(project);
 			if (projectNode != null) {
 				//if projectId is not created yet, try to create a unique new one and register it.
-				solutionIdString = projectNode.get("solutionId", null);
-				if (solutionIdString == null) {
+				solutionIdString = projectNode.getValue("solutionId", "");
+				if (solutionIdString == "") {
 					solutionId = tryCreateUniqueId();
 					if (!registerProjectContext(solutionId, project.getName()) ) {
 						return null;
@@ -133,7 +134,7 @@ public class PluginContext {
 				else {
 					solutionId = UUID.fromString(solutionIdString);
 				}
-			}*/
+			}
 		} catch (Exception e) {
 			String projectName = project != null ? project.getName() : "";
         	LogManager.INSTANCE.logError(e, "Could not create UUID for project "+projectName);
@@ -153,13 +154,10 @@ public class PluginContext {
 		return projectNode;
 	}*/
 
-	/*private UUID changeSolutionId(ProjectPreferences projectNode, UUID solutionId) throws Exception,
-			BackingStoreException {
-
-		projectNode.put("solutionId", solutionId.toString());
-		projectNode.flush();
+	private UUID changeSolutionId(PropertiesComponent projectNode, UUID solutionId) throws Exception {
+		projectNode.setValue("solutionId", solutionId.toString());
 		return solutionId;
-	}*/
+	}
 	
 	private UUID tryCreateUniqueId() {
 		UUID solutionId = UUID.randomUUID();

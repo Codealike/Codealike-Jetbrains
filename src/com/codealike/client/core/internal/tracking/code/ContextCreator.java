@@ -9,9 +9,9 @@ import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.ui.IEditorPart;
 */
 import com.codealike.client.core.internal.model.CodeContext;
-import com.codealike.client.core.internal.model.IProject;
 import com.codealike.client.core.internal.model.StructuralCodeContext;
 import com.codealike.client.core.internal.startup.PluginContext;
+import com.intellij.openapi.project.Project;
 //import com.codealike.client.core.internal.utils.CodeContextUtils;
 //import com.codealike.client.core.internal.utils.EditorUtils;
 
@@ -47,7 +47,7 @@ public class ContextCreator {
 		}
 	}
 	*/
-	public CodeContext createCodeContext(IProject project) {
+	public CodeContext createCodeContext(Project project) {
 		UUID projectId = PluginContext.getInstance().getTrackingService().getUUID(project);
 		
 		StructuralCodeContext context = new StructuralCodeContext(projectId);

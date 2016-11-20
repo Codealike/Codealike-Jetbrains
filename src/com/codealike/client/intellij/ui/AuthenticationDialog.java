@@ -40,11 +40,7 @@ public class AuthenticationDialog extends DialogWrapper {
 
         String[] split = authInput.getText().split("/");
         if (split.length == 2) {
-
-            // get information from text field and validate format
-            //danieltest/283bc64a-083a-4cbe-8c6d-8eb539354e71
-
-            boolean logged = identityService.login(split[0], split[1], true, true);
+            identityService.login(split[0], split[1], true, true);
         }
 
         super.doOKAction();
