@@ -123,7 +123,7 @@ public class PluginContext {
 			PropertiesComponent projectNode = PropertiesComponent.getInstance(project);
 			if (projectNode != null) {
 				//if projectId is not created yet, try to create a unique new one and register it.
-				solutionIdString = projectNode.getValue("solutionId", "");
+				solutionIdString = projectNode.getValue("codealike.solutionId", "");
 				if (solutionIdString == "") {
 					solutionId = tryCreateUniqueId();
 					if (!registerProjectContext(solutionId, project.getName()) ) {
@@ -155,7 +155,7 @@ public class PluginContext {
 	}*/
 
 	private UUID changeSolutionId(PropertiesComponent projectNode, UUID solutionId) throws Exception {
-		projectNode.setValue("solutionId", solutionId.toString());
+		projectNode.setValue("codealike.solutionId", solutionId.toString());
 		return solutionId;
 	}
 	
