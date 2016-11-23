@@ -2,12 +2,17 @@ package com.codealike.client.intellij;
 
 import com.codealike.client.core.internal.services.IdentityService;
 import com.codealike.client.core.internal.services.TrackingService;
+import com.intellij.debugger.DebuggerManager;
+import com.intellij.debugger.engine.DebugProcessEvents;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.debugger.DebugEventListener;
 
 /**
  * Created by Daniel on 11/16/2016.
@@ -54,5 +59,6 @@ public class CodealikeProjectComponent implements ProjectComponent {
     @Override
     public void projectClosed() {
         // called when project is being closed
+
     }
 }

@@ -1,29 +1,38 @@
 package com.codealike.client.intellij.EventListeners;
 
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
+import com.codealike.client.core.internal.model.ActivityEvent;
+import com.codealike.client.core.internal.services.TrackingService;
+import com.codealike.client.core.internal.startup.PluginContext;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.event.CaretEvent;
+import com.intellij.openapi.editor.event.CaretListener;
+import com.intellij.openapi.project.Project;
+
+import java.util.UUID;
 
 /**
  * Created by Daniel on 11/4/2016.
  */
-public class CustomCaretListener implements CaretListener, com.intellij.openapi.editor.event.CaretListener {
-    @Override
-    public void caretUpdate(CaretEvent e) {
+public class CustomCaretListener implements CaretListener {
 
+    @Override
+    public void caretPositionChanged(CaretEvent caretEvent) {
+        TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+        Editor editor = caretEvent.getEditor();
+        trackingService.trackCodingEvent(editor);
     }
 
     @Override
-    public void caretPositionChanged(com.intellij.openapi.editor.event.CaretEvent caretEvent) {
-
+    public void caretAdded(CaretEvent caretEvent) {
+        TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+        Editor editor = caretEvent.getEditor();
+        trackingService.trackCodingEvent(editor);
     }
 
     @Override
-    public void caretAdded(com.intellij.openapi.editor.event.CaretEvent caretEvent) {
-
-    }
-
-    @Override
-    public void caretRemoved(com.intellij.openapi.editor.event.CaretEvent caretEvent) {
-
+    public void caretRemoved(CaretEvent caretEvent) {
+        TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+        Editor editor = caretEvent.getEditor();
+        trackingService.trackCodingEvent(editor);
     }
 }

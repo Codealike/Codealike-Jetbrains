@@ -1,5 +1,6 @@
 package com.codealike.client.core.internal.tracking;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +40,20 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;*/
 import com.codealike.client.core.internal.model.*;
+import com.codealike.client.intellij.EventListeners.CustomCaretListener;
+import com.codealike.client.intellij.EventListeners.CustomDocumentListener;
+import com.intellij.compiler.server.BuildManager;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.event.CaretListener;
+import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.updateSettings.impl.BuildInfo;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.*;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
@@ -63,12 +77,15 @@ public class StateTracker {
 	private final Duration idleMinInterval;
 	private final int idleDetectionPeriod;
 	//private Set<IDocument> registeredDocs;
-	//protected IResource currentCompilationUnit;
+	protected Document currentCompilationUnit;
 	private CodeContext lastCodeContext;
 	private ActivityEvent lastEvent;
 	private ContextCreator contextCreator;
 	private ScheduledThreadPoolExecutor idleDetectionExecutor;
-	
+
+	private DocumentListener documentListener;
+	//private CaretListener caretListener;
+
 	/**
 	 * Listens to the build events. Since build is automatic by default, this will happen many times while working.
 	 */
@@ -303,10 +320,21 @@ public class StateTracker {
 			}
 		});
 	}
-	
-	private void trackNewSelection(IEditorPart editor, IResource focusedResource, UUID projectId) throws JavaModelException {
-		CodeContext currentCodeContext = contextCreator.createCodeContext(editor, projectId);
-		
+	*/
+	public  void trackNewSelection(Editor editor) {
+		FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+		TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+
+		if (editor == null || !trackingService.isTracked(editor.getProject())) {
+			return;
+		}
+		UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
+
+		StructuralCodeContext currentCodeContext = new StructuralCodeContext(projectId);
+		currentCodeContext.setProject(editor.getProject().getName());
+
+		Document focusedResource = editor.getDocument();
+
 		if (!focusedResource.equals(currentCompilationUnit) || !currentCodeContext.equals(lastCodeContext)) {
 			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, currentCodeContext);
 			recorder.recordEvent(event);
@@ -316,7 +344,7 @@ public class StateTracker {
 			lastCodeContext = currentCodeContext;
 		}
 	}
-
+/*
 	private synchronized void trackCodingEvents(final IWorkbenchPart part) {
 		if (!(part instanceof IEditorPart)) {
 			return;
@@ -354,6 +382,56 @@ public class StateTracker {
 		});
 	}
 	*/
+
+	public synchronized void trackCodingEvent(Editor editor) {
+		try {
+			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+			ActivityEvent event = null;
+			if (editor == null || !trackingService.isTracked(editor.getProject())) {
+				return;
+			}
+			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
+
+			Document focusedResource = editor.getDocument();
+			PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
+
+			if (focusedResource.equals(currentCompilationUnit) && lastEvent != null && lastEvent.getType() != ActivityType.DocumentEdit) {
+				//Currently in design mode, so we need to save an editing event
+
+				CodeContext context = new StructuralCodeContext(projectId);
+				context.setProject(editor.getProject().getName());
+
+				VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
+				if (file != null) {
+					context.setFile(file.getName());
+				}
+
+				PsiJavaFile javaPsiFile = (PsiJavaFile) psiDocumentManager.getPsiFile(editor.getDocument());
+				if (javaPsiFile != null) {
+					PsiClass[] classes = javaPsiFile.getClasses();
+					if (classes.length > 0) {
+						context.setClassName(classes[0].getQualifiedName());
+					}
+
+					//PsiMember member = javaPsiFile.getManager().getModificationTracker().
+					//context.setMemberName();
+					context.setPackageName(javaPsiFile.getPackageName());
+				}
+
+				event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);
+				recorder.recordEvent(event);
+			}
+
+			if (lastEvent != null) {
+				lastEvent = event;
+			}
+		} catch (Exception e) {
+			LogManager.INSTANCE.logError(e, "Problem recording document edit.");
+		}
+	}
+
+
 	public void startTrackingProject(Project project, UUID projectId, DateTime startWorkspaceDate) {
 		ActivityEvent openSolutionEvent = new ActivityEvent(projectId, ActivityType.OpenSolution, contextCreator.createCodeContext(project));
 		openSolutionEvent.setCreationTime(startWorkspaceDate);
@@ -463,20 +541,25 @@ public class StateTracker {
 
 		recorder = new ActivitiesRecorder(PluginContext.getInstance());
 	}
-	
-	public void startTracking() {
-		/*DebugPlugin debug = DebugPlugin.getDefault();
-		debug.addDebugEventListener(debugEventListener);
 
-		IWorkbench workbench = PlatformUI.getWorkbench();
-		workbench.addWindowListener(winListener);
-		for (IWorkbenchWindow window : workbench.getWorkbenchWindows()) {
-			register(window);
-		}
-		
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(buildEventsListener, IResourceChangeEvent.PRE_BUILD | IResourceChangeEvent.POST_BUILD);
-		startIdleDetection();*/
+	public void startTracking() {
+		documentListener = new CustomDocumentListener();
+		//caretListener = new CustomCaretListener();
+
+		ApplicationManager.getApplication().invokeLater(() -> {
+			// edit document
+			EditorFactory
+					.getInstance()
+					.getEventMulticaster()
+					.addDocumentListener(documentListener);
+
+			//EditorFactory
+			//		.getInstance()
+			//		.getEventMulticaster()
+			//		.addCaretListener(caretListener);
+		});
 	}
+
 /*
 	private void startIdleDetection() {
 
@@ -537,28 +620,18 @@ public class StateTracker {
 	};
 */
 	public void stopTracking() {
-		/*DebugPlugin debug = DebugPlugin.getDefault();
-		debug.removeDebugEventListener(debugEventListener);
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(buildEventsListener);
-		
-		if (this.idleDetectionExecutor != null) {
-			this.idleDetectionExecutor.shutdown();
-		}
-		
-		IWorkbench workbench = PlatformUI.getWorkbench();
-		workbench.removeWindowListener(winListener);
-		
-		if (!display.isDisposed()) {
-			display.syncExec(new Runnable() {
+		ApplicationManager.getApplication().invokeLater(() -> {
+			// edit document
+			EditorFactory
+					.getInstance()
+					.getEventMulticaster()
+					.removeDocumentListener(documentListener);
 
-				@Override
-				public void run() {
-					display.removeFilter(SWT.KeyDown, userActivityListener);
-					display.removeFilter(SWT.MouseDown, userActivityListener);
-				}
-
-			});
-		}*/
+			//EditorFactory
+			//		.getInstance()
+			//		.getEventMulticaster()
+			//		.removeCaretListener(caretListener);
+		});
 	}
 
 	public FlushResult flush(String identity, String token) {

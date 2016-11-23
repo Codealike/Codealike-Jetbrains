@@ -60,14 +60,16 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
     }
 
     protected void start() {
-        Properties properties = new Properties();
 
+        // load plugin properties
+        Properties properties = new Properties();
         try {
             properties = loadPluginProperties();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        // initialize plugin context with properties
         this.pluginContext = PluginContext.getInstance(properties);
 
         try {
@@ -124,21 +126,6 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
                 // lets ask for a api key
                 AuthenticationDialog dialog = new AuthenticationDialog(project);
                 dialog.show();
-        });
-    }
-
-    private void setupEventListeners() {
-        ApplicationManager.getApplication().invokeLater(() -> {
-            // edit document
-            EditorFactory
-                    .getInstance()
-                    .getEventMulticaster()
-                    .addDocumentListener(new CustomDocumentListener());
-
-            EditorFactory
-                    .getInstance()
-                    .getEventMulticaster()
-                    .addCaretListener(new CustomCaretListener());
         });
     }
 

@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import org.joda.time.DateTime;
@@ -66,7 +67,15 @@ public class TrackingService extends Observable {
 		setChanged();
 		notifyObservers();
 	}
-	
+
+	public void trackDocumentFocus(Editor editor) {
+		tracker.trackNewSelection(editor);
+	}
+
+	public void trackCodingEvent(Editor editor) {
+		tracker.trackCodingEvent(editor);
+	}
+
 	private void startFlushExecutor() {
 		this.flushExecutor = new ScheduledThreadPoolExecutor(1);
 		Runnable idlePeriodicTask = new Runnable() {

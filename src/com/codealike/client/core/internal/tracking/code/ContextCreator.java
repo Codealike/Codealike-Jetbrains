@@ -19,7 +19,7 @@ public class ContextCreator {
 
 	public CodeContext createCodeContextInternal(/*JavaEditor javaEditor,*/ UUID projectId) /*throws JavaModelException*/ {
 		/*IJavaElement element = null;
-		
+
 		element = EditorUtils.getJavaSelectedElement(javaEditor);
 		CodeContext context = CodeContextUtils.createCodeContext(element);
 		CodeContextUtils.addFilename(javaEditor, context);

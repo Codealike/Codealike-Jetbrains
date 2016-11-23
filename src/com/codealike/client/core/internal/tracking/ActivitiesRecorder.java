@@ -125,7 +125,7 @@ public class ActivitiesRecorder {
 		
 		lastEventForThisProject = getLastEvent(event.getProjectId());
 		
-		projectEvents.add(event);
+ 		projectEvents.add(event);
 		
 		TrackingConsole.getInstance().trackEvent(event);
 		
