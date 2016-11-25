@@ -84,7 +84,7 @@ public class StateTracker {
 	private ScheduledThreadPoolExecutor idleDetectionExecutor;
 
 	private DocumentListener documentListener;
-	//private CaretListener caretListener;
+	private CaretListener caretListener;
 
 	/**
 	 * Listens to the build events. Since build is automatic by default, this will happen many times while working.
@@ -330,6 +330,14 @@ public class StateTracker {
 		}
 		UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
 
+		if (currentState.getType() != ActivityType.Coding || currentState.getProjectId() != projectId) {
+
+			if (currentState.getType() != ActivityType.Debugging) {
+				currentState = ActivityState.createDesignState(projectId);
+				recorder.recordState(currentState);
+			}
+		}
+
 		StructuralCodeContext currentCodeContext = new StructuralCodeContext(projectId);
 		currentCodeContext.setProject(editor.getProject().getName());
 
@@ -544,7 +552,7 @@ public class StateTracker {
 
 	public void startTracking() {
 		documentListener = new CustomDocumentListener();
-		//caretListener = new CustomCaretListener();
+		caretListener = new CustomCaretListener();
 
 		ApplicationManager.getApplication().invokeLater(() -> {
 			// edit document
@@ -553,10 +561,10 @@ public class StateTracker {
 					.getEventMulticaster()
 					.addDocumentListener(documentListener);
 
-			//EditorFactory
-			//		.getInstance()
-			//		.getEventMulticaster()
-			//		.addCaretListener(caretListener);
+			EditorFactory
+					.getInstance()
+					.getEventMulticaster()
+					.addCaretListener(caretListener);
 		});
 	}
 
@@ -627,10 +635,10 @@ public class StateTracker {
 					.getEventMulticaster()
 					.removeDocumentListener(documentListener);
 
-			//EditorFactory
-			//		.getInstance()
-			//		.getEventMulticaster()
-			//		.removeCaretListener(caretListener);
+			EditorFactory
+					.getInstance()
+					.getEventMulticaster()
+					.removeCaretListener(caretListener);
 		});
 	}
 
