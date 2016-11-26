@@ -342,9 +342,28 @@ public class StateTracker {
 		currentCodeContext.setProject(editor.getProject().getName());
 
 		Document focusedResource = editor.getDocument();
+		PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
 
 		if (!focusedResource.equals(currentCompilationUnit) || !currentCodeContext.equals(lastCodeContext)) {
 			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, currentCodeContext);
+
+			VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
+			if (file != null) {
+				currentCodeContext.setFile(file.getName());
+			}
+
+			PsiJavaFile javaPsiFile = (PsiJavaFile) psiDocumentManager.getPsiFile(editor.getDocument());
+			if (javaPsiFile != null) {
+				PsiClass[] classes = javaPsiFile.getClasses();
+				if (classes.length > 0) {
+					currentCodeContext.setClassName(classes[0].getQualifiedName());
+				}
+
+				//PsiMember member = javaPsiFile.getManager().getModificationTracker().
+				//context.setMemberName();
+				currentCodeContext.setPackageName(javaPsiFile.getPackageName());
+			}
+
 			recorder.recordEvent(event);
 			
 			lastEvent = event;
