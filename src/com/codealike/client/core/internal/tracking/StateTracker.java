@@ -43,6 +43,10 @@ import com.codealike.client.core.internal.model.*;
 import com.codealike.client.intellij.EventListeners.CustomCaretListener;
 import com.codealike.client.intellij.EventListeners.CustomDocumentListener;
 import com.intellij.compiler.server.BuildManager;
+import com.intellij.debugger.DebuggerContext;
+import com.intellij.debugger.DebuggerManager;
+import com.intellij.debugger.engine.DebugProcess;
+import com.intellij.debugger.impl.DebuggerStateManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -51,9 +55,13 @@ import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.updateSettings.impl.BuildInfo;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.StatusBar;
 import com.intellij.psi.*;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.PsiUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
@@ -321,7 +329,7 @@ public class StateTracker {
 		});
 	}
 	*/
-	public  void trackNewSelection(Editor editor) {
+	public  void trackDocumentFocus(Editor editor, int offset) {
 		FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
 		TrackingService trackingService = PluginContext.getInstance().getTrackingService();
 
@@ -338,37 +346,43 @@ public class StateTracker {
 			}
 		}
 
-		StructuralCodeContext currentCodeContext = new StructuralCodeContext(projectId);
-		currentCodeContext.setProject(editor.getProject().getName());
+		StructuralCodeContext context = new StructuralCodeContext(projectId);
+		context.setProject(editor.getProject().getName());
 
 		Document focusedResource = editor.getDocument();
 		PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
 
-		if (!focusedResource.equals(currentCompilationUnit) || !currentCodeContext.equals(lastCodeContext)) {
-			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, currentCodeContext);
+		if (!focusedResource.equals(currentCompilationUnit) || !context.equals(lastCodeContext)) {
+			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
 
 			VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
 			if (file != null) {
-				currentCodeContext.setFile(file.getName());
+				context.setFile(file.getName());
 			}
 
 			PsiJavaFile javaPsiFile = (PsiJavaFile) psiDocumentManager.getPsiFile(editor.getDocument());
 			if (javaPsiFile != null) {
-				PsiClass[] classes = javaPsiFile.getClasses();
-				if (classes.length > 0) {
-					currentCodeContext.setClassName(classes[0].getQualifiedName());
-				}
+				context.setPackageName(javaPsiFile.getPackageName());
 
-				//PsiMember member = javaPsiFile.getManager().getModificationTracker().
-				//context.setMemberName();
-				currentCodeContext.setPackageName(javaPsiFile.getPackageName());
+				PsiElement elementAt = javaPsiFile.findElementAt(offset);
+				if (elementAt != null) {
+					PsiClass elementClass = PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
+					if (elementClass != null) {
+						context.setClassName(elementClass.getName());
+					}
+
+					PsiMember member = PsiTreeUtil.getParentOfType(elementAt, PsiMember.class);
+					if (member != null) {
+						context.setMemberName(member.getName());
+					}
+				}
 			}
 
 			recorder.recordEvent(event);
 			
 			lastEvent = event;
 			currentCompilationUnit = focusedResource;
-			lastCodeContext = currentCodeContext;
+			lastCodeContext = context;
 		}
 	}
 /*
@@ -410,7 +424,7 @@ public class StateTracker {
 	}
 	*/
 
-	public synchronized void trackCodingEvent(Editor editor) {
+	public synchronized void trackCodingEvent(Editor editor, int offset) {
 		try {
 			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
 			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
@@ -436,14 +450,20 @@ public class StateTracker {
 
 				PsiJavaFile javaPsiFile = (PsiJavaFile) psiDocumentManager.getPsiFile(editor.getDocument());
 				if (javaPsiFile != null) {
-					PsiClass[] classes = javaPsiFile.getClasses();
-					if (classes.length > 0) {
-						context.setClassName(classes[0].getQualifiedName());
-					}
-
-					//PsiMember member = javaPsiFile.getManager().getModificationTracker().
-					//context.setMemberName();
 					context.setPackageName(javaPsiFile.getPackageName());
+
+					PsiElement elementAt = javaPsiFile.findElementAt(offset);
+					if (elementAt != null) {
+						PsiClass elementClass = PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
+						if (elementClass != null) {
+							context.setClassName(elementClass.getName());
+						}
+
+						PsiMember member = PsiTreeUtil.getParentOfType(elementAt, PsiMember.class);
+						if (member != null) {
+							context.setMemberName(member.getName());
+						}
+					}
 				}
 
 				event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);

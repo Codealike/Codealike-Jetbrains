@@ -48,7 +48,7 @@ public class CustomDocumentListener implements DocumentListener {
             final Editor[] editors = EditorFactory.getInstance().getEditors(document);
 
             if (editors.length > 0) {
-                TrackingService.getInstance().trackDocumentFocus(editors[0]);
+                TrackingService.getInstance().trackDocumentFocus(editors[0], documentEvent.getOffset());
             }
         }
     }

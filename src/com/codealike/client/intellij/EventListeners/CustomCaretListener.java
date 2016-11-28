@@ -19,20 +19,20 @@ public class CustomCaretListener implements CaretListener {
     public void caretPositionChanged(CaretEvent caretEvent) {
         TrackingService trackingService = PluginContext.getInstance().getTrackingService();
         Editor editor = caretEvent.getEditor();
-        trackingService.trackCodingEvent(editor);
+        trackingService.trackCodingEvent(editor, caretEvent.getCaret().getOffset());
     }
 
     @Override
     public void caretAdded(CaretEvent caretEvent) {
         TrackingService trackingService = PluginContext.getInstance().getTrackingService();
         Editor editor = caretEvent.getEditor();
-        trackingService.trackCodingEvent(editor);
+        trackingService.trackCodingEvent(editor, caretEvent.getCaret().getOffset());
     }
 
     @Override
     public void caretRemoved(CaretEvent caretEvent) {
         TrackingService trackingService = PluginContext.getInstance().getTrackingService();
         Editor editor = caretEvent.getEditor();
-        trackingService.trackCodingEvent(editor);
+        trackingService.trackCodingEvent(editor, caretEvent.getCaret().getOffset());
     }
 }
