@@ -41,7 +41,6 @@ public class CustomDocumentListener implements DocumentListener {
 
     @Override
     public void documentChanged(DocumentEvent documentEvent) {
-
         final Document document = documentEvent.getDocument();
 
         if (document != null) {

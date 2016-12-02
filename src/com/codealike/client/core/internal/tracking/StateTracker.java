@@ -358,24 +358,9 @@ public class StateTracker {
 			VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
 			if (file != null) {
 				context.setFile(file.getName());
-			}
 
-			PsiJavaFile javaPsiFile = (PsiJavaFile) psiDocumentManager.getPsiFile(editor.getDocument());
-			if (javaPsiFile != null) {
-				context.setPackageName(javaPsiFile.getPackageName());
-
-				PsiElement elementAt = javaPsiFile.findElementAt(offset);
-				if (elementAt != null) {
-					PsiClass elementClass = PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
-					if (elementClass != null) {
-						context.setClassName(elementClass.getName());
-					}
-
-					PsiMember member = PsiTreeUtil.getParentOfType(elementAt, PsiMember.class);
-					if (member != null) {
-						context.setMemberName(member.getName());
-					}
-				}
+				PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
+				populateContext(psiFile, context, offset);
 			}
 
 			recorder.recordEvent(event);
@@ -424,6 +409,43 @@ public class StateTracker {
 	}
 	*/
 
+	private synchronized void populateContext(PsiFile file, CodeContext context, int offset) {
+		if (file == null) {
+			return;
+		}
+
+		// sets file name
+		context.setFile(file.getName());
+
+		// sets the rest of the context based on file type
+		switch (file.getFileType().getName()) {
+			case "JAVA":
+				PsiJavaFile javaPsiFile = (PsiJavaFile) file;
+				if (javaPsiFile != null) {
+					context.setPackageName(javaPsiFile.getPackageName());
+
+					PsiElement elementAt = javaPsiFile.findElementAt(offset);
+					if (elementAt != null) {
+						PsiClass elementClass = PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
+						if (elementClass != null) {
+							context.setClassName(elementClass.getName());
+						}
+
+						PsiMember member = PsiTreeUtil.getParentOfType(elementAt, PsiMember.class);
+						if (member != null) {
+							context.setMemberName(member.getName());
+						}
+					}
+				}
+				break;
+			case "PLAIN_TEXT":
+			case "HTML":
+			case "Kotlin":
+			case "GUI_DESIGNER_FORM":
+				break;
+		}
+	}
+
 	public synchronized void trackCodingEvent(Editor editor, int offset) {
 		try {
 			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
@@ -445,25 +467,8 @@ public class StateTracker {
 
 				VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
 				if (file != null) {
-					context.setFile(file.getName());
-				}
-
-				PsiJavaFile javaPsiFile = (PsiJavaFile) psiDocumentManager.getPsiFile(editor.getDocument());
-				if (javaPsiFile != null) {
-					context.setPackageName(javaPsiFile.getPackageName());
-
-					PsiElement elementAt = javaPsiFile.findElementAt(offset);
-					if (elementAt != null) {
-						PsiClass elementClass = PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
-						if (elementClass != null) {
-							context.setClassName(elementClass.getName());
-						}
-
-						PsiMember member = PsiTreeUtil.getParentOfType(elementAt, PsiMember.class);
-						if (member != null) {
-							context.setMemberName(member.getName());
-						}
-					}
+					PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
+					populateContext(psiFile, context, offset);
 				}
 
 				event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);
@@ -594,6 +599,7 @@ public class StateTracker {
 		caretListener = new CustomCaretListener();
 
 		ApplicationManager.getApplication().invokeLater(() -> {
+
 			// edit document
 			EditorFactory
 					.getInstance()
@@ -604,6 +610,12 @@ public class StateTracker {
 					.getInstance()
 					.getEventMulticaster()
 					.addCaretListener(caretListener);
+
+			// mouse press
+			//EditorFactory.getInstance().getEventMulticaster().addEditorMouseListener(new CustomEditorMouseListener());
+
+			// scroll document
+			//EditorFactory.getInstance().getEventMulticaster().addVisibleAreaListener(new CustomVisibleAreaListener());
 		});
 	}
 
