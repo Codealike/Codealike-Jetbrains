@@ -14,7 +14,7 @@ public class CodealikeSettingsDialog extends DialogWrapper {
     public CodealikeSettingsDialog(@Nullable Project project) {
         super(project, true);
 
-        setTitle("CodealikeApplicationComponent Settings");
+        setTitle("Codealike Settings");
 
         init();
     }

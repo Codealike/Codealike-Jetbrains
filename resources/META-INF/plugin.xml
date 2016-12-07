@@ -30,6 +30,11 @@
 
   <actions>
     <!-- Add your actions here -->
+    <group id="codealike.SettingsMenu" text="Codeali_ke" description="Codealike Settings">
+      <add-to-group group-id="MainMenu" anchor="before" relative-to-action="HelpMenu" />
+      <action id="codealike.settings" class="com.codealike.client.intellij.CodealikeSettingsAction" text="Settings" />
+    </group>
+
   </actions>
 
   <application-components>
