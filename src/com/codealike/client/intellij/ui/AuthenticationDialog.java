@@ -13,6 +13,7 @@ import javax.swing.*;
 public class AuthenticationDialog extends DialogWrapper {
 
     private JTextField authInput;
+    private JLabel labelError;
 
     public AuthenticationDialog(Project project) {
         super(project, true);
@@ -25,24 +26,37 @@ public class AuthenticationDialog extends DialogWrapper {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        JPanel panel = new JPanel();
+        JPanel mainPanel = new JPanel();
         JLabel label = new JLabel();
+
         label.setText("Ingresa tu token de Codealike:");
+
+        labelError = new JLabel();
+        labelError.setText("No pudimos authenticarte. Por favor verifica tu token y vuelve a intentarlo");
+        labelError.setVisible(false);
+
         authInput = new JTextField(50);
-        panel.add(label);
-        panel.add(authInput);
-        return panel;
+
+        mainPanel.add(label);
+        mainPanel.add(authInput);
+        mainPanel.add(labelError);
+
+        return mainPanel;
     }
 
     @Override
     protected void doOKAction() {
         IdentityService identityService = IdentityService.getInstance();
 
+        labelError.setVisible(false);
         String[] split = authInput.getText().split("/");
         if (split.length == 2) {
             identityService.login(split[0], split[1], true, true);
-        }
 
-        super.doOKAction();
+            super.doOKAction();
+        }
+        else {
+            labelError.setVisible(true);
+        }
     }
 }
