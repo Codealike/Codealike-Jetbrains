@@ -146,7 +146,7 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
                         case AskEveryTime:
                         case Never:
                             Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-                                    "CodealikeApplicationComponent",
+                                    "Codealike",
                                     "Codealike  is not tracking your projects",
                                     NotificationType.INFORMATION);
                             Notifications.Bus.notify(note);

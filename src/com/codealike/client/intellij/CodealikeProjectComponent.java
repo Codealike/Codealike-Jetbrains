@@ -44,11 +44,11 @@ public class CodealikeProjectComponent implements ProjectComponent {
     public void projectOpened() {
         // called when project is opened
         if (_project != null) {
-            Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+            /*Notification note = new Notification("CodealikeApplicationComponent.Notifications",
                     "CodealikeProjectComponent",
                     "Levanto un projecto" + _project.getName(),
                     NotificationType.INFORMATION);
-            Notifications.Bus.notify(note);
+            Notifications.Bus.notify(note);*/
         }
 
         if (TrackingService.getInstance().isTracking()) {

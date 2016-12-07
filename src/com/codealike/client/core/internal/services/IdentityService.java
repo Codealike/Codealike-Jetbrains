@@ -52,7 +52,7 @@ public class IdentityService extends Observable {
 
 	public boolean login(String identity, String token, boolean storeCredentials, boolean rememberMe) {
 		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-				"CodealikeApplicationComponent",
+				"Codealike",
 				"Codealike  is connecting...",
 				NotificationType.INFORMATION);
 		Notifications.Bus.notify(note);
@@ -186,7 +186,7 @@ public class IdentityService extends Observable {
 
 	public void logOff() {
 		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-				"CodealikeApplicationComponent",
+				"Codealike",
 				"Codealike  is disconnecting...",
 				NotificationType.INFORMATION);
 		Notifications.Bus.notify(note);

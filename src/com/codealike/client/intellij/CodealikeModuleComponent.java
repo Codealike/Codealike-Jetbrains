@@ -48,11 +48,11 @@ public class CodealikeModuleComponent implements ModuleComponent {
         // Invoked when the module corresponding to this component instance has been completely
         // loaded and added to the project.
         if (_module != null) {
-            Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+            /*Notification note = new Notification("CodealikeApplicationComponent.Notifications",
                     "CodealikeModuleComponent",
                     "Levanto un modulo " + _module.getName(),
                     NotificationType.INFORMATION);
-            Notifications.Bus.notify(note);
+            Notifications.Bus.notify(note);*/
         }
     }
 }

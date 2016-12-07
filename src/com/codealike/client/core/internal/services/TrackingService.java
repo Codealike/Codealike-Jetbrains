@@ -124,7 +124,7 @@ public class TrackingService extends Observable {
 			startTracking();
 
 			Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-					"CodealikeApplicationComponent",
+					"Codealike",
 					"Codealike  is tracking your projects",
 					NotificationType.INFORMATION);
 			Notifications.Bus.notify(note);
@@ -135,7 +135,7 @@ public class TrackingService extends Observable {
 		stopTracking(true);
 
 		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-				"CodealikeApplicationComponent",
+				"Codealike",
 				"Codealike  is not tracking your projects",
 				NotificationType.INFORMATION);
 		Notifications.Bus.notify(note);
