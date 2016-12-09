@@ -44,17 +44,17 @@ public class CodealikeSettingsDialog extends DialogWrapper {
         JPanel mainPanel = new JPanel();
 
         JLabel tokenLabel = new JLabel();
-        tokenLabel.setText("Token de Codealike:");
+        tokenLabel.setText("Codealike Token:");
 
         labelError = new JLabel();
-        labelError.setText("No pudimos authenticarte. Por favor verifica tu token y vuelve a intentarlo");
+        labelError.setText("We couldn't authenticate you. Please verify your token and try again");
         labelError.setVisible(false);
 
         tokenInput = new JTextField(50);
         tokenInput.setEnabled(false);
 
         forgetButton = new JButton();
-        forgetButton.setText("Quiero remover o cambiar mi token de este equipo");
+        forgetButton.setText("I want to remove/change my token on this computer");
         forgetButton.addActionListener(e -> IdentityService.getInstance().logOff());
 
         mainPanel.add(tokenLabel);

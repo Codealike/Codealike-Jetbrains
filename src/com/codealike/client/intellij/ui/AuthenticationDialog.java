@@ -29,10 +29,10 @@ public class AuthenticationDialog extends DialogWrapper {
         JPanel mainPanel = new JPanel();
         JLabel label = new JLabel();
 
-        label.setText("Ingresa tu token de Codealike:");
+        label.setText("Codealike Token:");
 
         labelError = new JLabel();
-        labelError.setText("No pudimos authenticarte. Por favor verifica tu token y vuelve a intentarlo");
+        labelError.setText("We couldn't authenticate you. Please verify your token and try again");
         labelError.setVisible(false);
 
         authInput = new JTextField(50);
