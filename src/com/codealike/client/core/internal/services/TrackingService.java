@@ -30,7 +30,7 @@ public class TrackingService extends Observable {
 	private static TrackingService _instance;
 	
 	private TrackedProjectManager trackedProjectManager;
-	private ScheduledThreadPoolExecutor flushExecutor;
+	private ScheduledThreadPoolExecutor flushExecutor = null;
 	private StateTracker tracker;
 	private boolean isTracking;
 	//private WorkspaceChangesListener changesListener;
@@ -77,30 +77,55 @@ public class TrackingService extends Observable {
 	}
 
 	private void startFlushExecutor() {
+		if (this.flushExecutor != null)
+			return;
+
 		this.flushExecutor = new ScheduledThreadPoolExecutor(1);
 		Runnable idlePeriodicTask = new Runnable() {
 			
 			@Override
 			public void run() {
-				//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is sending activities...");
+				Notification resultNote = null;
+
+				Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+						"Codealike",
+						"Codealike is sending activities...",
+						NotificationType.INFORMATION);
+				Notifications.Bus.notify(note);
+
 				FlushResult result = tracker.flush(context.getIdentityService().getIdentity(), context.getIdentityService().getToken());
 				switch (result) {
 				case Succeded:
-					//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent sent activities");
+					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+							"Codealike",
+							"Codealike sent activities",
+							NotificationType.INFORMATION);
+
 					break;
 				case Skip:
-					//WorkbenchUtils.addMessageToStatusBar("No data to be sent");
+					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+							"Codealike",
+							"No data to be sent",
+							NotificationType.INFORMATION);
 					break;
 				case Offline:
-					//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is working in offline mode");
+					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+							"Codealike",
+							"Codealike is working in offline mode",
+							NotificationType.INFORMATION);
 				case Report:
-					//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is storing corrupted entries for further inspection");
+					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+							"Codealike",
+							"Codealike is storing corrupted entries for further inspection",
+							NotificationType.INFORMATION);
 				}
+
+				Notifications.Bus.notify(resultNote);
 			}
 		};
 		
 		int flushInterval = Integer.valueOf(context.getProperty("activity-log.interval.secs"));
-		this.flushExecutor.scheduleAtFixedRate(idlePeriodicTask, flushInterval, flushInterval, TimeUnit.SECONDS);
+		this.flushExecutor.scheduleWithFixedDelay(idlePeriodicTask, flushInterval, flushInterval, TimeUnit.SECONDS);
 	}
 
 	public void stopTracking(boolean propagate) {
