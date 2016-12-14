@@ -43,11 +43,11 @@ public class CustomDocumentListener implements DocumentListener {
     public void documentChanged(DocumentEvent documentEvent) {
         final Document document = documentEvent.getDocument();
 
-        if (document != null) {
+        if (document != null && FileDocumentManager.getInstance().getFile(document) != null) {
             final Editor[] editors = EditorFactory.getInstance().getEditors(document);
 
             if (editors.length > 0) {
-                TrackingService.getInstance().trackDocumentFocus(editors[0], documentEvent.getOffset());
+                TrackingService.getInstance().trackCodingEvent(editors[0], documentEvent.getOffset());
             }
         }
     }

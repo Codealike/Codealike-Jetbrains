@@ -1,9 +1,11 @@
 package com.codealike.client.intellij.EventListeners;
 
 import com.codealike.client.core.internal.services.TrackingService;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.EditorMouseEvent;
 import com.intellij.openapi.editor.event.EditorMouseListener;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 
 /**
  * Created by Daniel on 12/9/2016.
@@ -16,7 +18,10 @@ public class CustomEditorMouseListener  implements EditorMouseListener {
         final int offset = editorMouseEvent.getEditor().getCaretModel().getOffset();
 
         if (editor != null) {
-            TrackingService.getInstance().trackDocumentFocus(editor, offset);
+            Document document = editor.getDocument();
+            if (document != null && FileDocumentManager.getInstance().getFile(document) != null) {
+                TrackingService.getInstance().trackDocumentFocus(editor, offset);
+            }
         }
     }
 

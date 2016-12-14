@@ -211,10 +211,10 @@ public class StateTracker {
 					.getEventMulticaster()
 					.addEditorMouseListener(editorMouseListener);
 
-			EditorFactory
+/*			EditorFactory
 					.getInstance()
 					.getEventMulticaster()
-					.addVisibleAreaListener(visibleAreaListener);
+					.addVisibleAreaListener(visibleAreaListener);*/
 		});
 	}
 
@@ -236,10 +236,10 @@ public class StateTracker {
 					.getEventMulticaster()
 					.removeEditorMouseListener(editorMouseListener);
 
-			EditorFactory
+/*			EditorFactory
 					.getInstance()
 					.getEventMulticaster()
-					.removeVisibleAreaListener(visibleAreaListener);
+					.removeVisibleAreaListener(visibleAreaListener);*/
 		});
 	}
 
