@@ -14,7 +14,7 @@ public class CustomEditorMouseListener  implements EditorMouseListener {
 
     @Override
     public void mousePressed(EditorMouseEvent editorMouseEvent) {
-        final Editor editor = editorMouseEvent.getEditor();
+        /*final Editor editor = editorMouseEvent.getEditor();
         final int offset = editorMouseEvent.getEditor().getCaretModel().getOffset();
 
         if (editor != null) {
@@ -22,7 +22,7 @@ public class CustomEditorMouseListener  implements EditorMouseListener {
             if (document != null && FileDocumentManager.getInstance().getFile(document) != null) {
                 TrackingService.getInstance().trackDocumentFocus(editor, offset);
             }
-        }
+        }*/
     }
 
     @Override

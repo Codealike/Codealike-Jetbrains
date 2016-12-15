@@ -28,15 +28,6 @@ import java.util.UUID;
 public class CustomDocumentListener implements DocumentListener {
     @Override
     public void beforeDocumentChange(DocumentEvent documentEvent) {
-        //final Document document = documentEvent.getDocument();
-
-        //if (document != null) {
-        //    final Editor[] editors = EditorFactory.getInstance().getEditors(document);
-
-        //    if (editors.length > 0) {
-        //        TrackingService.getInstance().trackDocumentFocus(editors[0]);
-        //    }
-        //}
     }
 
     @Override

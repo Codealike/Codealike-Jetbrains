@@ -23,27 +23,15 @@ public class CustomCaretListener implements CaretListener {
         if (document != null && FileDocumentManager.getInstance().getFile(document) != null) {
             TrackingService trackingService = PluginContext.getInstance().getTrackingService();
             Editor editor = caretEvent.getEditor();
-            trackingService.trackCodingEvent(editor, caretEvent.getCaret().getOffset());
+            trackingService.trackDocumentFocus(editor, caretEvent.getCaret().getOffset());
         }
     }
 
     @Override
     public void caretAdded(CaretEvent caretEvent) {
-        Document document = caretEvent.getEditor().getDocument();
-        if (document != null && FileDocumentManager.getInstance().getFile(document) != null) {
-            TrackingService trackingService = PluginContext.getInstance().getTrackingService();
-            Editor editor = caretEvent.getEditor();
-            trackingService.trackCodingEvent(editor, caretEvent.getCaret().getOffset());
-        }
     }
 
     @Override
     public void caretRemoved(CaretEvent caretEvent) {
-        Document document = caretEvent.getEditor().getDocument();
-        if (document != null && FileDocumentManager.getInstance().getFile(document) != null) {
-            TrackingService trackingService = PluginContext.getInstance().getTrackingService();
-            Editor editor = caretEvent.getEditor();
-            trackingService.trackCodingEvent(editor, caretEvent.getCaret().getOffset());
-        }
     }
 }
