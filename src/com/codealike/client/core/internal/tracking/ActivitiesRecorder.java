@@ -174,7 +174,8 @@ public class ActivitiesRecorder {
 		//	return FlushResult.Skip;
 		//}
 		
-		List<ActivityInfo> activityInfoList = processor.getSerializableEntities(InetAddress.getLocalHost().getHostName(), 
+		String machineName = findLocalHostNameOr("unknown");
+		List<ActivityInfo> activityInfoList = processor.getSerializableEntities(machineName, 
 				context.getInstanceValue(), "intellij", context.getPluginVersion());
 		String activityLogExtension = context.getProperty("activity-log.extension");
 		if (!processor.isActivityValid(activityInfoList)) {
@@ -252,6 +253,14 @@ public class ActivitiesRecorder {
 			}
 		}
 		return result;
+	}
+	
+	private String findLocalHostNameOr(String defaultName) {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) { //see: http://stackoverflow.com/a/40702767/1117552
+			return defaultName;
+		}
 	}
 
 	private void trySendEntriesOnFile(File fileEntry, String username, String token) {
