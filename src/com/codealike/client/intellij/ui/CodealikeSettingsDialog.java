@@ -2,6 +2,7 @@ package com.codealike.client.intellij.ui;
 
 import com.codealike.client.core.internal.services.IdentityService;
 import com.codealike.client.core.internal.services.TrackingService;
+import com.codealike.client.core.internal.startup.PluginContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -55,7 +56,13 @@ public class CodealikeSettingsDialog extends DialogWrapper {
 
         forgetButton = new JButton();
         forgetButton.setText("I want to remove/change my token on this computer");
-        forgetButton.addActionListener(e -> IdentityService.getInstance().logOff());
+        forgetButton.addActionListener(e -> {
+            // log off
+            IdentityService.getInstance().logOff();
+
+            // and stop tracking
+            TrackingService.getInstance().disableTracking();
+        });
 
         mainPanel.add(tokenLabel);
         mainPanel.add(tokenInput);
@@ -75,7 +82,8 @@ public class CodealikeSettingsDialog extends DialogWrapper {
         if (split.length == 2) {
             if(identityService.login(split[0], split[1], true, true)) {
 
-                TrackingService.getInstance().startTracking(_project);
+                PluginContext.getInstance().getTrackingService().startTracking(_project);
+                PluginContext.getInstance().getTrackingService().enableTracking();
 
                 super.doOKAction();
             }
