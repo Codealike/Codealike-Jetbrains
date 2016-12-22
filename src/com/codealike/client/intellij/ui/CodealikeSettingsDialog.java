@@ -59,9 +59,6 @@ public class CodealikeSettingsDialog extends DialogWrapper {
         forgetButton.addActionListener(e -> {
             // log off
             IdentityService.getInstance().logOff();
-
-            // and stop tracking
-            TrackingService.getInstance().disableTracking();
         });
 
         mainPanel.add(tokenLabel);
@@ -83,7 +80,6 @@ public class CodealikeSettingsDialog extends DialogWrapper {
             if(identityService.login(split[0], split[1], true, true)) {
 
                 PluginContext.getInstance().getTrackingService().startTracking(_project);
-                PluginContext.getInstance().getTrackingService().enableTracking();
 
                 super.doOKAction();
             }
