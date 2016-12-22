@@ -1,8 +1,6 @@
 package com.codealike.client.intellij.ui;
 
-import com.codealike.client.core.internal.model.Profile;
-import com.codealike.client.core.internal.services.IIdentityService;
-import com.intellij.openapi.components.ServiceManager;
+import com.codealike.client.core.internal.services.IdentityService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -14,10 +12,13 @@ import javax.swing.*;
  */
 public class AuthenticationDialog extends DialogWrapper {
 
+    private JTextField authInput;
+    private JLabel labelError;
+
     public AuthenticationDialog(Project project) {
         super(project, true);
 
-        setTitle("CodealikeApplicationComponent Authentication");
+        setTitle("Codealike Authentication");
 
         init();
     }
@@ -25,26 +26,40 @@ public class AuthenticationDialog extends DialogWrapper {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        JPanel panel = new JPanel();
+        JPanel mainPanel = new JPanel();
         JLabel label = new JLabel();
-        label.setText("Ingresa tu token de Codealike:");
-        JTextField authInput = new JTextField(50);
-        panel.add(label);
-        panel.add(authInput);
-        return panel;
+
+        label.setText("Codealike Token:");
+
+        labelError = new JLabel();
+        labelError.setText("We couldn't authenticate you. Please verify your token and try again");
+        labelError.setVisible(false);
+
+        authInput = new JTextField(50);
+
+        mainPanel.add(label);
+        mainPanel.add(authInput);
+        mainPanel.add(labelError);
+
+        return mainPanel;
     }
 
     @Override
     protected void doOKAction() {
-        IIdentityService identityService = ServiceManager.getService(IIdentityService.class);
+        IdentityService identityService = IdentityService.getInstance();
 
-        // get information from text field and validate format
-        //danieltest/52d46562-e153-4c57-99bc-14aeca205dba
-
-        boolean logged = identityService.login("danieltest", "52d46562-e153-4c57-99bc-14aeca205dba", false, false);
-
-        Profile profile = identityService.getProfile();
-
-        super.doOKAction();
+        labelError.setVisible(false);
+        String[] split = authInput.getText().split("/");
+        if (split.length == 2) {
+            if(identityService.login(split[0], split[1], true, true)) {
+                super.doOKAction();
+            }
+            else {
+                labelError.setVisible(true);
+            }
+        }
+        else {
+            labelError.setVisible(true);
+        }
     }
 }

@@ -1,15 +1,6 @@
-/*package com.codealike.client.core.internal.utils;
+package com.codealike.client.core.internal.utils;
 
 import java.util.UUID;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.ui.IEditorPart;
 
 import com.codealike.client.core.internal.model.CodeContext;
 import com.codealike.client.core.internal.model.StructuralCodeContext;
@@ -18,7 +9,7 @@ import com.codealike.client.core.internal.startup.PluginContext;
 
 public class CodeContextUtils {
 	
-	public static IType findClass(IJavaElement element) {
+	/*public static IType findClass(IJavaElement element) {
 		
 		if (element.getElementType() == JavaElement.TYPE)
 		{
@@ -30,9 +21,9 @@ public class CodeContextUtils {
 			return findClass(parent);
 		else 
 			return null;
-	}
+	}*/
 	
-	public static String findPackageName(IJavaElement element)
+	/*public static String findPackageName(IJavaElement element)
 	{
 		if (element.getElementType() == JavaElement.PACKAGE_DECLARATION || element.getElementType() == JavaElement.PACKAGE_FRAGMENT)
 		{
@@ -44,10 +35,10 @@ public class CodeContextUtils {
 			return findPackageName(parent);
 		else 
 			return "";
-	}
+	}*/
 	
 	
-	public static String findMemberName(IJavaElement element)
+	/*public static String findMemberName(IJavaElement element)
 	{
 		if (element.getElementType() == JavaElement.FIELD)
 		{
@@ -62,8 +53,8 @@ public class CodeContextUtils {
 			return findMemberName(parent);
 		else 
 			return "";
-	}
-	
+	}*/
+	/*
 	public static CodeContext createCodeContext(IJavaElement element) {
 		
 		UUID projectId = PluginContext.getInstance().getTrackingService().getTrackedProjects().get(element.getJavaProject().getProject());
@@ -92,8 +83,8 @@ public class CodeContextUtils {
 		
 		return context;
 	}
-	
-	public static void addFilename(IEditorPart editor, CodeContext context) {
+	*/
+	/*public static void addFilename(IEditorPart editor, CodeContext context) {
 		try {
 			IResource resource = EditorUtils.getActiveResource(editor);
 			if (resource != null) {
@@ -105,6 +96,5 @@ public class CodeContextUtils {
 			LogManager.INSTANCE.logError(e, "Trying to find unexisting resource.");
 		}
 	}
-
-}
 */
+}

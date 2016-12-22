@@ -15,9 +15,13 @@ import com.codealike.client.core.internal.model.Profile;
 import com.codealike.client.core.internal.model.TrackActivity;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.utils.LogManager;
+import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 //import com.codealike.client.core.internal.utils.WorkbenchUtils;
 
-public class IdentityService extends Observable implements IIdentityService {
+public class IdentityService extends Observable {
 	
 	private static IdentityService _instance;
 	private boolean isAuthenticated;
@@ -42,14 +46,17 @@ public class IdentityService extends Observable implements IIdentityService {
 		this.token = "";
 	}
 
-	@Override
 	public boolean isAuthenticated() {
 		return isAuthenticated;
 	}
 
-	@Override
 	public boolean login(String identity, String token, boolean storeCredentials, boolean rememberMe) {
-		//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is connecting...");
+		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+				"Codealike",
+				"Codealike  is connecting...",
+				NotificationType.INFORMATION);
+		Notifications.Bus.notify(note);
+
 		if (this.isAuthenticated) {
 			setChanged();
 			notifyObservers();
@@ -100,6 +107,11 @@ public class IdentityService extends Observable implements IIdentityService {
 	}
 
 	private void storeCredentials(String identity, String token) {
+		// TODO: check a way to do this in a secure encrypted way
+		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+		propertiesComponent.setValue("codealike.identity", identity);
+		propertiesComponent.setValue("codealike.token", token);
+
         /*ISecurePreferences secureStorage = SecurePreferencesFactory
                 .getDefault();
         ISecurePreferences node = secureStorage.node("codealike");
@@ -113,6 +125,11 @@ public class IdentityService extends Observable implements IIdentityService {
 	}
 	
 	private void removeStoredCredentials() {
+		// TODO: check a way to do this in a secure encrypted way
+		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+		propertiesComponent.unsetValue("codealike.identity");
+		propertiesComponent.unsetValue("codealike.token");
+
         /*ISecurePreferences secureStorage = SecurePreferencesFactory
                 .getDefault();
         if (secureStorage.nodeExists("codealike")) {
@@ -122,9 +139,15 @@ public class IdentityService extends Observable implements IIdentityService {
         }
         this.credentialsStored = false;*/
 	}
-	
-	@Override
+
 	public boolean tryLoginWithStoredCredentials() {
+		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+		String identity = propertiesComponent.getValue("codealike.identity", "");
+		String token = propertiesComponent.getValue("codealike.token", "");
+
+		if (identity != "" && token != "")
+			return login(identity, token, false, false);
+
         /*ISecurePreferences secureStorage = SecurePreferencesFactory
                 .getDefault();
         if (secureStorage.nodeExists("codealike")) {
@@ -141,34 +164,33 @@ public class IdentityService extends Observable implements IIdentityService {
         return false;
 	}
 
-	@Override
 	public String getIdentity() {
 		return identity;
 	}
 
-	@Override
 	public String getToken() {
 		return token;
 	}
-	
-	@Override
+
 	public Profile getProfile() {
 		return profile;
 	}
-	
-	@Override
+
 	public TrackActivity getTrackActivity() {
 		return trackActivities;
 	}
 
-	@Override
 	public boolean isCredentialsStored() {
 		return credentialsStored;
 	}
 
-	@Override
 	public void logOff() {
-		//WorkbenchUtils.addMessageToStatusBar("CodealikeApplicationComponent is disconnecting...");
+		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+				"Codealike",
+				"Codealike  is disconnecting...",
+				NotificationType.INFORMATION);
+		Notifications.Bus.notify(note);
+
 		PluginContext.getInstance().getTrackingService().flushRecorder(this.identity, this.token);
 		
 		this.isAuthenticated = false;
@@ -179,5 +201,4 @@ public class IdentityService extends Observable implements IIdentityService {
 		setChanged();
 		notifyObservers();
 	}
-
 }

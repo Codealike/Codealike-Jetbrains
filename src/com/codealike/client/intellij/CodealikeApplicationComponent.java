@@ -1,36 +1,38 @@
 package com.codealike.client.intellij;
 
-import com.codealike.client.core.internal.services.IIdentityService;
+import com.codealike.client.core.api.ApiClient;
+import com.codealike.client.core.internal.dto.HealthInfo;
+import com.codealike.client.core.internal.services.IdentityService;
+import com.codealike.client.core.internal.services.TrackingService;
+import com.codealike.client.core.internal.startup.PluginContext;
+import com.codealike.client.core.internal.utils.LogManager;
+import com.codealike.client.intellij.EventListeners.CustomCaretListener;
+import com.codealike.client.intellij.EventListeners.CustomDocumentListener;
 import com.codealike.client.intellij.ui.AuthenticationDialog;
-import com.codealike.client.intellij.ui.CodealikeSettingsDialog;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.options.newEditor.SettingsDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Properties;
 
 /**
  * Created by Daniel on 11/4/2016.
  */
 public class CodealikeApplicationComponent implements ApplicationComponent {
+    private static final String CODEALIKE_PROPERTIES_FILE = "codealike.properties";
 
-    public static final Logger log = Logger.getInstance("CodealikeApplicationComponent");
-    /*private static final UUID _token = null;
-
-    private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private static ScheduledFuture<?> scheduledFixture;*/
+    private PluginContext pluginContext;
 
     public CodealikeApplicationComponent() {
     }
@@ -38,39 +40,11 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
     @Override
     public void initComponent() {
         // TODO: insert component initialization logic here
+        LogManager.INSTANCE.logInfo("CodealikeApplicationComponent plugin initialized.");
 
-        log.info("CodealikeApplicationComponent plugin initialized.");
-
-        Project project = ProjectManager.getInstance().getDefaultProject();
-
-        Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-                "CodealikeApplicationComponent",
-                "Levanto la aplicacion",
-                NotificationType.INFORMATION);
-        Notifications.Bus.notify(note);
-
-        AuthenticationDialog dialog = new AuthenticationDialog(project);
-        dialog.show();
-
-        /*
-        setupQueueProcessor();
-
-        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-
-        String token = propertiesComponent.getValue("codealike.token", "");
-
-        if (token == "") {
-            // ask user for a valid token
-            token = "F8D0D2EF-DDBE-4C97-910B-6BC935AFD320";
-
-            propertiesComponent.setValue("codealike.token", token);
-        }
-
-        log.debug("Token: " + token);
-
-        setupEventListeners();
-        */
+        start();
     }
+
 
     @Override
     public void disposeComponent() {
@@ -83,30 +57,104 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
         return "CodealikeApplicationComponent";
     }
 
-    /*
-    private void setupQueueProcessor() {
-        final Runnable handler = new Runnable() {
-            public void run() {
+    protected void start() {
 
+        // load plugin properties
+        Properties properties = new Properties();
+        try {
+            properties = loadPluginProperties();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // initialize plugin context with properties
+        this.pluginContext = PluginContext.getInstance(properties);
+
+        try {
+            pluginContext.initializeContext();
+
+            if (!pluginContext.checkVersion()) {
+                throw new Exception();
             }
-        };
-        long delay = 10;
-        scheduledFixture = scheduler.scheduleAtFixedRate(handler, delay, delay, java.util.concurrent.TimeUnit.SECONDS);
+
+            pluginContext.getTrackingService().setBeforeOpenProjectDate();
+            pluginContext.getIdentityService().addObserver(loginObserver);
+            if (!pluginContext.getIdentityService().tryLoginWithStoredCredentials()) {
+                authenticate();
+            }
+            else {
+                startTracker();
+            }
+        }
+        catch (Exception e)
+        {
+            try {
+                ApiClient client = ApiClient.tryCreateNew();
+                client.logHealth(new HealthInfo(e, "Plugin could not start.", "intellij", HealthInfo.HealthInfoType.Error, pluginContext.getIdentityService().getIdentity()));
+            }
+            catch (KeyManagementException e1) {
+                e1.printStackTrace();
+                LogManager.INSTANCE.logError(e, "Couldn't send HealtInfo.");
+            }
+            LogManager.INSTANCE.logError(e, "Couldn't start plugin.");
+        }
     }
 
-    private void setupEventListeners() {
-        ApplicationManager.getApplication().invokeLater(() -> {
-            // edit document
-            EditorFactory
-                    .getInstance()
-                    .getEventMulticaster()
-                    .addDocumentListener(new CustomDocumentListener());
+    protected Properties loadPluginProperties() throws IOException {
+        Properties properties = new Properties();
+        InputStream in = CodealikeApplicationComponent.class.getResourceAsStream(CODEALIKE_PROPERTIES_FILE);
+        properties.load(in);
+        in.close();
 
-            EditorFactory
-                    .getInstance()
-                    .getEventMulticaster()
-                    .addCaretListener(new CustomCaretListener());
+        return properties;
+    }
+
+    protected void startTracker() {
+        pluginContext.getTrackingService().startTracking();
+    }
+
+    protected void authenticate() {
+        ApplicationManager.getApplication().invokeLater(() -> {
+                // prompt for apiKey if it does not already exist
+                Project project = null;
+                try {
+                    project = ProjectManager.getInstance().getDefaultProject();
+                } catch (NullPointerException e) { }
+
+                // lets ask for a api key
+                AuthenticationDialog dialog = new AuthenticationDialog(project);
+                dialog.show();
         });
     }
-    */
+
+    Observer loginObserver = new Observer() {
+
+        @Override
+        public void update(Observable o, Object arg1) {
+            if (o == pluginContext.getIdentityService()) {
+                TrackingService trackingService = pluginContext.getTrackingService();
+                IdentityService identityService = pluginContext.getIdentityService();
+                if (identityService.isAuthenticated()) {
+                    switch(identityService.getTrackActivity()) {
+                        case Always:
+                        {
+                            trackingService.enableTracking();
+                            break;
+                        }
+                        case AskEveryTime:
+                        case Never:
+                            Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+                                    "Codealike",
+                                    "Codealike  is not tracking your projects",
+                                    NotificationType.INFORMATION);
+                            Notifications.Bus.notify(note);
+                            break;
+                    }
+                }
+                else {
+                    trackingService.disableTracking();
+                }
+            }
+        }
+    };
 }

@@ -43,6 +43,7 @@ public class ActivitiesRecorder {
 	private ActivityEvent lastEvent;
 	private DateTime lastStateDate;
 	private PluginContext context;
+	private ActivityState lastRecordedState;
 	
 	public ActivitiesRecorder(PluginContext context)
 	{
@@ -55,7 +56,13 @@ public class ActivitiesRecorder {
 		ActivityState lastStateOfAllStates = null;
 		List<ActivityState> lastStates = null;
 		DateTime currentDate = state.getCreationTime();
-		
+
+		if (lastRecordedState != null
+				&& state.getType() == lastRecordedState.getType()
+				&& state.getProjectId() == lastRecordedState.getProjectId()) {
+			return lastRecordedState;
+		}
+
 		if (lastStateDate != null && !lastStateDate.equals(currentDate)) {
 			lastStates = states.get(lastStateDate);
 		}
@@ -89,10 +96,17 @@ public class ActivitiesRecorder {
             	recordEvent(new ActivityEvent(lastEvent.getProjectId(), ActivityType.Event, StructuralCodeContext.createNullContext()));
             }
 		}
-		
+
+		// keep track of last tracked state
+		lastRecordedState = lastStateOfAllStates;
+
 		return lastStateOfAllStates;
 	}
-	
+
+	public ActivityState getLastState() {
+		return lastRecordedState;
+	}
+
 	private ActivityEvent getLastEvent(UUID projectId) {
 		ActivityEvent lastEvent = null;
 		List<ActivityEvent> projectEvents = getProjectEvents(projectId);
@@ -125,7 +139,7 @@ public class ActivitiesRecorder {
 		
 		lastEventForThisProject = getLastEvent(event.getProjectId());
 		
-		projectEvents.add(event);
+ 		projectEvents.add(event);
 		
 		TrackingConsole.getInstance().trackEvent(event);
 		
@@ -156,12 +170,12 @@ public class ActivitiesRecorder {
 		
 		ActivityInfoProcessor processor = new ActivityInfoProcessor(statesToSend, eventsToSend);
 		
-		if (!processor.isValid()) {
-			return FlushResult.Skip;
-		}
+		//if (!processor.isValid()) {
+		//	return FlushResult.Skip;
+		//}
 		
 		List<ActivityInfo> activityInfoList = processor.getSerializableEntities(InetAddress.getLocalHost().getHostName(), 
-				context.getInstanceValue(), "eclipse", context.getPluginVersion());
+				context.getInstanceValue(), "intellij", context.getPluginVersion());
 		String activityLogExtension = context.getProperty("activity-log.extension");
 		if (!processor.isActivityValid(activityInfoList)) {
 			return FlushResult.Skip;

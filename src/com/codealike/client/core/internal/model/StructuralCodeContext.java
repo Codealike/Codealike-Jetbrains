@@ -128,7 +128,7 @@ public class StructuralCodeContext implements CodeContext {
 		StringBuffer buffer = new StringBuffer();
 		
 		if (project != null && !project.isEmpty()) {
-			buffer.append("Project: "+this.project+"\n");
+			buffer.append("ProjectModel: "+this.project+"\n");
 		}
 		if (packageName != null && !packageName.isEmpty()) {
 			buffer.append("Package: "+this.packageName+"\n");

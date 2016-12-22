@@ -1,11 +1,11 @@
 <idea-plugin version="2">
   <id>com.codealike.client.intellij.plugin</id>
   <name>Codealike</name>
-  <version>1.0</version>
-  <vendor email="support@codealike.com" url="http://www.codealike.com">Codealike</vendor>
+  <version>1.5</version>
+  <vendor email="support@codealike.com" url="http://codealike.com">Codealike</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
+     Automatically track everything you do when you code. See reports and metrics in real-time and never forget again what you did on the code.<br>
       <em>most HTML tags may be used</em>
     ]]></description>
 
@@ -20,18 +20,20 @@
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
-  <!-- uncomment to enable plugin in all products
+  <!-- uncomment to enable plugin in all products -->
   <depends>com.intellij.modules.lang</depends>
-  -->
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
-    <applicationService serviceInterface="com.codealike.client.core.internal.services.IIdentityService"
-                        serviceImplementation="com.codealike.client.core.internal.services.IdentityService" />
   </extensions>
 
   <actions>
     <!-- Add your actions here -->
+    <group id="codealike.SettingsMenu" text="Codeali_ke" description="Codealike Settings">
+      <add-to-group group-id="MainMenu" anchor="before" relative-to-action="HelpMenu" />
+      <action id="codealike.settings" class="com.codealike.client.intellij.CodealikeSettingsAction" text="Settings" />
+    </group>
+
   </actions>
 
   <application-components>

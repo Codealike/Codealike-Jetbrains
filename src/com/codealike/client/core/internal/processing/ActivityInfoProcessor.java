@@ -26,8 +26,6 @@ import com.google.common.collect.Collections2;
 
 public class ActivityInfoProcessor {
 	
-//	private static final Period THRESHOLD = Period.seconds(7);
-	
 	private List<ActivityState> processedStates;
 	private List<ActivityEvent> processedEvents;
 	
