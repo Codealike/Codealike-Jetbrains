@@ -56,68 +56,78 @@ public class StateTracker {
 		// sets file name
 		context.setFile(file.getName());
 
-		// sets the rest of the context based on file type
-		switch (file.getFileType().getName()) {
-			case "JAVA":
-				PsiJavaFile javaPsiFile = (PsiJavaFile) file;
-				if (javaPsiFile != null) {
-					context.setPackageName(javaPsiFile.getPackageName());
+		try {
+			// sets the rest of the context based on file type
+			switch (file.getFileType().getName()) {
+				case "JAVA":
+					PsiJavaFile javaPsiFile = (PsiJavaFile) file;
+					if (javaPsiFile != null) {
+						context.setPackageName(javaPsiFile.getPackageName());
 
-					PsiElement elementAt = javaPsiFile.findElementAt(offset);
-					if (elementAt != null) {
-						PsiClass elementClass = PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
-						if (elementClass != null) {
-							context.setClassName(elementClass.getName());
-						}
+						PsiElement elementAt = javaPsiFile.findElementAt(offset);
+						if (elementAt != null) {
+							PsiClass elementClass = PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
+							if (elementClass != null) {
+								context.setClassName(elementClass.getName());
+							}
 
-						PsiMember member = PsiTreeUtil.getParentOfType(elementAt, PsiMember.class);
-						if (member != null) {
-							context.setMemberName(member.getName());
+							PsiMember member = PsiTreeUtil.getParentOfType(elementAt, PsiMember.class);
+							if (member != null) {
+								context.setMemberName(member.getName());
+							}
 						}
 					}
-				}
-				break;
-			case "PLAIN_TEXT":
-			case "HTML":
-			case "Kotlin":
-			case "GUI_DESIGNER_FORM":
-				break;
+					break;
+				case "PLAIN_TEXT":
+				case "HTML":
+				case "Kotlin":
+				case "GUI_DESIGNER_FORM":
+					break;
+			}
+		}
+		catch(Exception psiException) {
+			// for some reason file was not casted properly to expected format
+			LogManager.INSTANCE.logError(String.format("Could not track activity in file %s.", context.getFile()));
 		}
 	}
 
 	public  void trackDocumentFocus(Editor editor, int offset) {
-		FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-		TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+		try {
+			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
 
-		if (editor == null || !trackingService.isTracked(editor.getProject())) {
-			return;
-		}
+			if (editor == null || !trackingService.isTracked(editor.getProject())) {
+				return;
+			}
 
-		UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
+			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
 
-		StructuralCodeContext context = new StructuralCodeContext(projectId);
-		context.setProject(editor.getProject().getName());
+			StructuralCodeContext context = new StructuralCodeContext(projectId);
+			context.setProject(editor.getProject().getName());
 
-		Document focusedResource = editor.getDocument();
-		PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
+			Document focusedResource = editor.getDocument();
+			PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
 
-		VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
-		if (file != null) {
-			context.setFile(file.getName());
+			VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
+			if (file != null) {
+				context.setFile(file.getName());
 
-			PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
-			populateContext(psiFile, context, offset);
-		}
+				PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
+				populateContext(psiFile, context, offset);
+			}
 
-		if (!focusedResource.equals(currentCompilationUnit) || !context.equals(lastCodeContext)) {
-			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
+			if (!focusedResource.equals(currentCompilationUnit) || !context.equals(lastCodeContext)) {
+				ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
 
-			recorder.recordState(ActivityState.createDesignState(projectId));
-			recorder.recordEvent(event);
-			
-			lastEvent = event;
-			currentCompilationUnit = focusedResource;
-			lastCodeContext = context;
+				recorder.recordState(ActivityState.createDesignState(projectId));
+				recorder.recordEvent(event);
+
+				lastEvent = event;
+				currentCompilationUnit = focusedResource;
+				lastCodeContext = context;
+			}
+		} catch (Exception e) {
+			LogManager.INSTANCE.logError(e, "Problem recording document focus.");
 		}
 	}
 

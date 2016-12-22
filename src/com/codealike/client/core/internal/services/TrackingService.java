@@ -139,7 +139,6 @@ public class TrackingService extends Observable {
 		}
 		
 		this.trackedProjectManager.stopTracking();
-		/*ResourcesPlugin.getWorkspace().removeResourceChangeListener(this.changesListener);*/
 		
 		this.isTracking = false;
 		if (propagate) {
