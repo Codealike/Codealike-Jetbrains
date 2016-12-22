@@ -1,8 +1,8 @@
 <idea-plugin version="2">
   <id>com.codealike.client.intellij.plugin</id>
   <name>Codealike</name>
-  <version>1.0</version>
-  <vendor email="support@codealike.com" url="http://www.codealike.com">Codealike</vendor>
+  <version>1.5</version>
+  <vendor email="support@codealike.com" url="http://codealike.com">Codealike</vendor>
 
   <description><![CDATA[
      Automatically track everything you do when you code. See reports and metrics in real-time and never forget again what you did on the code.<br>

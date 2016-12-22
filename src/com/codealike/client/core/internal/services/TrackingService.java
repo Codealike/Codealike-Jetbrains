@@ -33,7 +33,6 @@ public class TrackingService extends Observable {
 	private ScheduledThreadPoolExecutor flushExecutor = null;
 	private StateTracker tracker;
 	private boolean isTracking;
-	//private WorkspaceChangesListener changesListener;
 	private DateTime startWorkspaceDate;
 	private PluginContext context;
 	
@@ -50,8 +49,7 @@ public class TrackingService extends Observable {
 	
 	public TrackingService() {
 		this.trackedProjectManager = new TrackedProjectManager();
-		this.tracker = new StateTracker(/*PlatformUI.getWorkbench().getDisplay(), */ONE_SECOND, TWO_MINUTES);
-		//this.changesListener = null; //new WorkspaceChangesListener();
+		this.tracker = new StateTracker(ONE_SECOND, TWO_MINUTES);
 		this.isTracking = false;
 	}
 
@@ -85,13 +83,17 @@ public class TrackingService extends Observable {
 			
 			@Override
 			public void run() {
+				Boolean verboseMode = Boolean.parseBoolean(context.getProperty("activity-verbose-notifications"));
+
 				Notification resultNote = null;
 
 				Notification note = new Notification("CodealikeApplicationComponent.Notifications",
 						"Codealike",
 						"Codealike is sending activities...",
 						NotificationType.INFORMATION);
-				Notifications.Bus.notify(note);
+				if (verboseMode) {
+					Notifications.Bus.notify(note);
+				}
 
 				FlushResult result = tracker.flush(context.getIdentityService().getIdentity(), context.getIdentityService().getToken());
 				switch (result) {
@@ -120,7 +122,9 @@ public class TrackingService extends Observable {
 							NotificationType.INFORMATION);
 				}
 
-				Notifications.Bus.notify(resultNote);
+				if (verboseMode) {
+					Notifications.Bus.notify(resultNote);
+				}
 			}
 		};
 		
