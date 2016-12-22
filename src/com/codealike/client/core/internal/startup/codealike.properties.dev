@@ -1,6 +1,0 @@
-codealike.server.url = http://dev.codealike.com:4051
-activity-log.path = Codealike.Eclipse.TrackerCacheDev
-activity-log.extension = .data
-activity-log.trace-sent = true
-activity-log.interval.secs = 30
-tracking-console.enabled = true
