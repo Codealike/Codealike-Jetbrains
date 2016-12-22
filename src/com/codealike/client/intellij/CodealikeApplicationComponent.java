@@ -43,8 +43,6 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
         LogManager.INSTANCE.logInfo("CodealikeApplicationComponent plugin initialized.");
 
         start();
-
-        //setupEventListeners();
     }
 
 
