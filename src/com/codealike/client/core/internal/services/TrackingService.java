@@ -103,27 +103,38 @@ public class TrackingService extends Observable {
 							"Codealike sent activities",
 							NotificationType.INFORMATION);
 
+					Notifications.Bus.notify(resultNote);
+
 					break;
 				case Skip:
 					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
 							"Codealike",
 							"No data to be sent",
 							NotificationType.INFORMATION);
+
+					if (verboseMode) {
+						Notifications.Bus.notify(resultNote);
+					}
+
 					break;
 				case Offline:
 					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
 							"Codealike",
 							"Codealike is working in offline mode",
 							NotificationType.INFORMATION);
+
+					Notifications.Bus.notify(resultNote);
+
+					break;
 				case Report:
 					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
 							"Codealike",
 							"Codealike is storing corrupted entries for further inspection",
 							NotificationType.INFORMATION);
-				}
 
-				if (verboseMode) {
-					Notifications.Bus.notify(resultNote);
+					if (verboseMode) {
+						Notifications.Bus.notify(resultNote);
+					}
 				}
 			}
 		};
@@ -154,7 +165,7 @@ public class TrackingService extends Observable {
 
 			Notification note = new Notification("CodealikeApplicationComponent.Notifications",
 					"Codealike",
-					"Codealike  is tracking your projects",
+					"Codealike is connected and tracking your projects.",
 					NotificationType.INFORMATION);
 			Notifications.Bus.notify(note);
 		}
