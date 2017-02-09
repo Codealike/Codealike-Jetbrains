@@ -2,10 +2,14 @@ package com.codealike.client.core.internal.tracking;
 
 
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
 import com.codealike.client.core.internal.model.*;
+import com.codealike.client.core.internal.utils.TrackingConsole;
 import com.codealike.client.intellij.EventListeners.CustomCaretListener;
 import com.codealike.client.intellij.EventListeners.CustomDocumentListener;
 import com.codealike.client.intellij.EventListeners.CustomEditorMouseListener;
@@ -41,7 +45,7 @@ public class StateTracker {
 	private CodeContext lastCodeContext;
 	private ActivityEvent lastEvent;
 	private ContextCreator contextCreator;
-	private ScheduledThreadPoolExecutor idleDetectionExecutor;
+	private ScheduledExecutorService idleDetectionExecutor;
 
 	private DocumentListener documentListener;
 	private CaretListener caretListener;
@@ -118,10 +122,12 @@ public class StateTracker {
 
 			if (!focusedResource.equals(currentCompilationUnit) || !context.equals(lastCodeContext)) {
 				ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
+				ActivityState state = ActivityState.createDesignState(projectId);
 
-				recorder.recordState(ActivityState.createDesignState(projectId));
+				recorder.recordState(state);
 				recorder.recordEvent(event);
 
+				lastState = state;
 				lastEvent = event;
 				currentCompilationUnit = focusedResource;
 				lastCodeContext = context;
@@ -159,9 +165,12 @@ public class StateTracker {
 				}
 
 				event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);
-				recorder.recordState(ActivityState.createDesignState(projectId));
+				ActivityState state = ActivityState.createDesignState(projectId);
+
+				recorder.recordState(state);
 				recorder.recordEvent(event);
 
+				lastState = state;
 				lastEvent = event;
 			}
 
@@ -178,12 +187,11 @@ public class StateTracker {
 		
 		recorder.recordState(systemState);
 		recorder.recordEvent(openSolutionEvent);
-		ActivityState nullState = ActivityState.createNullState(projectId);
-		recorder.recordState(nullState);
+		ActivityState idleState = ActivityState.createIdleState(projectId);
+		recorder.recordState(idleState);
 	}
 
-	public StateTracker(int idleDetectionPeriod,
-			Duration idleMinInterval) {
+	public StateTracker(int idleDetectionPeriod, Duration idleMinInterval) {
 		this.idleDetectionPeriod = idleDetectionPeriod;
 		this.idleMinInterval = idleMinInterval;
 		this.contextCreator = PluginContext.getInstance().getContextCreator();
@@ -219,6 +227,8 @@ public class StateTracker {
 					.getEventMulticaster()
 					.addVisibleAreaListener(visibleAreaListener);*/
 		});
+
+		startIdleDetection();
 	}
 
 	public void stopTracking() {
@@ -244,6 +254,54 @@ public class StateTracker {
 					.getEventMulticaster()
 					.removeVisibleAreaListener(visibleAreaListener);*/
 		});
+
+		stopIdleDetection();
+	}
+
+	private void startIdleDetection() {
+		if (this.idleDetectionExecutor != null)
+			return;
+
+		this.idleDetectionExecutor = Executors.newScheduledThreadPool(1);
+
+		Runnable idlePeriodicTask = new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					TrackingConsole.getInstance().trackMessage("Idle detection task executed");
+					checkIdleStatus();
+				} catch (Exception e) {
+					TrackingConsole.getInstance().trackMessage("Idle detection task error " + e.getMessage());
+				}
+			}
+		};
+
+		this.idleDetectionExecutor.scheduleAtFixedRate(idlePeriodicTask, idleDetectionPeriod, idleDetectionPeriod, TimeUnit.SECONDS);
+	}
+
+	private void stopIdleDetection() {
+		if (this.idleDetectionExecutor != null) {
+			this.idleDetectionExecutor.shutdownNow();
+			this.idleDetectionExecutor = null;
+		}
+	}
+
+	private void checkIdleStatus() {
+		if (lastState.getType() == ActivityType.Idle) {
+			// if last event was idle, keep recording idle
+			lastState = ActivityState.createIdleState(PluginContext.UNASSIGNED_PROJECT);
+			recorder.recordState(lastState);
+		}
+		else {
+			// if last state was not idle check if it is time to go idle
+			DateTime now = DateTime.now();
+			Duration duration = new Duration(lastEvent.getCreationTime(), now);
+			if (duration.compareTo(idleMinInterval) < 0) {
+				lastState = ActivityState.createIdleState(PluginContext.UNASSIGNED_PROJECT);
+				recorder.recordState(lastState);
+			}
+		}
 	}
 
 	public FlushResult flush(String identity, String token) {

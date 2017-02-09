@@ -26,7 +26,15 @@ public class TrackingConsole {
 		this.context = context;
 		this.enabled = Boolean.parseBoolean(context.getProperty("tracking-console.enabled"));
 	}
-	
+
+	public void trackMessage(String message) {
+		if (enabled) {
+			System.out.println("---------------------------------------------------------------------");
+			System.out.println(message);
+			System.out.println("---------------------------------------------------------------------");
+		}
+	}
+
 	public void trackEvent(ActivityEvent event) {
 		if (enabled) {
 			System.out.println("---------------------------------------------------------------------");
