@@ -176,7 +176,7 @@ public class ActivitiesRecorder {
 		
 		String machineName = findLocalHostNameOr("unknown");
 		List<ActivityInfo> activityInfoList = processor.getSerializableEntities(machineName, 
-				context.getInstanceValue(), "intellij", context.getPluginVersion());
+				context.getInstanceValue(), context.getIdeName(), context.getPluginVersion());
 		String activityLogExtension = context.getProperty("activity-log.extension");
 		if (!processor.isActivityValid(activityInfoList)) {
 			return FlushResult.Skip;
