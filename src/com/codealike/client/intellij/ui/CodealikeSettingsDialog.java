@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
@@ -43,6 +44,7 @@ public class CodealikeSettingsDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         JPanel mainPanel = new JPanel();
+        mainPanel.setMinimumSize(new Dimension(550, 100));
 
         JLabel tokenLabel = new JLabel();
         tokenLabel.setText("Codealike Token:");
