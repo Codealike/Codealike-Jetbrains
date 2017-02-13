@@ -2,9 +2,12 @@ package com.codealike.client.core.internal.services;
 
 import java.util.Observable;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.codealike.client.core.internal.utils.TrackingConsole;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
@@ -30,7 +33,7 @@ public class TrackingService extends Observable {
 	private static TrackingService _instance;
 	
 	private TrackedProjectManager trackedProjectManager;
-	private ScheduledThreadPoolExecutor flushExecutor = null;
+	private ScheduledExecutorService flushExecutor = null;
 	private StateTracker tracker;
 	private boolean isTracking;
 	private DateTime startWorkspaceDate;
@@ -49,7 +52,7 @@ public class TrackingService extends Observable {
 	
 	public TrackingService() {
 		this.trackedProjectManager = new TrackedProjectManager();
-		this.tracker = new StateTracker(ONE_SECOND, TWO_MINUTES);
+		this.tracker = new StateTracker(5, Duration.standardMinutes(1));
 		this.isTracking = false;
 	}
 
@@ -78,75 +81,85 @@ public class TrackingService extends Observable {
 		if (this.flushExecutor != null)
 			return;
 
-		this.flushExecutor = new ScheduledThreadPoolExecutor(1);
+		this.flushExecutor = Executors.newScheduledThreadPool(1);;
 		Runnable idlePeriodicTask = new Runnable() {
 			
 			@Override
 			public void run() {
-				Boolean verboseMode = Boolean.parseBoolean(context.getProperty("activity-verbose-notifications"));
-
-				Notification resultNote = null;
-
-				Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-						"Codealike",
-						"Codealike is sending activities...",
-						NotificationType.INFORMATION);
-				if (verboseMode) {
-					Notifications.Bus.notify(note);
+				try {
+					TrackingConsole.getInstance().trackMessage("Flush tracking information executed");
+					flushTrackingInformation();
 				}
-
-				FlushResult result = tracker.flush(context.getIdentityService().getIdentity(), context.getIdentityService().getToken());
-				switch (result) {
-				case Succeded:
-					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
-							"Codealike",
-							"Codealike sent activities",
-							NotificationType.INFORMATION);
-
-					Notifications.Bus.notify(resultNote);
-
-					break;
-				case Skip:
-					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
-							"Codealike",
-							"No data to be sent",
-							NotificationType.INFORMATION);
-
-					if (verboseMode) {
-						Notifications.Bus.notify(resultNote);
-					}
-
-					break;
-				case Offline:
-					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
-							"Codealike",
-							"Codealike is working in offline mode",
-							NotificationType.INFORMATION);
-
-					Notifications.Bus.notify(resultNote);
-
-					break;
-				case Report:
-					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
-							"Codealike",
-							"Codealike is storing corrupted entries for further inspection",
-							NotificationType.INFORMATION);
-
-					if (verboseMode) {
-						Notifications.Bus.notify(resultNote);
-					}
+				catch(Exception e) {
+					TrackingConsole.getInstance().trackMessage("Flush tracking information error " + e.getMessage());
 				}
 			}
 		};
 		
 		int flushInterval = Integer.valueOf(context.getProperty("activity-log.interval.secs"));
-		this.flushExecutor.scheduleWithFixedDelay(idlePeriodicTask, flushInterval, flushInterval, TimeUnit.SECONDS);
+		this.flushExecutor.scheduleAtFixedRate(idlePeriodicTask, flushInterval, flushInterval, TimeUnit.SECONDS);
+	}
+
+	private void flushTrackingInformation() {
+		Boolean verboseMode = Boolean.parseBoolean(context.getProperty("activity-verbose-notifications"));
+
+		Notification resultNote = null;
+
+		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+				"Codealike",
+				"Codealike is sending activities...",
+				NotificationType.INFORMATION);
+		if (verboseMode) {
+			Notifications.Bus.notify(note);
+		}
+
+		FlushResult result = tracker.flush(context.getIdentityService().getIdentity(), context.getIdentityService().getToken());
+		switch (result) {
+			case Succeded:
+				resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+						"Codealike",
+						"Codealike sent activities",
+						NotificationType.INFORMATION);
+
+				Notifications.Bus.notify(resultNote);
+
+				break;
+			case Skip:
+				resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+						"Codealike",
+						"No data to be sent",
+						NotificationType.INFORMATION);
+
+				if (verboseMode) {
+					Notifications.Bus.notify(resultNote);
+				}
+
+				break;
+			case Offline:
+				resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+						"Codealike",
+						"Codealike is working in offline mode",
+						NotificationType.INFORMATION);
+
+				Notifications.Bus.notify(resultNote);
+
+				break;
+			case Report:
+				resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+						"Codealike",
+						"Codealike is storing corrupted entries for further inspection",
+						NotificationType.INFORMATION);
+
+				if (verboseMode) {
+					Notifications.Bus.notify(resultNote);
+				}
+		}
 	}
 
 	public void stopTracking(boolean propagate) {
 		this.tracker.stopTracking();
 		if (this.flushExecutor != null) {
-			this.flushExecutor.shutdown();
+			this.flushExecutor.shutdownNow();
 			this.flushExecutor = null;
 		}
 		

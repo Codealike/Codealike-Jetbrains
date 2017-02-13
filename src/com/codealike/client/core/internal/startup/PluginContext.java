@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.PlatformUI;*/
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.PlatformUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -42,7 +43,8 @@ public class PluginContext {
 	public static final String VERSION = "0.0.1";
 	private static final String PLUGIN_PREFERENCES_QUALIFIER = "com.codealike.client.intellij";
 	private static PluginContext _instance;
-	
+
+	private String ideName;
 	private Version protocolVersion;
 	private Properties properties;
 	private ObjectWriter jsonWriter;
@@ -89,8 +91,13 @@ public class PluginContext {
 		this.instanceValue = String.valueOf(new Random(DateTime.now().getMillis()).nextInt(Integer.MAX_VALUE) + 1);
 		this.protocolVersion = new Version(0, 9);
 		this.properties = properties;
+		this.ideName = PlatformUtils.getPlatformPrefix();
 	}
-	
+
+	public String getIdeName() {
+		return this.ideName;
+	}
+
 	public String getPluginVersion() {
 		return VERSION;
 	}
