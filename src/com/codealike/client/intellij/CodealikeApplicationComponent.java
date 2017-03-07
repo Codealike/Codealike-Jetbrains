@@ -138,7 +138,7 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
                     switch(identityService.getTrackActivity()) {
                         case Always:
                         {
-                            trackingService.enableTracking();
+                            startTracker();
                             break;
                         }
                         case AskEveryTime:
