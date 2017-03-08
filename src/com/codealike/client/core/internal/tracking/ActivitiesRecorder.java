@@ -170,9 +170,9 @@ public class ActivitiesRecorder {
 		
 		ActivityInfoProcessor processor = new ActivityInfoProcessor(statesToSend, eventsToSend);
 		
-		//if (!processor.isValid()) {
-		//	return FlushResult.Skip;
-		//}
+		if (!processor.isValid()) {
+			return FlushResult.Skip;
+		}
 		
 		String machineName = findLocalHostNameOr("unknown");
 		List<ActivityInfo> activityInfoList = processor.getSerializableEntities(machineName, 
