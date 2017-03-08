@@ -78,21 +78,29 @@ public class IdentityService extends Observable {
 						removeStoredCredentials();
 					}
 				}
-				
-				ApiResponse<ProfileInfo> profileResponse = apiClient.getProfile(identity);
-				if (profileResponse.success())
-				{
-					ProfileInfo profile = profileResponse.getObject();
-					this.profile = new Profile(this.identity, profile.getFullName(), profile.getDisplayName(), 
+				try {
+					ApiResponse<ProfileInfo> profileResponse = apiClient.getProfile(identity);
+					if (profileResponse.success()) {
+						ProfileInfo profile = profileResponse.getObject();
+						this.profile = new Profile(this.identity, profile.getFullName(), profile.getDisplayName(),
 								profile.getAddress(), profile.getState(), profile.getCountry(), profile.getAvatarUri(), profile.getEmail());
+					}
 				}
-				
-				ApiResponse<UserConfigurationInfo> configResponse = apiClient.getUserConfiguration(identity);
-				if (configResponse.success())
-				{
-					UserConfigurationInfo config = configResponse.getObject();
-					this.trackActivities = config.getTrackActivities();
+				catch(Exception e) {
+					LogManager.INSTANCE.logError(e, "Could not get user profile.");
 				}
+
+				try {
+					ApiResponse<UserConfigurationInfo> configResponse = apiClient.getUserConfiguration(identity);
+					if (configResponse.success()) {
+						UserConfigurationInfo config = configResponse.getObject();
+						this.trackActivities = config.getTrackActivities();
+					}
+				}
+				catch(Exception e) {
+					LogManager.INSTANCE.logError(e, "Could not get user configuration");
+				}
+
 				this.isAuthenticated = true;
 				setChanged();
 				notifyObservers();

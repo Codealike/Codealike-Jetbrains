@@ -1,6 +1,7 @@
 package com.codealike.client.intellij.ui;
 
 import com.codealike.client.core.internal.services.IdentityService;
+import com.codealike.client.core.internal.startup.PluginContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -14,9 +15,12 @@ public class AuthenticationDialog extends DialogWrapper {
 
     private JTextField authInput;
     private JLabel labelError;
+    private Project _project;
 
     public AuthenticationDialog(Project project) {
         super(project, true);
+
+        _project = project;
 
         setTitle("Codealike Authentication");
 
@@ -52,6 +56,9 @@ public class AuthenticationDialog extends DialogWrapper {
         String[] split = authInput.getText().split("/");
         if (split.length == 2) {
             if(identityService.login(split[0], split[1], true, true)) {
+
+                PluginContext.getInstance().getTrackingService().startTracking(_project);
+
                 super.doOKAction();
             }
             else {
