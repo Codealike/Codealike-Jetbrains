@@ -96,12 +96,15 @@ public class StateTracker {
 	}
 
 	public  void trackDocumentFocus(Editor editor, int offset) {
+		if (editor == null)
+			return;
+
 		try {
 			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
 			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
 
-			if (editor == null || !trackingService.isTracked(editor.getProject())) {
-				return;
+			if (!trackingService.isTracked(editor.getProject())) {
+				trackingService.startTracking(editor.getProject());
 			}
 
 			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
@@ -138,13 +141,16 @@ public class StateTracker {
 	}
 
 	public synchronized void trackCodingEvent(Editor editor, int offset) {
+		if (editor == null)
+			return;
+
 		try {
 			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
 			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
 			ActivityEvent event = null;
 
-			if (editor == null || !trackingService.isTracked(editor.getProject())) {
-				return;
+			if (!trackingService.isTracked(editor.getProject())) {
+				trackingService.startTracking(editor.getProject());
 			}
 
 			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
