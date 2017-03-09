@@ -82,9 +82,6 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
             if (!pluginContext.getIdentityService().tryLoginWithStoredCredentials()) {
                 authenticate();
             }
-            else {
-                startTracker();
-            }
         }
         catch (Exception e)
         {
@@ -138,7 +135,7 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
                     switch(identityService.getTrackActivity()) {
                         case Always:
                         {
-                            startTracker();
+                            trackingService.enableTracking();
                             break;
                         }
                         case AskEveryTime:

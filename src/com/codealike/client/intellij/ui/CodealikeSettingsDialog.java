@@ -80,9 +80,6 @@ public class CodealikeSettingsDialog extends DialogWrapper {
         String[] split = tokenInput.getText().split("/");
         if (split.length == 2) {
             if(identityService.login(split[0], split[1], true, true)) {
-
-                PluginContext.getInstance().getTrackingService().startTracking(_project);
-
                 super.doOKAction();
             }
             else {
