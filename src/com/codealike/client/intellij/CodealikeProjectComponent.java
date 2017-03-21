@@ -2,6 +2,7 @@ package com.codealike.client.intellij;
 
 import com.codealike.client.core.internal.services.IdentityService;
 import com.codealike.client.core.internal.services.TrackingService;
+import com.codealike.client.core.internal.startup.PluginContext;
 import com.intellij.debugger.DebuggerManager;
 import com.intellij.debugger.engine.DebugProcessEvents;
 import com.intellij.notification.Notification;
@@ -43,8 +44,30 @@ public class CodealikeProjectComponent implements ProjectComponent {
     @Override
     public void projectOpened() {
         // called when project is opened
-        if (TrackingService.getInstance().isTracking()) {
-            TrackingService.getInstance().startTracking(_project);
+        PluginContext pluginContext = PluginContext.getInstance();
+        TrackingService trackingService = pluginContext.getTrackingService();
+        IdentityService identityService = pluginContext.getIdentityService();
+        if (identityService.isAuthenticated()) {
+            switch(identityService.getTrackActivity()) {
+                case Always:
+                {
+                    pluginContext.getTrackingService().setBeforeOpenProjectDate();
+                    trackingService.enableTracking();
+                    trackingService.startTracking(_project);
+                    break;
+                }
+                case AskEveryTime:
+                case Never:
+                    Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+                            "Codealike",
+                            "Codealike  is not tracking your projects",
+                            NotificationType.INFORMATION);
+                    Notifications.Bus.notify(note);
+                    break;
+            }
+        }
+        else {
+            trackingService.disableTracking();
         }
     }
 
@@ -53,6 +76,7 @@ public class CodealikeProjectComponent implements ProjectComponent {
         // called when project is being closed
         if (TrackingService.getInstance().isTracking()) {
             TrackingService.getInstance().stopTracking(_project);
+            TrackingService.getInstance().disableTracking();
         }
     }
 }

@@ -187,6 +187,9 @@ public class TrackingService extends Observable {
 	public void disableTracking() {
 		stopTracking(true);
 
+		// flush last information before leaving
+		flushTrackingInformation();
+
 		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
 				"Codealike",
 				"Codealike  is not tracking your projects",
