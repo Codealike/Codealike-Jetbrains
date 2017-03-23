@@ -7,6 +7,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * Created by Daniel on 11/14/2016.
@@ -31,8 +32,9 @@ public class AuthenticationDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         JPanel mainPanel = new JPanel();
-        JLabel label = new JLabel();
+        mainPanel.setMinimumSize(new Dimension(550, 100));
 
+        JLabel label = new JLabel();
         label.setText("Codealike Token:");
 
         labelError = new JLabel();
