@@ -14,6 +14,7 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.debugger.DebugEventListener;
+import org.joda.time.DateTime;
 
 /**
  * Created by Daniel on 11/16/2016.
@@ -51,9 +52,8 @@ public class CodealikeProjectComponent implements ProjectComponent {
             switch(identityService.getTrackActivity()) {
                 case Always:
                 {
-                    pluginContext.getTrackingService().setBeforeOpenProjectDate();
                     trackingService.enableTracking();
-                    trackingService.startTracking(_project);
+                    trackingService.startTracking(_project, DateTime.now());
                     break;
                 }
                 case AskEveryTime:

@@ -44,6 +44,7 @@ public class ActivitiesRecorder {
 	private DateTime lastStateDate;
 	private PluginContext context;
 	private ActivityState lastRecordedState;
+	private DateTime batchStartDateTime;
 	
 	public ActivitiesRecorder(PluginContext context)
 	{

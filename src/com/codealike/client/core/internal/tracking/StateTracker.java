@@ -91,7 +91,7 @@ public class StateTracker {
 		}
 		catch(Exception psiException) {
 			// for some reason file was not casted properly to expected format
-			LogManager.INSTANCE.logError(String.format("Could not track activity in file %s.", context.getFile()));
+			LogManager.INSTANCE.logInfo(String.format("Could not track activity in file %s.", context.getFile()));
 		}
 	}
 
@@ -102,10 +102,6 @@ public class StateTracker {
 		try {
 			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
 			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
-
-			if (!trackingService.isTracked(editor.getProject())) {
-				trackingService.startTracking(editor.getProject());
-			}
 
 			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
 
@@ -149,10 +145,6 @@ public class StateTracker {
 			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
 			ActivityEvent event = null;
 
-			if (!trackingService.isTracked(editor.getProject())) {
-				trackingService.startTracking(editor.getProject());
-			}
-
 			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
 
 			Document focusedResource = editor.getDocument();
@@ -193,8 +185,8 @@ public class StateTracker {
 		
 		recorder.recordState(systemState);
 		recorder.recordEvent(openSolutionEvent);
-		ActivityState idleState = ActivityState.createIdleState(projectId);
-		recorder.recordState(idleState);
+		ActivityState nullState = ActivityState.createNullState(projectId);
+		recorder.recordState(nullState);
 	}
 
 	public StateTracker(int idleDetectionPeriod, Duration idleMinInterval) {
