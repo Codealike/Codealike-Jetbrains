@@ -68,12 +68,12 @@ public class TrackingService extends Observable {
 		notifyObservers();
 	}
 
-	public void trackDocumentFocus(Editor editor, int offset) {
-		tracker.trackDocumentFocus(editor, offset);
+	public void trackDocumentFocus(Editor editor, int offset, int line) {
+		tracker.trackDocumentFocus(editor, offset, line);
 	}
 
-	public void trackCodingEvent(Editor editor, int offset) {
-		tracker.trackCodingEvent(editor, offset);
+	public void trackCodingEvent(Editor editor, int offset, int line) {
+		tracker.trackCodingEvent(editor, offset, line);
 	}
 
 	private void startFlushExecutor() {

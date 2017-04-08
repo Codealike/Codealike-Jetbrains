@@ -14,6 +14,10 @@ public interface CodeContext {
 
 	public void setFile(String file);
 
+	public int getLine();
+
+	public void setLine(int lineNumber);
+
 	public String getPackageName();
 
 	public void setPackageName(String packageName);

@@ -12,6 +12,7 @@ public class StructuralCodeContext implements CodeContext {
 	private String packageName;
 	private String className;
 	private String memberName;
+	private int line;
 	
 	public static StructuralCodeContext createNullContext() {
 		return new StructuralCodeContext(PluginContext.UNASSIGNED_PROJECT, "", "", "", "", "");
@@ -122,7 +123,18 @@ public class StructuralCodeContext implements CodeContext {
 	public void setMemberName(String memberName) {
 		this.memberName = memberName;
 	};
-	
+
+	@Override
+	public int getLine() {
+		return line;
+	}
+
+	@Override
+	public void setLine(int lineNumber) {
+		line = lineNumber;
+	}
+
+
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();

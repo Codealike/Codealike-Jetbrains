@@ -25,145 +25,19 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
 public class ActivityInfoProcessor {
-	
 	private List<ActivityState> processedStates;
 	private List<ActivityEvent> processedEvents;
+	private DateTime batchStart;
+	private DateTime batchEnd;
 	
-	public ActivityInfoProcessor(TreeMap<DateTime, List<ActivityState>> states, TreeMap<DateTime, List<ActivityEvent>> events) {
-		this.processedStates = processStates(states);
-		this.processedEvents = processEvents(events);
-	}
-	
-	public boolean isValid() {
-		return this.processedStates != null && !this.processedStates.isEmpty();
+	public ActivityInfoProcessor(List<ActivityState> states, List<ActivityEvent> events, DateTime batchStart, DateTime batchEnd) {
+		// TODO: Remove processSteps (states and events should be already right)
+		this.processedStates = states;
+		this.processedEvents = events;
+		this.batchStart = batchStart;
+		this.batchEnd = batchEnd;
 	}
 
-	private List<ActivityEvent> processEvents(TreeMap<DateTime, List<ActivityEvent>> events) {
-		List<ActivityEvent> processedEvents = new LinkedList<ActivityEvent>();
-		
-		if (events == null || events.isEmpty()) {
-			return processedEvents;
-		}
-		
-		Iterator<DateTime> it = events.keySet().iterator();
-		
-		DateTime lastDate = it.next();
-		List<ActivityEvent> lastEvents = events.get(lastDate);
-		for (ActivityEvent lastEvent : lastEvents) {
-			if (lastEvent.getType() != ActivityType.Event) {
-       		 processedEvents.add(lastEvent);
-			}
-		}
-		
-		for (Iterator<DateTime> iterator = it; iterator.hasNext();) {
-			DateTime currentDate = iterator.next();
-			List<ActivityEvent> currentEvents = events.get(currentDate);
-			
-			 for (ActivityEvent lastEvent : lastEvents) {
-				 if (!lastEvent.isMarker() && lastEvent.getDuration().equals(Period.ZERO))
-				 {
-					 lastEvent.setDuration(new Period(lastEvent.getCreationTime(), currentDate));
-				 }
-			 }
-	         
-	         for (ActivityEvent currentEvent: currentEvents) {
-	        	 if (currentEvent.isBuildEvent()) {
-	        		 BuildActivityEvent buildEvent = tryToProcessBuildEvent((BuildActivityEvent) currentEvent);
-	        		 if ( buildEvent != null) {
-	        			 processedEvents.add(buildEvent);
-	        		 }
-	        	 }
-	        	 else if (currentEvent.getType() != ActivityType.Event) {
-	        		 processedEvents.add(currentEvent);
-	        	 }
-	         }
-	         
-	         lastEvents = currentEvents;
-		}
-		
-		return processedEvents;
-	}
-	
-	private HashMap<UUID, BuildActivityEvent> buildEvents = new HashMap<UUID, BuildActivityEvent>();
-
-	private BuildActivityEvent tryToProcessBuildEvent(BuildActivityEvent currentEvent) {
-		BuildActivityEvent eventToReturn = null;
-		if (currentEvent.getType() == ActivityType.BuildProject) {
-			buildEvents.put(currentEvent.getProjectId(), currentEvent);
-		}
-		else if (currentEvent.getType() == ActivityType.BuildProjectSucceeded ||
-				 currentEvent.getType() == ActivityType.BuildProjectFailed ||
-				 currentEvent.getType() == ActivityType.BuildSolutionCancelled) {
-			BuildActivityEvent event = buildEvents.get(currentEvent.getProjectId());
-			if (event != null) {
-				buildEvents.remove(currentEvent.getProjectId());
-				
-				currentEvent.setDuration(new Period(event.getCreationTime(), currentEvent.getCreationTime()));
-				currentEvent.setCreationTime(event.getCreationTime());
-				
-				eventToReturn = currentEvent;
-			}
-		}
-		else if (currentEvent.getType() == ActivityType.BuildSolutionSucceded ||
-				 currentEvent.getType() == ActivityType.BuildSolutionFailed ||
-				 currentEvent.getType() == ActivityType.BuildSolutionCancelled) {
-			eventToReturn = currentEvent;
-		}
-		return eventToReturn;
-	}
-
-	private List<ActivityState> processStates(TreeMap<DateTime, List<ActivityState>> states) {
-		
-		List<ActivityState> processedStates = new LinkedList<ActivityState>();
-		
-		if (states == null || states.isEmpty()) {
-			return processedStates;
-		}
-		
-		Iterator<DateTime> it = states.keySet().iterator();
-		
-		DateTime lastDate = it.next();
-		List<ActivityState> lastStates = states.get(lastDate);
-		for (ActivityState lastState : lastStates) {
-			if (!(lastState instanceof NullActivityState)) {
-				processedStates.add(lastState);
-			}
-		}
-		
-		for (Iterator<DateTime> iterator = it; iterator.hasNext();) {
-			DateTime currentDate = iterator.next();
-			List<ActivityState> currentStates = states.get(currentDate);
-			if (currentStates.isEmpty()) {
-				continue;
-			}
-			
-			
-			//TODO: think what to do with this code.
-			//Since we need to take into account the projects for merging states.
-			
-//			ActivityState lastCurrentState = currentStates.get(currentStates.size()-1);
-//			for (ActivityState lastState : lastStates) {
-//				if (lastState.canExpand() && lastCurrentState.canShrink()) {
-//		        	 DateTime creation = lastCurrentState.getCreationTime();
-//		        	 if (lastCurrentState.getDuration().toDurationFrom(creation).isLongerThan(THRESHOLD.toDurationFrom(creation)))
-//	                 {
-//		        		 lastState.setDuration(new Period(lastState.getCreationTime(), currentDate));
-//	                     continue;
-//	                 }
-//		         }
-//			}
-			
-			for (ActivityState currentState : currentStates) {
-				if (!(currentState instanceof NullActivityState)) {
-					processedStates.add(currentState);
-				}
-			}
-		}
-			
-		
-		return processedStates;
-	}
-	
     public List<ActivityInfo> getSerializableEntities(String machineName, String instanceName, String client, String extension)
     {
     	List<ProjectContextInfo> projects = getProjectsInfo(this.processedEvents);
@@ -171,7 +45,7 @@ public class ActivityInfoProcessor {
     	
     	for (ProjectContextInfo project : projects) {
     		UUID batchId = UUID.randomUUID();
-            ActivityInfo activityInfo = new ActivityInfo(instanceName, project.getProjectId(), batchId);
+            ActivityInfo activityInfo = new ActivityInfo(instanceName, project.getProjectId(), batchId, batchStart, batchEnd);
             activityInfo.setMachine(machineName);
             activityInfo.setClient(client);
             activityInfo.setExtension(extension);
@@ -185,21 +59,6 @@ public class ActivityInfoProcessor {
     	}
     	
         return activity;
-    }
-    
-    //Checks the last registered activity is not only idle
-    public boolean isActivityValid(List<ActivityInfo> activity) {
-    		Collection<ActivityInfo> filtered = Collections2.filter(activity, new Predicate<ActivityInfo>() {
-
-				@Override
-				public boolean apply(ActivityInfo a) {
-					for (ActivityEntryInfo state : a.getStates()) {
-						return state.getType() != ActivityType.Idle;
-					}
-					return false;
-				}
-    		});
-			return !filtered.isEmpty();
     }
 
 	private List<ActivityEntryInfo> getBatchEvents(List<ActivityEvent> processedEvents, UUID projectId) {

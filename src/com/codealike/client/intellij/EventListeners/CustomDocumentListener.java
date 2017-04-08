@@ -38,7 +38,10 @@ public class CustomDocumentListener implements DocumentListener {
             final Editor[] editors = EditorFactory.getInstance().getEditors(document);
 
             if (editors.length > 0) {
-                TrackingService.getInstance().trackCodingEvent(editors[0], documentEvent.getOffset());
+                TrackingService.getInstance().trackCodingEvent(
+                        editors[0],
+                        documentEvent.getOffset(),
+                        editors[0].offsetToLogicalPosition(documentEvent.getOffset()).line);
             }
         }
     }

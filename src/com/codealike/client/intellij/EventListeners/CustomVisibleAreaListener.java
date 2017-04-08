@@ -15,7 +15,10 @@ public class CustomVisibleAreaListener implements VisibleAreaListener {
         final int offset = visibleAreaEvent.getEditor().getCaretModel().getOffset();
 
         if (editor != null) {
-            TrackingService.getInstance().trackDocumentFocus(editor, offset);
+            TrackingService.getInstance().trackDocumentFocus(
+                    editor,
+                    offset,
+                    editor.offsetToLogicalPosition(offset).line);
         }
     }
 }
