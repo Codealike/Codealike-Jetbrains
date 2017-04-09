@@ -121,6 +121,14 @@ public class StateTracker {
 			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
 			ActivityState state = ActivityState.createDesignState(projectId);
 
+			if (lastEvent.getType() == ActivityType.DocumentEdit &&
+					lastEvent.getContext().isEquivalent(event.getContext())) {
+				// this fix the issue with focus event comming right after
+				// each coding event.
+				TrackingConsole.getInstance().trackMessage("Focus event skiped");
+				return;
+			}
+
 			recorder.recordState(state);
 			recorder.recordEvent(event);
 
@@ -174,10 +182,10 @@ public class StateTracker {
 
 		ActivityState systemState = ActivityState.createSystemState(projectId);
 		systemState.setCreationTime(startWorkspaceDate);
-		
-		recorder.recordState(systemState);
-		recorder.recordEvent(openSolutionEvent);
-		recorder.recordState(ActivityState.createIdleState(projectId));
+
+		lastState = recorder.recordState(systemState);
+		lastEvent = recorder.recordEvent(openSolutionEvent);
+		lastState = recorder.recordState(ActivityState.createIdleState(projectId));
 	}
 
 	public StateTracker(int idleDetectionPeriod, Duration idleMinInterval) {

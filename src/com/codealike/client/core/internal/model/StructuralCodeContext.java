@@ -127,9 +127,17 @@ public class StructuralCodeContext implements CodeContext {
 	@Override
 	public boolean isEquivalent(CodeContext context) {
 		if (context == null) return false;
-		return (this.getProjectId() == context.getProjectId()
-				&& this.getFile() == context.getFile()
-				&& this.getLine() == context.getLine());
+
+		if (this.getProjectId() != context.getProjectId())
+			return false;
+
+		if (!this.getFile().equals(context.getFile()))
+			return false;
+
+		if (this.getLine() != context.getLine())
+			return false;
+
+		return true;
 	}
 
 	@Override
