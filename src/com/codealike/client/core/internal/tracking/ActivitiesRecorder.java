@@ -37,10 +37,6 @@ import com.codealike.client.core.internal.utils.TrackingConsole;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class ActivitiesRecorder {
-
-	//private TreeMap<DateTime, List<ActivityState>> states;
-	//private Map<UUID, List<ActivityEvent>> events;
-
 	private List<ActivityState> states;
 	private List<ActivityEvent> events;
 
@@ -56,6 +52,7 @@ public class ActivitiesRecorder {
 		this.states = new LinkedList<>();
 		this.events = new LinkedList<>();
 		this.context = context;
+		this.currentBatchStart = DateTime.now();
 	}
 	
 	public synchronized ActivityState recordState(ActivityState state) {
@@ -94,9 +91,16 @@ public class ActivitiesRecorder {
 			// have to set last state duration to now
 			lastEvent.setDuration(new Period(lastEvent.getCreationTime(), DateTime.now()));
 
-			// if new state is equal to last recorded state
-			if (!lastEvent.equals(event)) {
-				// if it is a different state, close last state duration and add new state
+			// if both events are equivalents mean 'event' is continuation from 'lastEvent'
+			// in this case, we only update duration and context from last event
+			// duration because the event is still the same (coding on certain line of file)
+			// and context because last event on same line will gave us the final version of the
+			// context
+			if (lastEvent.isEquivalent(event)) {
+				lastEvent.setContext(event.getContext());
+			}
+			else {
+				// if it is a different event, close last event duration and add new state
 				lastEvent = event;
 				this.events.add(lastEvent);
 			}
@@ -138,11 +142,10 @@ public class ActivitiesRecorder {
 			currentBatchStart = DateTime.now();
 		}
 
-		
+		// creates an info procesor
 		ActivityInfoProcessor processor = new ActivityInfoProcessor(statesToSend, eventsToSend, batchStart, batchEnd);
-		
-		String machineName = findLocalHostNameOr("unknown");
-		List<ActivityInfo> activityInfoList = processor.getSerializableEntities(machineName, 
+
+		List<ActivityInfo> activityInfoList = processor.getSerializableEntities(context.getMachineName(),
 				context.getInstanceValue(), context.getIdeName(), context.getPluginVersion());
 		String activityLogExtension = context.getProperty("activity-log.extension");
 
@@ -219,14 +222,6 @@ public class ActivitiesRecorder {
 			}
 		}
 		return result;
-	}
-	
-	private String findLocalHostNameOr(String defaultName) {
-		try {
-			return InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) { //see: http://stackoverflow.com/a/40702767/1117552
-			return defaultName;
-		}
 	}
 
 	private void trySendEntriesOnFile(File fileEntry, String username, String token) {
@@ -309,26 +304,6 @@ public class ActivitiesRecorder {
 		}
 	}
 
-	private TreeMap<DateTime, List<ActivityEvent>> flattenEvents(Map<UUID, List<ActivityEvent>> events) {
-		TreeMap<DateTime, List<ActivityEvent>>  eventsAsMap = new TreeMap<DateTime, List<ActivityEvent>>(DateTimeComparator.getInstance());
-		List<ActivityEvent> flatActivityEvents = new ArrayList<ActivityEvent>();
-		
-		for(UUID project : events.keySet()) {
-			List<ActivityEvent> eventsForProject = events.get(project);
-			flatActivityEvents.addAll(eventsForProject);
-		}
-		
-		for(ActivityEvent event: flatActivityEvents) {
-			DateTime date = event.getCreationTime();
-			if (eventsAsMap.get(date)==null) {
-				eventsAsMap.put(date, new LinkedList<ActivityEvent>());
-			}
-			eventsAsMap.get(date).add(event);
-		}
-		
-		return eventsAsMap;
-	}
-	
 	public enum FlushResult {
 		Offline,
 		Succeded,

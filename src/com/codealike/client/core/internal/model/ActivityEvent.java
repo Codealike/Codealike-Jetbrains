@@ -57,6 +57,8 @@ public class ActivityEvent {
 		this.duration = duration;
 	}
 
+	public void setContext(CodeContext context) { this.context = context; }
+
 	public boolean canSpan() {
 		return this.type == ActivityType.DocumentEdit || this.type == ActivityType.DocumentFocus;
 	}
@@ -72,6 +74,12 @@ public class ActivityEvent {
 
 	public void closeDuration(DateTime closeTo) {
 		this.duration = new Period(this.getCreationTime(), closeTo);
+	}
+
+	public boolean isEquivalent(ActivityEvent event) {
+		if (event == null) return false;
+		return (this.getType() == event.getType()
+				&& this.getContext().isEquivalent(event.getContext()));
 	}
 
 	@Override

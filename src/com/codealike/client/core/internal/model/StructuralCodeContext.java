@@ -122,7 +122,15 @@ public class StructuralCodeContext implements CodeContext {
 	@Override
 	public void setMemberName(String memberName) {
 		this.memberName = memberName;
-	};
+	}
+
+	@Override
+	public boolean isEquivalent(CodeContext context) {
+		if (context == null) return false;
+		return (this.getProjectId() == context.getProjectId()
+				&& this.getFile() == context.getFile()
+				&& this.getLine() == context.getLine());
+	}
 
 	@Override
 	public int getLine() {

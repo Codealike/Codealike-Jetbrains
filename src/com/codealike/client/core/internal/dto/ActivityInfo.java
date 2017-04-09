@@ -27,8 +27,8 @@ public class ActivityInfo {
 		this.instance = instance;
 		this.solutionId = solutionId;
 		this.batchId = batchId;
-		this.setBatchStart(batchStart);
-		this.setBatchEnd(batchEnd);
+		this.batchStart = batchStart;
+		this.batchEnd = batchEnd;
 	}
 
 	public void setMachine(String machine) {

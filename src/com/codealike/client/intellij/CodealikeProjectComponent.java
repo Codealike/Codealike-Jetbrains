@@ -73,10 +73,15 @@ public class CodealikeProjectComponent implements ProjectComponent {
 
     @Override
     public void projectClosed() {
+        TrackingService trackingService = TrackingService.getInstance();
+
         // called when project is being closed
-        if (TrackingService.getInstance().isTracking()) {
-            TrackingService.getInstance().stopTracking(_project);
-            TrackingService.getInstance().disableTracking();
+        if (trackingService.isTracking()) {
+            trackingService.stopTracking(_project);
+
+            // only disable tracking when last project gets closed
+            if (trackingService.getTrackedProjects().values().isEmpty())
+                trackingService.disableTracking();
         }
     }
 }

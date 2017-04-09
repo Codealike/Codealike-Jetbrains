@@ -31,7 +31,6 @@ public class ActivityInfoProcessor {
 	private DateTime batchEnd;
 	
 	public ActivityInfoProcessor(List<ActivityState> states, List<ActivityEvent> events, DateTime batchStart, DateTime batchEnd) {
-		// TODO: Remove processSteps (states and events should be already right)
 		this.processedStates = states;
 		this.processedEvents = events;
 		this.batchStart = batchStart;
