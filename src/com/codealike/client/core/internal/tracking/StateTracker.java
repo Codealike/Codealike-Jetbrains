@@ -40,7 +40,6 @@ public class StateTracker {
 	private ActivityState lastState;
 	private final Duration idleMinInterval;
 	private final int idleDetectionPeriod;
-	protected Document currentCompilationUnit;
 
 	private ActivityEvent lastEvent;
 	private ContextCreator contextCreator;
@@ -52,15 +51,11 @@ public class StateTracker {
 	private CustomEditorMouseListener editorMouseListener;
 
 	private synchronized void populateContext(PsiFile file, CodeContext context, int offset, int line) {
-		if (file == null) {
-			return;
-		}
-
-		// sets file name
-		context.setFile(file.getName());
-		context.setLine(line);
-
 		try {
+			// sets file name
+			context.setFile(file.getName());
+			context.setLine(line);
+
 			// sets the rest of the context based on file type
 			switch (file.getFileType().getName()) {
 				case "JAVA":
@@ -95,29 +90,44 @@ public class StateTracker {
 		}
 	}
 
+	private synchronized StructuralCodeContext gatherEventContextInformation(UUID projectId,
+																			 Editor editor,
+																			 int offset,
+																			 int line) {
+		StructuralCodeContext context = null;
+
+		// try get information about the file
+		VirtualFile file = FileDocumentManager.getInstance().getFile(editor.getDocument());
+
+		// if no file was obtained or file is special ide file 'fragment.java' skip process
+		if (file == null || file.getName() == "fragment.java")
+			return null;
+
+		// create code context and populate with event information
+		context = new StructuralCodeContext(projectId);
+		context.setProject(editor.getProject().getName());
+
+		PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
+		PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
+		populateContext(psiFile, context, offset, line);
+
+		return context;
+	}
+
 	public  void trackDocumentFocus(Editor editor, int offset, int line) {
 		if (editor == null)
 			return;
 
 		try {
-			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+			// obtain project id
+			UUID projectId = TrackingService.getInstance().getTrackedProjects().get(editor.getProject());
 
-			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
+			// obtain event context
+			StructuralCodeContext context = gatherEventContextInformation(projectId, editor, offset, line);
+			if (context == null)
+				return;
 
-			StructuralCodeContext context = new StructuralCodeContext(projectId);
-			context.setProject(editor.getProject().getName());
-
-			PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
-
-			VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
-			if (file != null) {
-				context.setFile(file.getName());
-
-				PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
-				populateContext(psiFile, context, offset, line);
-			}
-
+			// create related events
 			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
 			ActivityState state = ActivityState.createDesignState(projectId);
 
@@ -129,9 +139,11 @@ public class StateTracker {
 				return;
 			}
 
+			// record events to be processed
 			recorder.recordState(state);
 			recorder.recordEvent(event);
 
+			// remember last state and event for next loop
 			lastState = state;
 			lastEvent = event;
 
@@ -145,29 +157,23 @@ public class StateTracker {
 			return;
 
 		try {
-			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+			// obtain project id
+			UUID projectId = TrackingService.getInstance().getTrackedProjects().get(editor.getProject());
 
-			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
+			// obtain event context
+			StructuralCodeContext context = gatherEventContextInformation(projectId, editor, offset, line);
+			if (context == null)
+				return;
 
-			Document focusedResource = editor.getDocument();
-			PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
-
-			CodeContext context = new StructuralCodeContext(projectId);
-			context.setProject(editor.getProject().getName());
-
-			VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
-			if (file != null) {
-				PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
-				populateContext(psiFile, context, offset, line);
-			}
-
+			// create related events
 			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);
 			ActivityState state = ActivityState.createDesignState(projectId);
 
+			// record events to be processed
 			recorder.recordState(state);
 			recorder.recordEvent(event);
 
+			// remember last state and event for next loop
 			lastState = state;
 			lastEvent = event;
 
@@ -191,8 +197,8 @@ public class StateTracker {
 	public StateTracker(int idleDetectionPeriod, Duration idleMinInterval) {
 		this.idleDetectionPeriod = idleDetectionPeriod;
 		this.idleMinInterval = idleMinInterval;
-		this.contextCreator = PluginContext.getInstance().getContextCreator();
 
+		contextCreator = PluginContext.getInstance().getContextCreator();
 		recorder = new ActivitiesRecorder(PluginContext.getInstance());
 	}
 
