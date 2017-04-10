@@ -85,6 +85,10 @@ public class ActivityState {
 		return new ActivityState(this.projectId, this.type, DateTime.now());
 	}
 
+	public void closeDuration(DateTime closeTo) {
+		this.duration = new Period(this.getCreationTime(), closeTo);
+	}
+
 	public UUID getProjectId() {
 		return this.projectId;
 	}
@@ -103,4 +107,14 @@ public class ActivityState {
 				this.type == ActivityType.Idle;
 	}
 
+	@Override
+	public boolean equals(Object state){
+		if (state == null) return false;
+		if (state == this) return true;
+		if (!(state instanceof ActivityState)) return false;
+		ActivityState stateClass = (ActivityState) state;
+
+		return (this.getProjectId() == stateClass.getProjectId()
+					&& this.getType() == stateClass.getType());
+	}
 }

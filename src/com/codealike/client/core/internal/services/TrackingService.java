@@ -36,7 +36,6 @@ public class TrackingService extends Observable {
 	private ScheduledExecutorService flushExecutor = null;
 	private StateTracker tracker;
 	private boolean isTracking;
-	private DateTime startWorkspaceDate;
 	private PluginContext context;
 	
 	public static TrackingService getInstance() {
@@ -69,12 +68,12 @@ public class TrackingService extends Observable {
 		notifyObservers();
 	}
 
-	public void trackDocumentFocus(Editor editor, int offset) {
-		tracker.trackDocumentFocus(editor, offset);
+	public void trackDocumentFocus(Editor editor, int offset, int line) {
+		tracker.trackDocumentFocus(editor, offset, line);
 	}
 
-	public void trackCodingEvent(Editor editor, int offset) {
-		tracker.trackCodingEvent(editor, offset);
+	public void trackCodingEvent(Editor editor, int offset, int line) {
+		tracker.trackCodingEvent(editor, offset, line);
 	}
 
 	private void startFlushExecutor() {
@@ -197,7 +196,7 @@ public class TrackingService extends Observable {
 		Notifications.Bus.notify(note);
 	}
 
-	public synchronized void startTracking(Project project) {
+	public synchronized void startTracking(Project project, DateTime workspaceInitDate) {
 		if (!project.isOpen()) {
 			return;
 		}
@@ -206,7 +205,7 @@ public class TrackingService extends Observable {
 		}
 		UUID projectId = PluginContext.getInstance().getOrCreateUUID(project);
 		if (projectId != null && trackedProjectManager.trackProject(project, projectId)) {
-			tracker.startTrackingProject(project, projectId, this.startWorkspaceDate);
+			tracker.startTrackingProject(project, projectId, workspaceInitDate);
 		}
 		else {
 			LogManager.INSTANCE.logWarn(String.format("Could not track project %s. "
@@ -245,10 +244,6 @@ public class TrackingService extends Observable {
 
 	public BiMap<Project, UUID> getTrackedProjects() {
 		return this.trackedProjectManager.getTrackedProjects();
-	}
-
-	public void setBeforeOpenProjectDate() {
-		this.startWorkspaceDate = DateTime.now();
 	}
 
 	public boolean isTracking() {

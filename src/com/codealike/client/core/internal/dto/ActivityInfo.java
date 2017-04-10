@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.joda.time.DateTime;
 
 public class ActivityInfo {
 
@@ -16,14 +17,18 @@ public class ActivityInfo {
 	private String instance;
 	private UUID solutionId;
 	private UUID batchId;
+	private DateTime batchStart;
+	private DateTime batchEnd;
 
 	public ActivityInfo() {
 	}
 	
-	public ActivityInfo(String instance, UUID solutionId, UUID batchId) {
+	public ActivityInfo(String instance, UUID solutionId, UUID batchId, DateTime batchStart, DateTime batchEnd) {
 		this.instance = instance;
 		this.solutionId = solutionId;
 		this.batchId = batchId;
+		this.batchStart = batchStart;
+		this.batchEnd = batchEnd;
 	}
 
 	public void setMachine(String machine) {
@@ -111,4 +116,19 @@ public class ActivityInfo {
 		this.batchId = batchId;
 	}
 
+	public DateTime getBatchStart() {
+		return batchStart;
+	}
+
+	public void setBatchStart(DateTime batchStart) {
+		this.batchStart = batchStart;
+	}
+
+	public DateTime getBatchEnd() {
+		return batchEnd;
+	}
+
+	public void setBatchEnd(DateTime batchEnd) {
+		this.batchEnd = batchEnd;
+	}
 }

@@ -2,6 +2,8 @@ package com.codealike.client.core.internal.startup;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.util.Properties;
 import java.util.Random;
@@ -40,7 +42,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 @SuppressWarnings("restriction")
 public class PluginContext {
-	public static final String VERSION = "1.5.0.9";
+	public static final String VERSION = "1.5.0.11";
 	private static final String PLUGIN_PREFERENCES_QUALIFIER = "com.codealike.client.intellij";
 	private static PluginContext _instance;
 
@@ -57,6 +59,7 @@ public class PluginContext {
 	private TrackingService trackingService;
 	private String instanceValue;
 	private File trackerFolder;
+	private String machineName;
 	
 	public static final UUID UNASSIGNED_PROJECT = UUID.fromString("00000000-0000-0000-0000-0000000001");
 	
@@ -92,6 +95,7 @@ public class PluginContext {
 		this.protocolVersion = new Version(0, 9);
 		this.properties = properties;
 		this.ideName = PlatformUtils.getPlatformPrefix();
+		this.machineName = findLocalHostNameOr("unknown");
 	}
 
 	public String getIdeName() {
@@ -101,7 +105,12 @@ public class PluginContext {
 	public String getPluginVersion() {
 		return VERSION;
 	}
-	
+
+	public String getMachineName() {
+		return machineName;
+	}
+
+
 	public String getHomeFolder() {
 		String localFolder=null;
 		if (System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -149,7 +158,15 @@ public class PluginContext {
 		
 		return solutionId;
 	}
-	
+
+	private String findLocalHostNameOr(String defaultName) {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) { //see: http://stackoverflow.com/a/40702767/1117552
+			return defaultName;
+		}
+	}
+
 	private String getActivityLogLocation() {
 		return getProperty("activity-log.path").replace(".", File.separator);
 	}

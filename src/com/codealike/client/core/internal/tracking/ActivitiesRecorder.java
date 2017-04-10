@@ -37,150 +37,119 @@ import com.codealike.client.core.internal.utils.TrackingConsole;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class ActivitiesRecorder {
+	private List<ActivityState> states;
+	private List<ActivityEvent> events;
 
-	private TreeMap<DateTime, List<ActivityState>> states;
-	private Map<UUID, List<ActivityEvent>> events;
 	private ActivityEvent lastEvent;
-	private DateTime lastStateDate;
+	private ActivityState lastState;
+
 	private PluginContext context;
-	private ActivityState lastRecordedState;
+
+	private DateTime currentBatchStart;
 	
 	public ActivitiesRecorder(PluginContext context)
 	{
-		this.states = new TreeMap<DateTime, List<ActivityState>>(DateTimeComparator.getInstance());
-		this.events = new HashMap<UUID, List<ActivityEvent>>();
+		this.states = new LinkedList<>();
+		this.events = new LinkedList<>();
 		this.context = context;
+		this.currentBatchStart = DateTime.now();
 	}
 	
 	public synchronized ActivityState recordState(ActivityState state) {
-		ActivityState lastStateOfAllStates = null;
-		List<ActivityState> lastStates = null;
-		DateTime currentDate = state.getCreationTime();
 
-		if (lastRecordedState != null
-				&& state.getType() == lastRecordedState.getType()
-				&& state.getProjectId() == lastRecordedState.getProjectId()) {
-			return lastRecordedState;
+		if (lastState == null) {
+			// add the state to states list and set as lastRecordedState
+			lastState = state;
+			this.states.add(lastState);
 		}
+		else {
+			// have to set last state duration to now
+			lastState.setDuration(new Period(lastState.getCreationTime(), DateTime.now()));
 
-		if (lastStateDate != null && !lastStateDate.equals(currentDate)) {
-			lastStates = states.get(lastStateDate);
-		}
-		
-		if (states.get(currentDate)==null) {
-			states.put(currentDate, new LinkedList<ActivityState>());
-			lastStateDate = currentDate;
-		}
-		states.get(currentDate).add(state);
-		
-		if (lastStates != null && !lastStates.isEmpty()) {
-			lastStateOfAllStates = lastStates.get(lastStates.size()-1);
-			
-			for(ActivityState lastState : lastStates) {
-				if (lastState != null && lastState.getDuration().equals(Period.ZERO)) {
-					lastState.setDuration(new Period(lastState.getCreationTime(), currentDate));
-					
-					if (!(lastState instanceof NullActivityState)) {
-						TrackingConsole.getInstance().trackState(lastState);
-					}
-				}
+			// if new state is equal to last recorded state
+			if (!lastState.equals(state)) {
+				// if it is a different state, close last state duration and add new state
+				lastState = state;
+				this.states.add(lastState);
 			}
 		}
-		
-		// If the current event cannot span multiple states then we set its duration to finish now.
-		if (lastStateDate != null && lastEvent != null && !lastEvent.canSpan()) {
-			// Duration = State.EndTime - Event.StartTime;
-            lastEvent.setDuration(new Period(lastEvent.getCreationTime(), currentDate));
-            
-            if (lastEvent.getType() != ActivityType.Event) {
-            	recordEvent(new ActivityEvent(lastEvent.getProjectId(), ActivityType.Event, StructuralCodeContext.createNullContext()));
-            }
-		}
 
-		// keep track of last tracked state
-		lastRecordedState = lastStateOfAllStates;
+		TrackingConsole.getInstance().trackState(lastState);
 
-		return lastStateOfAllStates;
-	}
-
-	public ActivityState getLastState() {
-		return lastRecordedState;
-	}
-
-	private ActivityEvent getLastEvent(UUID projectId) {
-		ActivityEvent lastEvent = null;
-		List<ActivityEvent> projectEvents = getProjectEvents(projectId);
-		
-		if (projectEvents!= null && !projectEvents.isEmpty()) {
-			lastEvent = projectEvents.get(projectEvents.size()-1);
-		}
-		
-		return lastEvent;
-	}
-
-	public synchronized ActivityState recordStates(List<? extends ActivityState> states) {
-		ActivityState lastState = null;
-		for (ActivityState activityState : states) {
-			lastState = recordState(activityState);
-		}
+		// and return
 		return lastState;
-	}
-	
-	private List<ActivityEvent> getProjectEvents(UUID projectId) {
-		if (events.get(projectId) == null) {
-			events.put(projectId, new LinkedList<ActivityEvent>());
-		}
-		return events.get(projectId);
 	}
 
 	public synchronized ActivityEvent recordEvent(ActivityEvent event) {
-		ActivityEvent lastEventForThisProject = null;
-		List<ActivityEvent> projectEvents = getProjectEvents(event.getProjectId());
-		
-		lastEventForThisProject = getLastEvent(event.getProjectId());
-		
- 		projectEvents.add(event);
-		
-		TrackingConsole.getInstance().trackEvent(event);
-		
-		lastEvent = event;
-		
-		return lastEventForThisProject;
+
+		if (lastEvent == null) {
+			// add the state to states list and set as lastRecordedState
+			lastEvent = event;
+			this.events.add(lastEvent);
+		}
+		else {
+			// have to set last state duration to now
+			lastEvent.setDuration(new Period(lastEvent.getCreationTime(), DateTime.now()));
+
+			// if both events are equivalents mean 'event' is continuation from 'lastEvent'
+			// in this case, we only update duration and context from last event
+			// duration because the event is still the same (coding on certain line of file)
+			// and context because last event on same line will gave us the final version of the
+			// context
+			if (lastEvent.isEquivalent(event)) {
+				lastEvent.setContext(event.getContext());
+			}
+			else {
+				// if it is a different event, close last event duration and add new state
+				lastEvent = event;
+				this.events.add(lastEvent);
+			}
+		}
+
+		TrackingConsole.getInstance().trackEvent(lastEvent);
+
+		// and return
+		return lastEvent;
 	}
-	
+
 	public FlushResult flush(String username, String token) throws UnknownHostException {
-		TreeMap<DateTime, List<ActivityState>> statesToSend = null;
-		TreeMap<DateTime, List<ActivityEvent>> eventsToSend = null;
-		
-		ActivityState lastState;
+		List<ActivityState> statesToSend = null;
+		List<ActivityEvent> eventsToSend = null;
+		DateTime batchStart = currentBatchStart;
+		DateTime batchEnd = DateTime.now();
+
 		synchronized(this)
 		{
-			lastState = this.recordStates(ActivityState.createNullState());
-			
-			statesToSend = this.states;
-			eventsToSend = flattenEvents(this.events);
-			
-			this.states = new TreeMap<DateTime, List<ActivityState>>(DateTimeComparator.getInstance());
-			this.events = new HashMap<UUID, List<ActivityEvent>>();
-		}
-		
-		if (lastState != null && !(lastState instanceof NullActivityState)) {
+			// should close current batch (setting up duration for last state and event)
+			// then generate a new batch (creating a copy of last state and event)
+
+			// close last state duration and prepare list to be sent
+			lastState.closeDuration(batchEnd);
+			statesToSend = new LinkedList<>(this.states);
+
+			// close last event duration and prepare list to be sent
+			lastEvent.closeDuration(batchEnd);
+			eventsToSend = new LinkedList<>(this.events);
+
+			// recreate state list for next batch
+			this.states = new LinkedList<>();
 			this.recordState(lastState.recreate());
+
+			// recreate events list for next batch
+			this.events = new LinkedList<>();
+			this.recordEvent(lastEvent.recreate());
+
+			currentBatchStart = DateTime.now();
 		}
-		
-		ActivityInfoProcessor processor = new ActivityInfoProcessor(statesToSend, eventsToSend);
-		
-		if (!processor.isValid()) {
-			return FlushResult.Skip;
-		}
-		
-		String machineName = findLocalHostNameOr("unknown");
-		List<ActivityInfo> activityInfoList = processor.getSerializableEntities(machineName, 
+
+		// creates an info procesor
+		ActivityInfoProcessor processor = new ActivityInfoProcessor(statesToSend, eventsToSend, batchStart, batchEnd);
+
+		List<ActivityInfo> activityInfoList = processor.getSerializableEntities(context.getMachineName(),
 				context.getInstanceValue(), context.getIdeName(), context.getPluginVersion());
 		String activityLogExtension = context.getProperty("activity-log.extension");
-		if (!processor.isActivityValid(activityInfoList)) {
-			return FlushResult.Skip;
-		}
+
+
 		FlushResult result = FlushResult.Succeded;
 		for(ActivityInfo info : activityInfoList) {
 			if (!info.isValid()) {
@@ -198,7 +167,7 @@ public class ActivitiesRecorder {
 			    }
 				
 				if (Boolean.parseBoolean(context.getProperty("activity-log.trace-sent"))) {
-					String filename = String.format("%s\\%s%s", cacheFolder.getAbsolutePath(), info.getBatchId(), ".sent");
+					String filename = String.format("%s%s%s%s", cacheFolder.getAbsolutePath(), File.separator, info.getBatchId(), ".sent");
 					
 					FileOutputStream stream = null;
 					try {
@@ -253,14 +222,6 @@ public class ActivitiesRecorder {
 			}
 		}
 		return result;
-	}
-	
-	private String findLocalHostNameOr(String defaultName) {
-		try {
-			return InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) { //see: http://stackoverflow.com/a/40702767/1117552
-			return defaultName;
-		}
 	}
 
 	private void trySendEntriesOnFile(File fileEntry, String username, String token) {
@@ -343,26 +304,6 @@ public class ActivitiesRecorder {
 		}
 	}
 
-	private TreeMap<DateTime, List<ActivityEvent>> flattenEvents(Map<UUID, List<ActivityEvent>> events) {
-		TreeMap<DateTime, List<ActivityEvent>>  eventsAsMap = new TreeMap<DateTime, List<ActivityEvent>>(DateTimeComparator.getInstance());
-		List<ActivityEvent> flatActivityEvents = new ArrayList<ActivityEvent>();
-		
-		for(UUID project : events.keySet()) {
-			List<ActivityEvent> eventsForProject = events.get(project);
-			flatActivityEvents.addAll(eventsForProject);
-		}
-		
-		for(ActivityEvent event: flatActivityEvents) {
-			DateTime date = event.getCreationTime();
-			if (eventsAsMap.get(date)==null) {
-				eventsAsMap.put(date, new LinkedList<ActivityEvent>());
-			}
-			eventsAsMap.get(date).add(event);
-		}
-		
-		return eventsAsMap;
-	}
-	
 	public enum FlushResult {
 		Offline,
 		Succeded,

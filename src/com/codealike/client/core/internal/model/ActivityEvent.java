@@ -57,6 +57,8 @@ public class ActivityEvent {
 		this.duration = duration;
 	}
 
+	public void setContext(CodeContext context) { this.context = context; }
+
 	public boolean canSpan() {
 		return this.type == ActivityType.DocumentEdit || this.type == ActivityType.DocumentFocus;
 	}
@@ -64,5 +66,31 @@ public class ActivityEvent {
 	
 	public boolean isBuildEvent() {
 		return false;
+	}
+
+	public ActivityEvent recreate() {
+		return new ActivityEvent(this.projectId, this.type, this.getContext());
+	}
+
+	public void closeDuration(DateTime closeTo) {
+		this.duration = new Period(this.getCreationTime(), closeTo);
+	}
+
+	public boolean isEquivalent(ActivityEvent event) {
+		if (event == null) return false;
+		return (this.getType() == event.getType()
+				&& this.getContext().isEquivalent(event.getContext()));
+	}
+
+	@Override
+	public boolean equals(Object event){
+		if (event == null) return false;
+		if (event == this) return true;
+		if (!(event instanceof ActivityEvent)) return false;
+		ActivityEvent eventClass = (ActivityEvent) event;
+
+		return (this.getProjectId() == eventClass.getProjectId()
+				&& this.getType() == eventClass.getType()
+				&& this.getContext().equals(eventClass.getContext()));
 	}
 }

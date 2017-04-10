@@ -4,7 +4,6 @@ package com.codealike.client.core.internal.tracking;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -41,8 +40,7 @@ public class StateTracker {
 	private ActivityState lastState;
 	private final Duration idleMinInterval;
 	private final int idleDetectionPeriod;
-	protected Document currentCompilationUnit;
-	private CodeContext lastCodeContext;
+
 	private ActivityEvent lastEvent;
 	private ContextCreator contextCreator;
 	private ScheduledExecutorService idleDetectionExecutor;
@@ -52,15 +50,12 @@ public class StateTracker {
 	private VisibleAreaListener visibleAreaListener;
 	private CustomEditorMouseListener editorMouseListener;
 
-	private synchronized void populateContext(PsiFile file, CodeContext context, int offset) {
-		if (file == null) {
-			return;
-		}
-
-		// sets file name
-		context.setFile(file.getName());
-
+	private synchronized void populateContext(PsiFile file, CodeContext context, int offset, int line) {
 		try {
+			// sets file name
+			context.setFile(file.getName());
+			context.setLine(line);
+
 			// sets the rest of the context based on file type
 			switch (file.getFileType().getName()) {
 				case "JAVA":
@@ -91,94 +86,96 @@ public class StateTracker {
 		}
 		catch(Exception psiException) {
 			// for some reason file was not casted properly to expected format
-			LogManager.INSTANCE.logError(String.format("Could not track activity in file %s.", context.getFile()));
+			LogManager.INSTANCE.logInfo(String.format("Could not track activity in file %s.", context.getFile()));
 		}
 	}
 
-	public  void trackDocumentFocus(Editor editor, int offset) {
+	private synchronized StructuralCodeContext gatherEventContextInformation(UUID projectId,
+																			 Editor editor,
+																			 int offset,
+																			 int line) {
+		StructuralCodeContext context = null;
+
+		// try get information about the file
+		VirtualFile file = FileDocumentManager.getInstance().getFile(editor.getDocument());
+
+		// if no file was obtained or file is special ide file 'fragment.java' skip process
+		if (file == null || file.getName() == "fragment.java")
+			return null;
+
+		// create code context and populate with event information
+		context = new StructuralCodeContext(projectId);
+		context.setProject(editor.getProject().getName());
+
+		PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
+		PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
+		populateContext(psiFile, context, offset, line);
+
+		return context;
+	}
+
+	public  void trackDocumentFocus(Editor editor, int offset, int line) {
 		if (editor == null)
 			return;
 
 		try {
-			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+			// obtain project id
+			UUID projectId = TrackingService.getInstance().getTrackedProjects().get(editor.getProject());
 
-			if (!trackingService.isTracked(editor.getProject())) {
-				trackingService.startTracking(editor.getProject());
+			// obtain event context
+			StructuralCodeContext context = gatherEventContextInformation(projectId, editor, offset, line);
+			if (context == null)
+				return;
+
+			// create related events
+			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
+			ActivityState state = ActivityState.createDesignState(projectId);
+
+			if (lastEvent.getType() == ActivityType.DocumentEdit &&
+					lastEvent.getContext().isEquivalent(event.getContext())) {
+				// this fix the issue with focus event comming right after
+				// each coding event.
+				TrackingConsole.getInstance().trackMessage("Focus event skiped");
+				return;
 			}
 
-			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
+			// record events to be processed
+			recorder.recordState(state);
+			recorder.recordEvent(event);
 
-			StructuralCodeContext context = new StructuralCodeContext(projectId);
-			context.setProject(editor.getProject().getName());
+			// remember last state and event for next loop
+			lastState = state;
+			lastEvent = event;
 
-			Document focusedResource = editor.getDocument();
-			PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
-
-			VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
-			if (file != null) {
-				context.setFile(file.getName());
-
-				PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
-				populateContext(psiFile, context, offset);
-			}
-
-			if (!focusedResource.equals(currentCompilationUnit) || !context.equals(lastCodeContext)) {
-				ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
-				ActivityState state = ActivityState.createDesignState(projectId);
-
-				recorder.recordState(state);
-				recorder.recordEvent(event);
-
-				lastState = state;
-				lastEvent = event;
-				currentCompilationUnit = focusedResource;
-				lastCodeContext = context;
-			}
 		} catch (Exception e) {
 			LogManager.INSTANCE.logError(e, "Problem recording document focus.");
 		}
 	}
 
-	public synchronized void trackCodingEvent(Editor editor, int offset) {
+	public synchronized void trackCodingEvent(Editor editor, int offset, int line) {
 		if (editor == null)
 			return;
 
 		try {
-			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
-			ActivityEvent event = null;
+			// obtain project id
+			UUID projectId = TrackingService.getInstance().getTrackedProjects().get(editor.getProject());
 
-			if (!trackingService.isTracked(editor.getProject())) {
-				trackingService.startTracking(editor.getProject());
-			}
+			// obtain event context
+			StructuralCodeContext context = gatherEventContextInformation(projectId, editor, offset, line);
+			if (context == null)
+				return;
 
-			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
+			// create related events
+			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);
+			ActivityState state = ActivityState.createDesignState(projectId);
 
-			Document focusedResource = editor.getDocument();
-			PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
+			// record events to be processed
+			recorder.recordState(state);
+			recorder.recordEvent(event);
 
-			if (focusedResource.equals(currentCompilationUnit) && lastEvent != null && lastEvent.getType() != ActivityType.DocumentEdit) {
-				//Currently in design mode, so we need to save an editing event
-
-				CodeContext context = new StructuralCodeContext(projectId);
-				context.setProject(editor.getProject().getName());
-
-				VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
-				if (file != null) {
-					PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
-					populateContext(psiFile, context, offset);
-				}
-
-				event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);
-				ActivityState state = ActivityState.createDesignState(projectId);
-
-				recorder.recordState(state);
-				recorder.recordEvent(event);
-
-				lastState = state;
-				lastEvent = event;
-			}
+			// remember last state and event for next loop
+			lastState = state;
+			lastEvent = event;
 
 		} catch (Exception e) {
 			LogManager.INSTANCE.logError(e, "Problem recording document edit.");
@@ -188,20 +185,20 @@ public class StateTracker {
 	public void startTrackingProject(Project project, UUID projectId, DateTime startWorkspaceDate) {
 		ActivityEvent openSolutionEvent = new ActivityEvent(projectId, ActivityType.OpenSolution, contextCreator.createCodeContext(project));
 		openSolutionEvent.setCreationTime(startWorkspaceDate);
+
 		ActivityState systemState = ActivityState.createSystemState(projectId);
 		systemState.setCreationTime(startWorkspaceDate);
-		
-		recorder.recordState(systemState);
-		recorder.recordEvent(openSolutionEvent);
-		ActivityState idleState = ActivityState.createIdleState(projectId);
-		recorder.recordState(idleState);
+
+		lastState = recorder.recordState(systemState);
+		lastEvent = recorder.recordEvent(openSolutionEvent);
+		lastState = recorder.recordState(ActivityState.createIdleState(projectId));
 	}
 
 	public StateTracker(int idleDetectionPeriod, Duration idleMinInterval) {
 		this.idleDetectionPeriod = idleDetectionPeriod;
 		this.idleMinInterval = idleMinInterval;
-		this.contextCreator = PluginContext.getInstance().getContextCreator();
 
+		contextCreator = PluginContext.getInstance().getContextCreator();
 		recorder = new ActivitiesRecorder(PluginContext.getInstance());
 	}
 
@@ -294,18 +291,12 @@ public class StateTracker {
 	}
 
 	private void checkIdleStatus() {
-		if (lastState.getType() == ActivityType.Idle) {
-			// if last event was idle, keep recording idle
-			lastState = ActivityState.createIdleState(PluginContext.UNASSIGNED_PROJECT);
-			recorder.recordState(lastState);
-		}
-		else {
+		if (lastState.getType() != ActivityType.Idle) {
 			// if last state was not idle check if it is time to go idle
 			DateTime now = DateTime.now();
 			Duration duration = new Duration(lastEvent.getCreationTime(), now);
 			if (duration.compareTo(idleMinInterval) < 0) {
-				lastState = ActivityState.createIdleState(PluginContext.UNASSIGNED_PROJECT);
-				recorder.recordState(lastState);
+				lastState = recorder.recordState(ActivityState.createIdleState(PluginContext.UNASSIGNED_PROJECT));
 			}
 		}
 	}
