@@ -8,6 +8,7 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import org.cyberneko.html.filters.Identity;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -25,6 +26,7 @@ import java.util.Observer;
 public class CodealikeSettingsDialog extends DialogWrapper {
     private JTextField tokenInput;
     private JLabel labelError;
+    private JLabel labelWarning;
     private JButton forgetButton;
     private Project _project;
 
@@ -40,14 +42,27 @@ public class CodealikeSettingsDialog extends DialogWrapper {
         loadSettings();
     }
 
+    @NotNull
+    @Override
+    protected Action[] createActions() {
+        return new Action[] {
+                myOKAction, myCancelAction
+        };
+    }
+
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
         JPanel mainPanel = new JPanel();
-        mainPanel.setMinimumSize(new Dimension(550, 100));
+        mainPanel.setMinimumSize(new Dimension(350, 100));
+        mainPanel.setLayout(new GridLayout(4, 1));
 
         JLabel tokenLabel = new JLabel();
         tokenLabel.setText("Codealike Token:");
+
+        labelWarning = new JLabel();
+        labelWarning.setText("Projects will be reloaded if TOKEN is added, changed or removed.");
+        labelWarning.setHorizontalAlignment(SwingConstants.CENTER);
 
         labelError = new JLabel();
         labelError.setText("We couldn't authenticate you. Please verify your token and try again");
@@ -63,8 +78,16 @@ public class CodealikeSettingsDialog extends DialogWrapper {
             IdentityService.getInstance().logOff();
         });
 
-        mainPanel.add(tokenLabel);
-        mainPanel.add(tokenInput);
+        JPanel inputPanel = new JPanel(new FlowLayout());
+        inputPanel.add(tokenLabel);
+        inputPanel.add(tokenInput);
+
+        mainPanel.add(inputPanel);
+
+        JPanel warningPanel = new JPanel();
+        warningPanel.add(labelWarning);
+        mainPanel.add(warningPanel);
+
         mainPanel.add(labelError);
         mainPanel.add(forgetButton);
 
