@@ -4,7 +4,6 @@ import java.util.Observable;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.codealike.client.core.internal.utils.TrackingConsole;
@@ -13,7 +12,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
@@ -22,14 +20,9 @@ import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.tracking.StateTracker;
 import com.codealike.client.core.internal.tracking.ActivitiesRecorder.FlushResult;
 import com.codealike.client.core.internal.utils.LogManager;
-//import com.codealike.client.core.internal.utils.WorkbenchUtils;
 import com.google.common.collect.BiMap;
 
 public class TrackingService extends Observable {
-
-	public static final Duration TWO_MINUTES = Duration.standardMinutes(2);
-	public static final Duration TEN_SECONDS = Duration.standardSeconds(10);
-	public static final int ONE_SECOND = 1000;
 	private static TrackingService _instance;
 	
 	private TrackedProjectManager trackedProjectManager;
@@ -51,7 +44,7 @@ public class TrackingService extends Observable {
 	
 	public TrackingService() {
 		this.trackedProjectManager = new TrackedProjectManager();
-		this.tracker = new StateTracker(5, Duration.standardMinutes(1));
+		this.tracker = new StateTracker();
 		this.isTracking = false;
 	}
 
