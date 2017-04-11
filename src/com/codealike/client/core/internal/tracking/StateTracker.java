@@ -1,11 +1,9 @@
 package com.codealike.client.core.internal.tracking;
 
-
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 
 import com.codealike.client.core.internal.model.*;
 import com.codealike.client.core.internal.utils.TrackingConsole;
@@ -14,7 +12,6 @@ import com.codealike.client.intellij.EventListeners.CustomDocumentListener;
 import com.codealike.client.intellij.EventListeners.CustomEditorMouseListener;
 import com.codealike.client.intellij.EventListeners.CustomVisibleAreaListener;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.CaretListener;
@@ -39,7 +36,6 @@ public class StateTracker {
 	private ActivitiesRecorder recorder;
 	private ActivityState lastState;
 	private final Duration idleMinInterval;
-	private final int idleDetectionPeriod;
 
 	private ActivityEvent lastEvent;
 	private ContextCreator contextCreator;
@@ -194,9 +190,10 @@ public class StateTracker {
 		lastState = recorder.recordState(ActivityState.createIdleState(projectId));
 	}
 
-	public StateTracker(int idleDetectionPeriod, Duration idleMinInterval) {
-		this.idleDetectionPeriod = idleDetectionPeriod;
-		this.idleMinInterval = idleMinInterval;
+	public StateTracker() {
+		int idleInterval = Integer.valueOf(PluginContext.getInstance()
+				.getProperty("idle-duration.interval.secs"));
+		this.idleMinInterval = Duration.standardSeconds(idleInterval);
 
 		contextCreator = PluginContext.getInstance().getContextCreator();
 		recorder = new ActivitiesRecorder(PluginContext.getInstance());
@@ -280,6 +277,7 @@ public class StateTracker {
 			}
 		};
 
+		int idleDetectionPeriod = Integer.valueOf(PluginContext.getInstance().getProperty("idle-check.interval.secs"));
 		this.idleDetectionExecutor.scheduleAtFixedRate(idlePeriodicTask, idleDetectionPeriod, idleDetectionPeriod, TimeUnit.SECONDS);
 	}
 
@@ -295,7 +293,7 @@ public class StateTracker {
 			// if last state was not idle check if it is time to go idle
 			DateTime now = DateTime.now();
 			Duration duration = new Duration(lastEvent.getCreationTime(), now);
-			if (duration.compareTo(idleMinInterval) < 0) {
+			if (duration.compareTo(idleMinInterval) > 0) {
 				lastState = recorder.recordState(ActivityState.createIdleState(PluginContext.UNASSIGNED_PROJECT));
 			}
 		}
