@@ -12,4 +12,6 @@
 hs_err_pid*
 
 out
-.idea/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/dictionaries
