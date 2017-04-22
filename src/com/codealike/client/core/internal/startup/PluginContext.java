@@ -9,12 +9,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 
-/*import org.eclipse.core.internal.resources.ProjectPreferences;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.ui.PlatformUI;*/
+import com.codealike.client.intellij.ProjectConfig;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.PlatformUtils;
@@ -23,9 +18,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
-/*import org.osgi.service.prefs.BackingStoreException;*/
 
-//import com.codealike.client.core.CodealikeTrackerPlugin;
 import com.codealike.client.core.api.ApiClient;
 import com.codealike.client.core.api.ApiResponse;
 import com.codealike.client.core.internal.dto.SolutionContextInfo;
@@ -35,7 +28,6 @@ import com.codealike.client.core.internal.services.IdentityService;
 import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.tracking.code.ContextCreator;
 import com.codealike.client.core.internal.utils.LogManager;
-/*import com.codealike.client.core.views.ErrorDialogView;*/
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -132,30 +124,13 @@ public class PluginContext {
 	}
 
 	public UUID getOrCreateUUID(Project project) {
-		UUID solutionId = null;
-		
-		try {
-			String solutionIdString = null;
-			PropertiesComponent projectNode = PropertiesComponent.getInstance(project);
-			if (projectNode != null) {
-				//if projectId is not created yet, try to create a unique new one and register it.
-				solutionIdString = projectNode.getValue("codealike.solutionId", "");
-				if (solutionIdString == "") {
-					solutionId = tryCreateUniqueId();
-					if (!registerProjectContext(solutionId, project.getName()) ) {
-						return null;
-					}
-					changeSolutionId(projectNode, solutionId);
-				}
-				else {
-					solutionId = UUID.fromString(solutionIdString);
-				}
-			}
-		} catch (Exception e) {
-			String projectName = project != null ? project.getName() : "";
-        	LogManager.INSTANCE.logError(e, "Could not create UUID for project "+projectName);
+		ProjectConfig config = ProjectConfig.getInstance(project);
+
+		UUID solutionId = config.getProjectId();
+		if (solutionId == null) {
+			solutionId = tryCreateUniqueId();
+			config.setProjectId(solutionId);
 		}
-		
 		return solutionId;
 	}
 
@@ -170,13 +145,6 @@ public class PluginContext {
 	private String getActivityLogLocation() {
 		return getProperty("activity-log.path").replace(".", File.separator);
 	}
-
-	/*private ProjectPreferences getProjectPreferences(IProject project) {
-		ProjectScope projectScope = new ProjectScope(project);
-		//Get user preferences file
-		ProjectPreferences projectNode = (ProjectPreferences) projectScope.getNode(PLUGIN_PREFERENCES_QUALIFIER);
-		return projectNode;
-	}*/
 
 	private UUID changeSolutionId(PropertiesComponent projectNode, UUID solutionId) throws Exception {
 		projectNode.setValue("codealike.solutionId", solutionId.toString());

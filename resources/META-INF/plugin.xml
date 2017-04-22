@@ -23,6 +23,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
+    <projectService serviceImplementation="com.codealike.client.intellij.ProjectConfig" />
   </extensions>
 
   <actions>
