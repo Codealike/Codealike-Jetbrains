@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 @SuppressWarnings("restriction")
 public class PluginContext {
-	public static final String VERSION = "1.5.0.12";
+	public static final String VERSION = "1.5.0.15";
 	private static final String PLUGIN_PREFERENCES_QUALIFIER = "com.codealike.client.intellij";
 	private static PluginContext _instance;
 
@@ -123,14 +123,66 @@ public class PluginContext {
 		}
 	}
 
-	public UUID getOrCreateUUID(Project project) {
-		ProjectConfig config = ProjectConfig.getInstance(project);
+	private UUID tryGetLegacySolutionId(Project project) {
+		UUID solutionId = null;
 
-		UUID solutionId = config.getProjectId();
-		if (solutionId == null) {
-			solutionId = tryCreateUniqueId();
-			config.setProjectId(solutionId);
+		try {
+			PropertiesComponent projectNode = PropertiesComponent.getInstance(project);
+			String solutionIdString = projectNode.getValue("codealike.solutionId", "");
+
+			if (solutionIdString != "") {
+				solutionId = UUID.fromString(solutionIdString);
+			}
 		}
+		catch(Exception e) {
+			String projectName = project != null ? project.getName() : "";
+			LogManager.INSTANCE.logError(e, "Could not retrieve solution id from legacy store " + projectName);
+		}
+
+		return solutionId;
+	}
+
+	public UUID getOrCreateUUID(Project project) {
+		UUID solutionId = null;
+
+		try {
+			// load project configuration
+			ProjectConfig config = ProjectConfig.getInstance(project);
+
+			// get solution id from codealike.xml file
+			// saved inside .idea folder
+			solutionId = config.getProjectId();
+
+			// if solution id is not present in codealike.xml
+			if (solutionId == null) {
+				// try to get solution id from legacy store
+				// first versions of the plugin saved solutionId
+				// in a local non romeable store
+				solutionId = tryGetLegacySolutionId(project);
+
+				// if solutionId is still null
+				// there is no clue of the solution id
+				// so it should be a new one. Let's create
+				// a new solutionId
+				if (solutionId == null) {
+					solutionId = tryCreateUniqueId();
+
+					// once created, let's register the solution id for the project
+					if (!registerProjectContext(solutionId, project.getName())) {
+						return null;
+					}
+				}
+
+				// persist solution id in codealike.xml file
+				// so it is available in the future and
+				// it is saved in a romeable place
+				config.setProjectId(solutionId);
+			}
+		} catch (Exception e) {
+			String projectName = project != null ? project.getName() : "";
+			LogManager.INSTANCE.logError(e, "Could not create UUID for project "+projectName);
+		}
+
 		return solutionId;
 	}
 
@@ -144,11 +196,6 @@ public class PluginContext {
 
 	private String getActivityLogLocation() {
 		return getProperty("activity-log.path").replace(".", File.separator);
-	}
-
-	private UUID changeSolutionId(PropertiesComponent projectNode, UUID solutionId) throws Exception {
-		projectNode.setValue("codealike.solutionId", solutionId.toString());
-		return solutionId;
 	}
 	
 	private UUID tryCreateUniqueId() {

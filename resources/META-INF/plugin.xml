@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.codealike.client.intellij.plugin</id>
   <name>Codealike</name>
-  <version>1.5.0.12</version>
+  <version>1.5.0.15</version>
   <vendor email="support@codealike.com" url="https://codealike.com">Codealike</vendor>
 
   <description><![CDATA[
