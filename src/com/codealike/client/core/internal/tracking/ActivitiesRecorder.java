@@ -118,6 +118,12 @@ public class ActivitiesRecorder {
 		DateTime batchStart = currentBatchStart;
 		DateTime batchEnd = DateTime.now();
 
+		// if lastState or lastEvent are null then there is no info to flush
+		// so lets skip this attempt
+		if (lastState == null || lastEvent == null) {
+			return FlushResult.Skip;
+		}
+
 		synchronized(this)
 		{
 			// should close current batch (setting up duration for last state and event)
