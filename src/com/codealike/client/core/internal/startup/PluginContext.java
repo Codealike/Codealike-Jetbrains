@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 @SuppressWarnings("restriction")
 public class PluginContext {
-	public static final String VERSION = "1.5.0.12";
+	public static final String VERSION = "1.5.0.14";
 	private static final String PLUGIN_PREFERENCES_QUALIFIER = "com.codealike.client.intellij";
 	private static PluginContext _instance;
 
@@ -124,13 +124,27 @@ public class PluginContext {
 	}
 
 	public UUID getOrCreateUUID(Project project) {
+		UUID solutionId = null;
 		ProjectConfig config = ProjectConfig.getInstance(project);
 
-		UUID solutionId = config.getProjectId();
-		if (solutionId == null) {
-			solutionId = tryCreateUniqueId();
-			config.setProjectId(solutionId);
+		try {
+			solutionId = config.getProjectId();
+
+			if (solutionId == null) {
+				solutionId = tryCreateUniqueId();
+
+				if (!registerProjectContext(solutionId, project.getName())) {
+					return null;
+				}
+
+				config.setProjectId(solutionId);
+			}
+
+		} catch (Exception e) {
+			String projectName = project != null ? project.getName() : "";
+			LogManager.INSTANCE.logError(e, "Could not create UUID for project "+projectName);
 		}
+
 		return solutionId;
 	}
 
@@ -144,11 +158,6 @@ public class PluginContext {
 
 	private String getActivityLogLocation() {
 		return getProperty("activity-log.path").replace(".", File.separator);
-	}
-
-	private UUID changeSolutionId(PropertiesComponent projectNode, UUID solutionId) throws Exception {
-		projectNode.setValue("codealike.solutionId", solutionId.toString());
-		return solutionId;
 	}
 	
 	private UUID tryCreateUniqueId() {
