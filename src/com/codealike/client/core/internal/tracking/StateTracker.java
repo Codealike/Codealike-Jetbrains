@@ -221,11 +221,6 @@ public class StateTracker {
 					.getInstance()
 					.getEventMulticaster()
 					.addEditorMouseListener(editorMouseListener);
-
-/*			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.addVisibleAreaListener(visibleAreaListener);*/
 		});
 
 		startIdleDetection();
@@ -234,25 +229,26 @@ public class StateTracker {
 	public void stopTracking() {
 		ApplicationManager.getApplication().invokeLater(() -> {
 
-			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.removeDocumentListener(documentListener);
+			if (documentListener != null) {
+				EditorFactory
+						.getInstance()
+						.getEventMulticaster()
+						.removeDocumentListener(documentListener);
+			}
 
-			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.removeCaretListener(caretListener);
+			if (caretListener != null) {
+				EditorFactory
+						.getInstance()
+						.getEventMulticaster()
+						.removeCaretListener(caretListener);
+			}
 
-			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.removeEditorMouseListener(editorMouseListener);
-
-/*			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.removeVisibleAreaListener(visibleAreaListener);*/
+			if (editorMouseListener != null) {
+				EditorFactory
+						.getInstance()
+						.getEventMulticaster()
+						.removeEditorMouseListener(editorMouseListener);
+			}
 		});
 
 		stopIdleDetection();

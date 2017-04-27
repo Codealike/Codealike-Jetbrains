@@ -177,16 +177,18 @@ public class TrackingService extends Observable {
 	}
 
 	public void disableTracking() {
-		stopTracking(true);
+		if (context.isAuthenticated()) {
+			stopTracking(true);
 
-		// flush last information before leaving
-		flushTrackingInformation();
+			// flush last information before leaving
+			flushTrackingInformation();
 
-		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-				"Codealike",
-				"Codealike  is not tracking your projects",
-				NotificationType.INFORMATION);
-		Notifications.Bus.notify(note);
+			Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+					"Codealike",
+					"Codealike  is not tracking your projects",
+					NotificationType.INFORMATION);
+			Notifications.Bus.notify(note);
+		}
 	}
 
 	public synchronized void startTracking(Project project, DateTime workspaceInitDate) {
