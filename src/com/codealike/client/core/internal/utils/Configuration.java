@@ -15,7 +15,11 @@ import java.util.Optional;
 public class Configuration {
     private ObjectMapper mapper = new ObjectMapper();
     private GlobalSettings globalSettings = new GlobalSettings();
+
     private File codealikeBasePath;
+    private File historyPath;
+    private File cachePath;
+    private File instancePath;
 
     private String clientId;
     private String clientVersion;
@@ -23,25 +27,12 @@ public class Configuration {
 
     public Configuration(String clientId, String clientVersion, String instanceId) {
         // sets the codealike base path for logging and user settings and profile
-        File basePath = new File(System.getProperty("user.home"), ".codealike");
+        this.createRequiredPaths(clientId, instanceId);
 
         // store current instance settings
         this.clientId = clientId;
         this.clientVersion = clientVersion;
         this.instanceId = instanceId;
-
-        // ensure codealike base path exists
-        if (!Files.exists(basePath.toPath())) {
-            try {
-                Files.createDirectories(basePath.toPath());
-            }
-            catch(IOException ex) {
-                // check what to do if this fails
-            }
-        }
-
-        // sets path for aplication usage
-        this.codealikeBasePath = basePath;
     }
 
     /*
@@ -73,6 +64,11 @@ public class Configuration {
         }
     }
 
+    /*
+     *  saveCodealikeGlobalSettings
+     *  This method saves user settings configured in current configuration instance
+     *  to the codealike user folder
+     */
     public void savelGlobalSettings(GlobalSettings settings) {
         File codealikeSettingsFile = new File(this.codealikeBasePath, "user.json");
 
@@ -106,11 +102,49 @@ public class Configuration {
         }
     }
 
+    public String getApiUrl() {
+        return this.globalSettings.getApiUrl();
+    }
+
     public void setUserToken(String userToken) {
         this.globalSettings.setUserToken(userToken);
     }
 
     public String getUserToken() {
         return this.globalSettings.getUserToken();
+    }
+
+    private void ensurePathExists(File path) {
+        // ensure codealike base path exists
+        if (!Files.exists(path.toPath())) {
+            try {
+                Files.createDirectories(path.toPath());
+            }
+            catch(IOException ex) {
+                // check what to do if this fails
+            }
+        }
+    }
+
+    private void createRequiredPaths(String clientId, String instanceId) {
+        File basePath = new File(System.getProperty("user.home"), ".codealike");
+        this.ensurePathExists(basePath);
+
+        File clientPath = new File(basePath, clientId);
+        this.ensurePathExists(clientPath);
+
+        File instancePath = new File(clientPath, instanceId);
+        this.ensurePathExists(instancePath);
+
+        File cachePath = new File(basePath, "cache");
+        this.ensurePathExists(cachePath);
+
+        File historyPath = new File(basePath, "history");
+        this.ensurePathExists(historyPath);
+
+        this.codealikeBasePath = basePath;
+        this.historyPath = historyPath;
+        this.cachePath = cachePath;
+        this.instancePath = instancePath;
     }
 }

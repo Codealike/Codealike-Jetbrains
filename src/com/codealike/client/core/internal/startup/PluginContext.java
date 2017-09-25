@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.security.KeyManagementException;
 import java.util.Properties;
 import java.util.Random;
@@ -95,6 +96,10 @@ public class PluginContext {
 		// initialize configuration with required parameters
 		this.configuration = new Configuration(this.ideName, VERSION, this.instanceValue);
 		this.configuration.loadGlobalSettings();
+	}
+
+	public Configuration getConfiguration() {
+		return this.configuration;
 	}
 
 	public String getIdeName() {
