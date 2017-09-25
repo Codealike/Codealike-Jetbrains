@@ -6,11 +6,13 @@ public class GlobalSettings {
     private long idleCheckInterval;
     private long idleMaxPeriod;
     private long flushInterval;
+    private boolean trackSent;
 
     public GlobalSettings() {
         this.setIdleCheckInterval(30000); // in milliseconds
         this.setIdleMaxPeriod(60000); // in milliseconds
         this.setFlushInterval(300000); // in milliseconds
+        this.trackSent = true;
     }
 
     public String getUserToken() {
@@ -51,5 +53,13 @@ public class GlobalSettings {
 
     public void setFlushInterval(long flushInterval) {
         this.flushInterval = flushInterval;
+    }
+
+    public boolean getTrackSent() {
+        return trackSent;
+    }
+
+    public void setTrackSent(boolean trackSent) {
+        this.trackSent = trackSent;
     }
 }

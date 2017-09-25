@@ -52,7 +52,6 @@ public class PluginContext {
 	private IdentityService identityService;
 	private TrackingService trackingService;
 	private String instanceValue;
-	private File trackerFolder;
 	private String machineName;
 
 	private Configuration configuration;
@@ -114,25 +113,8 @@ public class PluginContext {
 		return machineName;
 	}
 
-
-	public String getHomeFolder() {
-		String localFolder=null;
-		if (System.getProperty("os.name").toLowerCase().contains("win")) {
-			localFolder = System.getenv("APPDATA");
-		}
-		else {
-			localFolder = System.getProperty("user.home");
-		}
-		return localFolder+File.separator;
-	}
-
 	public void initializeContext() throws IOException {
 		this.trackingService = TrackingService.getInstance();
-
-		trackerFolder = new File(getHomeFolder() + getActivityLogLocation());
-		if (!trackerFolder.exists()) {
-			trackerFolder.mkdirs();
-		}
 	}
 
 	private UUID tryGetLegacySolutionId(Project project) {
@@ -204,10 +186,6 @@ public class PluginContext {
 		} catch (UnknownHostException e) { //see: http://stackoverflow.com/a/40702767/1117552
 			return defaultName;
 		}
-	}
-
-	private String getActivityLogLocation() {
-		return getProperty("activity-log.path").replace(".", File.separator);
 	}
 	
 	private UUID tryCreateUniqueId() {
@@ -359,10 +337,6 @@ public class PluginContext {
 
 	public String getInstanceValue() {
 		return instanceValue;
-	}
-
-	public File getTrackerFolder() {
-		return trackerFolder;
 	}
 
 	public Version getProtocolVersion() {

@@ -3,6 +3,7 @@ package com.codealike.client.core.internal.utils;
 import com.codealike.client.core.internal.model.GlobalSettings;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +11,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 
 public class Configuration {
@@ -100,6 +104,32 @@ public class Configuration {
                 }
             }
         }
+    }
+
+    public File getHistoryFile() {
+        Format formatter = new SimpleDateFormat("YYYYMMDDhhmmss");
+        return new File(historyPath, clientId + "-" + formatter.format(new Date()) + ".json");
+    }
+
+    public File getCacheFile() {
+        Format formatter = new SimpleDateFormat("YYYYMMDDhhmmss");
+        return new File(cachePath, clientId + "-" + formatter.format(new Date()) + ".json");
+    }
+
+    public boolean getTrackSent() {
+        return globalSettings.getTrackSent();
+    }
+
+    public File getHistoryPath() {
+        return historyPath;
+    }
+
+    public File getCachePath() {
+        return cachePath;
+    }
+
+    public File getInstancePath() {
+        return instancePath;
     }
 
     public String getApiUrl() {
