@@ -9,6 +9,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 
+import com.codealike.client.core.internal.utils.Configuration;
 import com.codealike.client.intellij.ProjectConfig;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
@@ -52,6 +53,8 @@ public class PluginContext {
 	private String instanceValue;
 	private File trackerFolder;
 	private String machineName;
+
+	private Configuration configuration;
 	
 	public static final UUID UNASSIGNED_PROJECT = UUID.fromString("00000000-0000-0000-0000-0000000001");
 	
@@ -88,6 +91,10 @@ public class PluginContext {
 		this.properties = properties;
 		this.ideName = PlatformUtils.getPlatformPrefix();
 		this.machineName = findLocalHostNameOr("unknown");
+
+		// initialize configuration with required parameters
+		this.configuration = new Configuration(this.ideName, VERSION, this.instanceValue);
+		this.configuration.loadGlobalSettings();
 	}
 
 	public String getIdeName() {
