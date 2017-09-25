@@ -84,9 +84,7 @@ public class ApiClient {
 		builder.sslContext(sslContext).hostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 		
 		Client client = builder.build();
-		apiTarget = client
-				.target(PluginContext.getInstance().getProperty(
-						"codealike.server.url")).path("/api/v2/");
+		apiTarget = client.target(PluginContext.getInstance().getConfiguration().getApiUrl());
 		this.identity = "";
 		this.token = "";
 	}
