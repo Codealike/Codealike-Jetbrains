@@ -1,8 +1,10 @@
 package com.codealike.client.core.internal.utils;
 
 import com.codealike.client.core.internal.model.GlobalSettings;
+import com.codealike.client.core.internal.model.ProjectSettings;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.NotImplementedException;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -15,6 +17,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 public class Configuration {
     private ObjectMapper mapper = new ObjectMapper();
@@ -85,6 +88,56 @@ public class Configuration {
             // if registered, save configuration file
             // have to save configuration file
             stream = new FileOutputStream(codealikeSettingsFile);
+            stream.write(jsonString.getBytes(Charset.forName("UTF-8")));
+            stream.close();
+        }
+        catch(JsonProcessingException jsonEx) {
+            // check what to do if this fails
+        }
+        catch(IOException exception) {
+            // check what to do if this fails
+        }
+        finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // check what to do if this fails
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public ProjectSettings loadProjectSettings(String projectFolderPath) {
+        ProjectSettings projectSettings = new ProjectSettings();
+        File codealikeProjectFile = new File(projectFolderPath, "codealike.json");
+
+        try {
+            if (Files.exists(codealikeProjectFile.toPath())) {
+                ObjectMapper mapper = new ObjectMapper();
+                projectSettings = mapper.readValue(new FileInputStream(codealikeProjectFile), ProjectSettings.class);
+            }
+        }
+        catch(IOException exception) {
+            // check what to do if this fails
+        }
+
+        return projectSettings;
+    }
+
+    public void saveProjectSettings(String projectFolderPath, ProjectSettings projectSettings) {
+        File codealikeProjectFile = new File(projectFolderPath, "codealike.json");
+
+        String jsonString = null;
+        FileOutputStream stream = null;
+        try {
+            // convert object to string
+            jsonString = mapper.writeValueAsString(projectSettings);
+
+            // if registered, save configuration file
+            // have to save configuration file
+            stream = new FileOutputStream(codealikeProjectFile);
             stream.write(jsonString.getBytes(Charset.forName("UTF-8")));
             stream.close();
         }

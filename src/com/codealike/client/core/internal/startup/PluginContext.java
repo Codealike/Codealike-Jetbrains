@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 
+import com.codealike.client.core.internal.model.ProjectSettings;
 import com.codealike.client.core.internal.utils.Configuration;
 import com.codealike.client.intellij.ProjectConfig;
 import com.intellij.ide.util.PropertiesComponent;
@@ -117,7 +118,46 @@ public class PluginContext {
 		this.trackingService = TrackingService.getInstance();
 	}
 
-	private UUID tryGetLegacySolutionId(Project project) {
+	private UUID tryGetLegacySolutionIdV2(Project project) {
+		UUID solutionId = null;
+
+		// load project configuration
+		ProjectConfig config = ProjectConfig.getInstance(project);
+
+		// get solution id from codealike.xml file
+		// saved inside .idea folder
+		solutionId = config.getProjectId();
+
+		// if solution id is not present in codealike.xml
+		if (solutionId == null) {
+			// try to get solution id from legacy store
+			// first versions of the plugin saved solutionId
+			// in a local non romeable store
+			solutionId = tryGetLegacySolutionIdV1(project);
+
+			// if solutionId is still null
+			// there is no clue of the solution id
+			// so it should be a new one. Let's create
+			// a new solutionId
+			if (solutionId == null) {
+				solutionId = tryCreateUniqueId();
+
+				try {
+					// once created, let's register the solution id for the project
+					if (!registerProjectContext(solutionId, project.getName())) {
+						return null;
+					}
+				} catch (Exception e) {
+					String projectName = project != null ? project.getName() : "";
+					LogManager.INSTANCE.logError(e, "Could not create UUID for project "+projectName);
+				}
+			}
+		}
+
+		return solutionId;
+	}
+
+	private UUID tryGetLegacySolutionIdV1(Project project) {
 		UUID solutionId = null;
 
 		try {
@@ -137,47 +177,39 @@ public class PluginContext {
 	}
 
 	public UUID getOrCreateUUID(Project project) {
+		Configuration configuration = PluginContext.getInstance().getConfiguration();
 		UUID solutionId = null;
 
-		try {
-			// load project configuration
-			ProjectConfig config = ProjectConfig.getInstance(project);
+		// try first to load codealike.json file from project folder
+		ProjectSettings projectSettings = configuration.loadProjectSettings(project.getBaseDir().getPath());
 
-			// get solution id from codealike.xml file
-			// saved inside .idea folder
-			solutionId = config.getProjectId();
+		if (projectSettings.getProjectId() == null) {
+			// if configuration was not found in the expected place
+			// let's try to load configuration from older plugin versions
+			solutionId = tryGetLegacySolutionIdV2(project);
 
-			// if solution id is not present in codealike.xml
-			if (solutionId == null) {
-				// try to get solution id from legacy store
-				// first versions of the plugin saved solutionId
-				// in a local non romeable store
-				solutionId = tryGetLegacySolutionId(project);
+			if (solutionId != null) {
+				// if solution id was found by other method than
+				// loading project settings file from project folder
+				// we have to save a new project settings with
+				// generated information
+				projectSettings.setProjectId(solutionId);
+				projectSettings.setProjectName(project.getName());
 
-				// if solutionId is still null
-				// there is no clue of the solution id
-				// so it should be a new one. Let's create
-				// a new solutionId
-				if (solutionId == null) {
-					solutionId = tryCreateUniqueId();
-
-					// once created, let's register the solution id for the project
-					if (!registerProjectContext(solutionId, project.getName())) {
-						return null;
-					}
-				}
-
-				// persist solution id in codealike.xml file
-				// so it is available in the future and
-				// it is saved in a romeable place
-				config.setProjectId(solutionId);
+				// and save the file for future uses
+				configuration.saveProjectSettings(project.getBaseDir().getPath(), projectSettings);
 			}
-		} catch (Exception e) {
-			String projectName = project != null ? project.getName() : "";
-			LogManager.INSTANCE.logError(e, "Could not create UUID for project "+projectName);
+			else {
+				// if we reached this branch
+				// it means not only no configuration was found
+				// but also we were not able to register a new
+				// configuration in server.
+				// log was saved by internal method
+				// nothing else to do here
+			}
 		}
 
-		return solutionId;
+		return projectSettings.getProjectId();
 	}
 
 	private String findLocalHostNameOr(String defaultName) {
