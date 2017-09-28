@@ -273,8 +273,8 @@ public class StateTracker {
 			}
 		};
 
-		int idleDetectionPeriod = Integer.valueOf(PluginContext.getInstance().getProperty("idle-check.interval.secs"));
-		this.idleDetectionExecutor.scheduleAtFixedRate(idlePeriodicTask, idleDetectionPeriod, idleDetectionPeriod, TimeUnit.SECONDS);
+		int idleDetectionPeriod = PluginContext.getInstance().getConfiguration().getIdleCheckInterval();
+		this.idleDetectionExecutor.scheduleAtFixedRate(idlePeriodicTask, idleDetectionPeriod, idleDetectionPeriod, TimeUnit.MILLISECONDS);
 	}
 
 	private void stopIdleDetection() {
@@ -289,7 +289,7 @@ public class StateTracker {
 			// if last state was not idle check if it is time to go idle
 			DateTime now = DateTime.now();
 			Duration duration = new Duration(lastEvent.getCreationTime(), now);
-			if (duration.compareTo(idleMinInterval) > 0) {
+			if (duration.compareTo(Duration.standardSeconds(PluginContext.getInstance().getConfiguration().getIdleMinInterval() / 1000)) > 0) {
 				lastState = recorder.recordState(ActivityState.createIdleState(PluginContext.UNASSIGNED_PROJECT));
 			}
 		}

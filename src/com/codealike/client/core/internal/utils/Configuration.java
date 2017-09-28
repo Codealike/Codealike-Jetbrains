@@ -178,6 +178,18 @@ public class Configuration {
         }
     }
 
+    public int getIdleMinInterval() {
+        return this.pluginSettings.getIdleMaxPeriod();
+    }
+
+    public int getIdleCheckInterval() {
+        return this.pluginSettings.getIdleCheckInterval();
+    }
+
+    public int getFlushInterval() {
+        return this.pluginSettings.getFlushInterval();
+    }
+
     public File getHistoryFile() {
         Format formatter = new SimpleDateFormat("YYYYMMDDhhmmss");
         return new File(historyPath, clientId + "-" + formatter.format(new Date()) + ".json");

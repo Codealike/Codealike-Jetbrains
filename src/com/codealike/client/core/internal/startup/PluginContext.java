@@ -98,6 +98,7 @@ public class PluginContext {
 		this.configuration = new Configuration(this.ideName, VERSION, this.instanceValue);
 		this.configuration.loadGlobalSettings();
 
+		// try to load plugin settings from server
 		ApiResponse<PluginSettingsInfo> pluginSettings = ApiClient.getPluginSettings();
 		if (pluginSettings.success()) {
 			this.configuration.loadPluginSettings(pluginSettings.getObject());

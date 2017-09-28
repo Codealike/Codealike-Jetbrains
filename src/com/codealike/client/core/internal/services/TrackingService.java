@@ -88,8 +88,8 @@ public class TrackingService extends Observable {
 			}
 		};
 		
-		int flushInterval = Integer.valueOf(context.getProperty("activity-log.interval.secs"));
-		this.flushExecutor.scheduleAtFixedRate(idlePeriodicTask, flushInterval, flushInterval, TimeUnit.SECONDS);
+		int flushInterval = this.context.getConfiguration().getFlushInterval();
+		this.flushExecutor.scheduleAtFixedRate(idlePeriodicTask, flushInterval, flushInterval, TimeUnit.MILLISECONDS);
 	}
 
 	private void flushTrackingInformation() {
