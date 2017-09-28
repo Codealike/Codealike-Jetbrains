@@ -1,6 +1,8 @@
 package com.codealike.client.core.internal.utils;
 
+import com.codealike.client.core.internal.dto.PluginSettingsInfo;
 import com.codealike.client.core.internal.model.GlobalSettings;
+import com.codealike.client.core.internal.model.PluginSettings;
 import com.codealike.client.core.internal.model.ProjectSettings;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class Configuration {
     private ObjectMapper mapper = new ObjectMapper();
     private GlobalSettings globalSettings = new GlobalSettings();
+    private PluginSettings pluginSettings = new PluginSettings();
 
     private File codealikeBasePath;
     private File historyPath;
@@ -40,6 +43,22 @@ public class Configuration {
         this.clientId = clientId;
         this.clientVersion = clientVersion;
         this.instanceId = instanceId;
+    }
+
+    public void loadPluginSettings(PluginSettingsInfo newSettings) {
+        PluginSettings settings = new PluginSettings();
+
+        if (newSettings.getFlushInterval() != 0) {
+            settings.setFlushInterval(newSettings.getFlushInterval());
+        }
+
+        if (newSettings.getIdleCheckInterval() != 0) {
+            settings.setIdleCheckInterval(newSettings.getIdleCheckInterval());
+        }
+
+        if (newSettings.getIdleMaxPeriod() != 0) {
+            settings.setIdleMaxPeriod(newSettings.getIdleMaxPeriod());
+        }
     }
 
     /*

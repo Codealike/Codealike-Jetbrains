@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 
+import com.codealike.client.core.internal.dto.PluginSettingsInfo;
 import com.codealike.client.core.internal.model.ProjectSettings;
 import com.codealike.client.core.internal.utils.Configuration;
 import com.codealike.client.intellij.ProjectConfig;
@@ -96,6 +97,11 @@ public class PluginContext {
 		// initialize configuration with required parameters
 		this.configuration = new Configuration(this.ideName, VERSION, this.instanceValue);
 		this.configuration.loadGlobalSettings();
+
+		ApiResponse<PluginSettingsInfo> pluginSettings = ApiClient.getPluginSettings();
+		if (pluginSettings.success()) {
+			this.configuration.loadPluginSettings(pluginSettings.getObject());
+		}
 	}
 
 	public Configuration getConfiguration() {

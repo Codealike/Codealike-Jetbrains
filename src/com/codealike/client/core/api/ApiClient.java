@@ -1,5 +1,6 @@
 package com.codealike.client.core.api;
 
+import java.io.FileInputStream;
 import java.net.ConnectException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -20,16 +21,15 @@ import javax.ws.rs.core.Response;
 
 import java.security.cert.*;
 
-import com.codealike.client.core.internal.dto.ActivityInfo;
-import com.codealike.client.core.internal.dto.HealthInfo;
-import com.codealike.client.core.internal.dto.ProfileInfo;
-import com.codealike.client.core.internal.dto.SolutionContextInfo;
-import com.codealike.client.core.internal.dto.UserConfigurationInfo;
-import com.codealike.client.core.internal.dto.Version;
+import com.codealike.client.core.internal.dto.*;
+import com.codealike.client.core.internal.model.GlobalSettings;
 import com.codealike.client.core.internal.startup.PluginContext;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import jdk.nashorn.internal.parser.JSONParser;
 
 public class ApiClient {
 
@@ -146,6 +146,50 @@ public class ApiClient {
 	public ApiResponse<Version> version() {
 		WebTarget target = apiTarget.path("version").queryParam("client", "intellij");
 		return doGet(target, Version.class);
+	}
+
+	public static ApiResponse<PluginSettingsInfo> getPluginSettings() {
+		ObjectMapper mapper = new ObjectMapper();
+		ClientBuilder builder = ClientBuilder.newBuilder();
+		Client client = builder.build();
+		WebTarget pluginSettingsTarget = client.target("https://codealike.com/api/v2/public/PluginsConfiguration");
+
+		Invocation.Builder invocationBuilder = pluginSettingsTarget.request(
+				MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+
+		try {
+			Response response = null;
+			try {
+				response = invocationBuilder.get();
+			} catch (Exception e) {
+				return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ConnectionProblems);
+			}
+
+			if (response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()) {
+				// process response to get a valid json string representation
+				String serializedObject = response.readEntity(String.class);
+				String normalizedObject = serializedObject.substring(1, serializedObject.length()-1).replace("\\", "");
+
+				// parse the json object to get a valid plugin settings object
+				PluginSettingsInfo pluginSettingsInfo = mapper.readValue(normalizedObject, PluginSettingsInfo.class);
+
+				if (pluginSettingsInfo != null) {
+					return new ApiResponse<PluginSettingsInfo>(
+							response.getStatus(), response.getStatusInfo()
+							.getReasonPhrase(), pluginSettingsInfo);
+				} else {
+					return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ClientError,
+							"Problem parsing data from the server.");
+				}
+			} else {
+				return new ApiResponse<PluginSettingsInfo>(response.getStatus(), response
+						.getStatusInfo().getReasonPhrase());
+			}
+		} catch (Exception e) {
+			return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ClientError,
+					String.format("Problem parsing data from the server. %s",
+							e.getMessage()));
+		}
 	}
 
 	public ApiResponse<SolutionContextInfo> getSolutionContext(UUID projectId) {
