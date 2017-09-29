@@ -35,7 +35,6 @@ public class StateTracker {
 
 	private ActivitiesRecorder recorder;
 	private ActivityState lastState;
-	private final Duration idleMinInterval;
 
 	private ActivityEvent lastEvent;
 	private ContextCreator contextCreator;
@@ -43,7 +42,6 @@ public class StateTracker {
 
 	private DocumentListener documentListener;
 	private CaretListener caretListener;
-	private VisibleAreaListener visibleAreaListener;
 	private CustomEditorMouseListener editorMouseListener;
 
 	private synchronized void populateContext(PsiFile file, CodeContext context, int offset, int line) {
@@ -191,10 +189,6 @@ public class StateTracker {
 	}
 
 	public StateTracker() {
-		int idleInterval = Integer.valueOf(PluginContext.getInstance()
-				.getProperty("idle-duration.interval.secs"));
-		this.idleMinInterval = Duration.standardSeconds(idleInterval);
-
 		contextCreator = PluginContext.getInstance().getContextCreator();
 		recorder = new ActivitiesRecorder(PluginContext.getInstance());
 	}
@@ -202,7 +196,6 @@ public class StateTracker {
 	public void startTracking() {
 		documentListener = new CustomDocumentListener();
 		caretListener = new CustomCaretListener();
-		visibleAreaListener = new CustomVisibleAreaListener();
 		editorMouseListener = new CustomEditorMouseListener();
 
 		ApplicationManager.getApplication().invokeLater(() -> {
