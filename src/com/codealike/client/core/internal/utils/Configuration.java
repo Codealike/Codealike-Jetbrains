@@ -91,11 +91,20 @@ public class Configuration {
     }
 
     /*
+     *  saveCurrentGlobalSettings
+     *  This method saves current running instance settings
+     *  to the codealike user folder
+     */
+    public void saveCurrentGlobalSettings() {
+        this.saveGlobalSettings(this.globalSettings);
+    }
+
+    /*
      *  saveCodealikeGlobalSettings
      *  This method saves user settings configured in current configuration instance
      *  to the codealike user folder
      */
-    public void savelGlobalSettings(GlobalSettings settings) {
+    public void saveGlobalSettings(GlobalSettings settings) {
         File codealikeSettingsFile = new File(this.codealikeBasePath, "user.json");
 
         String jsonString = null;
