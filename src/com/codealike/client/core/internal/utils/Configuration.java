@@ -259,7 +259,7 @@ public class Configuration {
         File instancePath = new File(clientPath, instanceId);
         this.ensurePathExists(instancePath);
 
-        File cachePath = new File(basePath, "cache");
+        File cachePath = new File(basePath, "cache-idea");
         this.ensurePathExists(cachePath);
 
         File historyPath = new File(basePath, "history");
