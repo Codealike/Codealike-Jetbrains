@@ -14,6 +14,7 @@ import com.codealike.client.core.internal.dto.UserConfigurationInfo;
 import com.codealike.client.core.internal.model.Profile;
 import com.codealike.client.core.internal.model.TrackActivity;
 import com.codealike.client.core.internal.startup.PluginContext;
+import com.codealike.client.core.internal.utils.Configuration;
 import com.codealike.client.core.internal.utils.LogManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
@@ -115,10 +116,15 @@ public class IdentityService extends Observable {
 	}
 
 	private void storeCredentials(String identity, String token) {
-		// TODO: check a way to do this in a secure encrypted way
+		// save user token to global configuration file
+		Configuration configuration = PluginContext.getInstance().getConfiguration();
+		configuration.setUserToken(identity + "/" + token);
+		configuration.saveCurrentGlobalSettings();
+
+		// remove fallback ones also!
 		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-		propertiesComponent.setValue("codealike.identity", identity);
-		propertiesComponent.setValue("codealike.token", token);
+		propertiesComponent.unsetValue("codealike.identity");
+		propertiesComponent.unsetValue("codealike.token");
 
         /*ISecurePreferences secureStorage = SecurePreferencesFactory
                 .getDefault();
@@ -133,6 +139,11 @@ public class IdentityService extends Observable {
 	}
 	
 	private void removeStoredCredentials() {
+		Configuration configuration = PluginContext.getInstance().getConfiguration();
+		configuration.setUserToken(null);
+		configuration.saveCurrentGlobalSettings();
+
+		// remove fallback ones also!
 		// TODO: check a way to do this in a secure encrypted way
 		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
 		propertiesComponent.unsetValue("codealike.identity");
@@ -149,9 +160,33 @@ public class IdentityService extends Observable {
 	}
 
 	public boolean tryLoginWithStoredCredentials() {
-		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-		String identity = propertiesComponent.getValue("codealike.identity", "");
-		String token = propertiesComponent.getValue("codealike.token", "");
+		Configuration configuration = PluginContext.getInstance().getConfiguration();
+		String identity;
+		String token;
+
+		// if loaded configuration has no user token, try to fallback to previows store
+		if (configuration.getUserToken() == null || configuration.getUserToken().isEmpty()) {
+			// fallback information
+			PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+			identity = propertiesComponent.getValue("codealike.identity", "");
+			token = propertiesComponent.getValue("codealike.token", "");
+
+			// if information found by fallback mechanism
+			// lets save that configuration for future use
+			if (identity != "" && token != "") {
+				configuration.setUserToken(identity + "/" + token);
+				configuration.saveCurrentGlobalSettings();
+
+				// remove fallback ones also!
+				propertiesComponent.unsetValue("codealike.identity");
+				propertiesComponent.unsetValue("codealike.token");
+			}
+		}
+		else {
+			String[] split = configuration.getUserToken().split("/");
+			identity = split[0];
+			token = split[1];
+		}
 
 		if (identity != "" && token != "")
 			return login(identity, token, false, false);
