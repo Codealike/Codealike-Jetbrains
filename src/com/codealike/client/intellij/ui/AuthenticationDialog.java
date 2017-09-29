@@ -4,6 +4,7 @@ import com.codealike.client.core.internal.services.IdentityService;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -16,6 +17,7 @@ public class AuthenticationDialog extends DialogWrapper {
 
     private JTextField authInput;
     private JLabel labelError;
+    private JLabel labelMessage;
     private Project _project;
 
     public AuthenticationDialog(Project project) {
@@ -28,11 +30,20 @@ public class AuthenticationDialog extends DialogWrapper {
         init();
     }
 
+    @NotNull
+    @Override
+    protected Action[] createActions() {
+        return new Action[] {
+                myOKAction, myCancelAction
+        };
+    }
+
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
         JPanel mainPanel = new JPanel();
         mainPanel.setMinimumSize(new Dimension(550, 100));
+        mainPanel.setLayout(new GridLayout(4, 1));
 
         JLabel label = new JLabel();
         label.setText("Codealike Token:");
@@ -43,8 +54,12 @@ public class AuthenticationDialog extends DialogWrapper {
 
         authInput = new JTextField(50);
 
+        labelMessage = new JLabel();
+        labelMessage.setText("Find your Codealike API Token in your settings at Codealike Web");
+
         mainPanel.add(label);
         mainPanel.add(authInput);
+        mainPanel.add(labelMessage);
         mainPanel.add(labelError);
 
         return mainPanel;
