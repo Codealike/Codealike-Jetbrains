@@ -30,6 +30,8 @@ import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.tracking.ActivitiesRecorder.FlushResult;
 import com.codealike.client.core.internal.tracking.code.ContextCreator;
 import com.codealike.client.core.internal.utils.LogManager;
+import org.joda.time.Period;
+import org.joda.time.Seconds;
 
 public class StateTracker {
 
@@ -278,12 +280,28 @@ public class StateTracker {
 	}
 
 	private void checkIdleStatus() {
-		if (lastState.getType() != ActivityType.Idle) {
-			// if last state was not idle check if it is time to go idle
-			DateTime now = DateTime.now();
-			Duration duration = new Duration(lastEvent.getCreationTime(), now);
-			if (duration.compareTo(Duration.standardSeconds(PluginContext.getInstance().getConfiguration().getIdleMinInterval() / 1000)) > 0) {
-				lastState = recorder.recordState(ActivityState.createIdleState(PluginContext.UNASSIGNED_PROJECT));
+		// if last state was idle, it seems to be still idle
+		if (recorder.getLastState().getType() == ActivityType.Idle) {
+			recorder.updateLastState();
+		}
+		else {
+			DateTime currentTime = DateTime.now();
+			long idleMaxPeriodInSeconds = PluginContext.getInstance().getConfiguration().getIdleMinInterval() / 1000;
+			long elapsedFromLastEventInSeconds = new Period(recorder.getLastEventTime(), currentTime).toStandardSeconds().getSeconds();
+			if (elapsedFromLastEventInSeconds >= idleMaxPeriodInSeconds) {
+
+				// if state was coding before going idle
+				// all the time between last event and idle should be coding
+				if (recorder.getLastState().getType() == ActivityType.Coding) {
+					recorder.getLastState().setDuration(new Period(recorder.getLastState().getCreationTime(), currentTime));
+				}
+
+				// not needed because idea cannot track another type than coding
+				// save last state type before going iddle
+				//Codealike.stateBeforeIdle = recorder.lastState.type;
+
+				// record idle state
+				recorder.recordState(ActivityState.createIdleState(PluginContext.UNASSIGNED_PROJECT));
 			}
 		}
 	}
