@@ -7,7 +7,7 @@ import org.joda.time.Period;
 
 import com.codealike.client.core.internal.dto.ActivityType;
 
-public class ActivityEvent {
+public class ActivityEvent implements IEndable {
 	
 	protected ActivityType type;
 	protected CodeContext context;

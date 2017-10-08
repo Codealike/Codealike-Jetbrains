@@ -10,7 +10,7 @@ import org.joda.time.Period;
 import com.codealike.client.core.internal.dto.ActivityType;
 import com.codealike.client.core.internal.startup.PluginContext;
 
-public class ActivityState {
+public class ActivityState implements IEndable {
 	
 	public static final ActivityState NONE = new ActivityState();
 	
