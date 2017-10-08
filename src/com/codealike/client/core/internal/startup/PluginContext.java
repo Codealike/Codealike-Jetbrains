@@ -38,7 +38,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 @SuppressWarnings("restriction")
 public class PluginContext {
-	public static final String VERSION = "1.5.0.18";
+	public static final String VERSION = "1.5.0.19";
 	private static final String PLUGIN_PREFERENCES_QUALIFIER = "com.codealike.client.intellij";
 	private static PluginContext _instance;
 
