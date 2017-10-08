@@ -74,7 +74,7 @@ public class TrackingService extends Observable {
 			return;
 
 		this.flushExecutor = Executors.newScheduledThreadPool(1);;
-		Runnable idlePeriodicTask = new Runnable() {
+		Runnable flushPeriodicTask = new Runnable() {
 			
 			@Override
 			public void run() {
@@ -89,7 +89,7 @@ public class TrackingService extends Observable {
 		};
 		
 		int flushInterval = this.context.getConfiguration().getFlushInterval();
-		this.flushExecutor.scheduleAtFixedRate(idlePeriodicTask, flushInterval, flushInterval, TimeUnit.MILLISECONDS);
+		this.flushExecutor.scheduleAtFixedRate(flushPeriodicTask, flushInterval, flushInterval, TimeUnit.MILLISECONDS);
 	}
 
 	private void flushTrackingInformation() {
