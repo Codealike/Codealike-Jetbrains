@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import com.codealike.client.core.internal.model.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
@@ -25,10 +26,6 @@ import com.codealike.client.core.api.ApiResponse;
 import com.codealike.client.core.api.ApiResponse.Status;
 import com.codealike.client.core.internal.dto.ActivityInfo;
 import com.codealike.client.core.internal.dto.ActivityType;
-import com.codealike.client.core.internal.model.ActivityEvent;
-import com.codealike.client.core.internal.model.ActivityState;
-import com.codealike.client.core.internal.model.NullActivityState;
-import com.codealike.client.core.internal.model.StructuralCodeContext;
 import com.codealike.client.core.internal.processing.ActivityInfoProcessor;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.utils.GenericExtensionFilter;
@@ -46,6 +43,7 @@ public class ActivitiesRecorder {
 	private PluginContext context;
 
 	private DateTime currentBatchStart;
+	private DateTime lastEventTime;
 	
 	public ActivitiesRecorder(PluginContext context)
 	{
@@ -54,24 +52,105 @@ public class ActivitiesRecorder {
 		this.context = context;
 		this.currentBatchStart = DateTime.now();
 	}
-	
-	public synchronized ActivityState recordState(ActivityState state) {
 
-		if (lastState == null) {
-			// add the state to states list and set as lastRecordedState
-			lastState = state;
-			this.states.add(lastState);
+	public DateTime getLastEventTime() {
+		return lastEventTime;
+	}
+
+	public ActivityState getLastState() {
+		return lastState;
+	}
+
+	public ActivityEvent getLastEvent() {
+		return lastEvent;
+	}
+
+	/*
+             *  isLastEventPropagating:
+             *  This method checks if provided event is continuation
+             *  of the last event recorded by the system.
+             */
+	public boolean isLastEventPropagating(ActivityEvent event) {
+		return (lastEvent != null &&
+				event.getType() == lastEvent.getType() &&
+				event.getContext().getFile() == lastEvent.getContext().getFile() &&
+				event.getContext().getLine() == lastEvent.getContext().getLine());
+	}
+
+	/*
+	 *  isLastStatePropagating:
+	 *  This method checks if provided state is continuation
+	 *  of the last state recorded by the system
+	 */
+	public boolean isLastStatePropagating(ActivityState state) {
+		return (lastState != null &&
+				state.getType() == lastState.getType());
+	}
+
+	/*
+     *  updateEndableEntityAsOfNowIfRequired:
+     *  This method checks if last event/state should be provided
+     *  with some spare time given a change. We expect an event
+     *  to be a continuous stream of items, if possible without
+     *  blank periods of time in between.
+     */
+	public void updateEndableEntityAsOfNowIfRequired(IEndable endableEntity) {
+		// if entity is null, nothing to do here
+		if (endableEntity == null)
+			return;
+
+		// if entity has no end, no choice
+		// but to set it ended now
+		if (endableEntity.getDuration() == Period.ZERO) {
+			endableEntity.setDuration(new Period(endableEntity.getCreationTime(), DateTime.now()));
 		}
 		else {
-			// have to set last state duration to now
-			lastState.setDuration(new Period(lastState.getCreationTime(), DateTime.now()));
-
-			// if new state is equal to last recorded state
-			if (!lastState.equals(state)) {
-				// if it is a different state, close last state duration and add new state
-				lastState = state;
-				this.states.add(lastState);
+			// finally, end of entity was no so long ago
+			// let's give it a change to be wild!!!
+			DateTime currentTime = DateTime.now();
+			if (endableEntity.getDuration().toStandardSeconds().getSeconds() <= 7) {
+				endableEntity.setDuration(new Period(endableEntity.getCreationTime(), DateTime.now()));
 			}
+		}
+	}
+
+	public void updateLastEvent(ActivityEvent event) {
+		if (this.lastEvent != null) {
+			// when updating an event, we also
+			// update context information as
+			// the last event should be the most complete
+			this.lastEvent.setContext(event.getContext());
+
+			// also update last finishing time as of now
+			this.lastEvent.setDuration(new Period(lastEvent.getCreationTime(), DateTime.now()));
+		}
+	}
+
+	public void updateLastState() {
+		// if there is a last state
+		// update it's duration as of now
+		if (this.lastState != null) {
+			this.lastState.setDuration(new Period(lastState.getCreationTime(), DateTime.now()));
+		}
+	}
+
+	public synchronized ActivityState recordState(ActivityState state) {
+
+		if (this.isLastStatePropagating(state)) {
+			this.updateLastState();
+		}
+		else {
+			// set the finalization of the last state
+			this.updateEndableEntityAsOfNowIfRequired(this.lastState);
+
+			// if state changed, last event is finished for sure
+			this.updateEndableEntityAsOfNowIfRequired(this.lastEvent);
+
+			// adds the state to the current session
+			this.states.add(state);
+
+			// sets state as last state
+			this.lastState = state;
 		}
 
 		TrackingConsole.getInstance().trackState(lastState);
@@ -82,31 +161,24 @@ public class ActivitiesRecorder {
 
 	public synchronized ActivityEvent recordEvent(ActivityEvent event) {
 
-		if (lastEvent == null) {
-			// add the state to states list and set as lastRecordedState
-			lastEvent = event;
-			this.events.add(lastEvent);
+		if (this.isLastEventPropagating(event)) {
+			this.updateLastEvent(event);
 		}
 		else {
-			// have to set last state duration to now
-			lastEvent.setDuration(new Period(lastEvent.getCreationTime(), DateTime.now()));
+			// set the finalization of the last event
+			this.updateEndableEntityAsOfNowIfRequired(this.lastEvent);
 
-			// if both events are equivalents mean 'event' is continuation from 'lastEvent'
-			// in this case, we only update duration and context from last event
-			// duration because the event is still the same (coding on certain line of file)
-			// and context because last event on same line will gave us the final version of the
-			// context
-			if (lastEvent.isEquivalent(event)) {
-				lastEvent.setContext(event.getContext());
-			}
-			else {
-				// if it is a different event, close last event duration and add new state
-				lastEvent = event;
-				this.events.add(lastEvent);
-			}
+			// adds the event to the current session
+			this.events.add(event);
+
+			// sets event as last event
+			this.lastEvent = event;
 		}
 
-		TrackingConsole.getInstance().trackEvent(lastEvent);
+		// saves time from last event
+		this.lastEventTime = DateTime.now();
+
+		TrackingConsole.getInstance().trackEvent(this.lastEvent);
 
 		// and return
 		return lastEvent;
