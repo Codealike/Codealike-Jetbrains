@@ -99,18 +99,32 @@ public class ActivitiesRecorder {
 		if (endableEntity == null)
 			return;
 
-		// if entity has no end, no choice
-		// but to set it ended now
-		if (endableEntity.getDuration() == Period.ZERO) {
-			endableEntity.setDuration(new Period(endableEntity.getCreationTime(), DateTime.now()));
+		// get idle max interval in seconds
+		int idleMinIntervalInSeconds = PluginContext.getInstance().getConfiguration().getIdleCheckInterval() / 1000;
+
+		DateTime currentTime = DateTime.now();
+		DateTime entityBaseEnd = endableEntity.getCreationTime().plus(endableEntity.getDuration());
+		int elapsedPeriodBetweenLastEventAndNow = new Period(entityBaseEnd, currentTime).toStandardSeconds().getSeconds();
+
+		// if time elapsed between last event activity and now is less than
+		// the time it takes to infer user was idle, we track the time as it is
+		// else, something happened and idle check was not doing it work, so
+		// we consider the duration to be as much as a complete idle period
+		if (elapsedPeriodBetweenLastEventAndNow <= idleMinIntervalInSeconds ) {
+			endableEntity.setDuration(new Period(endableEntity.getCreationTime(), currentTime));
 		}
 		else {
-			// finally, end of entity was no so long ago
-			// let's give it a change to be wild!!!
-			DateTime currentTime = DateTime.now();
-			if (endableEntity.getDuration().toStandardSeconds().getSeconds() <= 7) {
-				endableEntity.setDuration(new Period(endableEntity.getCreationTime(), DateTime.now()));
+			// if event/state type is system related we track
+			// whatever it is (no exceptions or checks about duration)
+			if (endableEntity.getType() == ActivityType.System
+					|| endableEntity.getType() == ActivityType.OpenSolution) {
+				endableEntity.setDuration(new Period(endableEntity.getCreationTime(), currentTime));
 			}
+			else {
+				// else, we ensure it does not have inconsistent time
+				endableEntity.setDuration(new Period(endableEntity.getCreationTime(), endableEntity.getCreationTime().plusSeconds(idleMinIntervalInSeconds).toDateTime()));
+			}
+
 		}
 	}
 
@@ -122,7 +136,7 @@ public class ActivitiesRecorder {
 			this.lastEvent.setContext(event.getContext());
 
 			// also update last finishing time as of now
-			this.lastEvent.setDuration(new Period(lastEvent.getCreationTime(), DateTime.now()));
+			this.updateEndableEntityAsOfNowIfRequired(this.lastEvent);
 		}
 	}
 
@@ -130,7 +144,7 @@ public class ActivitiesRecorder {
 		// if there is a last state
 		// update it's duration as of now
 		if (this.lastState != null) {
-			this.lastState.setDuration(new Period(lastState.getCreationTime(), DateTime.now()));
+			this.updateEndableEntityAsOfNowIfRequired(this.lastState);
 		}
 	}
 
