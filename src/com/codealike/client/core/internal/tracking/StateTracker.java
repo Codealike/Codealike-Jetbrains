@@ -289,13 +289,6 @@ public class StateTracker {
 			long idleMaxPeriodInSeconds = PluginContext.getInstance().getConfiguration().getIdleMinInterval() / 1000;
 			long elapsedFromLastEventInSeconds = new Period(recorder.getLastEventTime(), currentTime).toStandardSeconds().getSeconds();
 			if (elapsedFromLastEventInSeconds >= idleMaxPeriodInSeconds) {
-
-				// if state was coding before going idle
-				// all the time between last event and idle should be coding
-				if (recorder.getLastState().getType() == ActivityType.Coding) {
-					recorder.getLastState().setDuration(new Period(recorder.getLastState().getCreationTime(), currentTime));
-				}
-
 				// not needed because idea cannot track another type than coding
 				// save last state type before going iddle
 				//Codealike.stateBeforeIdle = recorder.lastState.type;
