@@ -125,17 +125,6 @@ public class IdentityService extends Observable {
 		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
 		propertiesComponent.unsetValue("codealike.identity");
 		propertiesComponent.unsetValue("codealike.token");
-
-        /*ISecurePreferences secureStorage = SecurePreferencesFactory
-                .getDefault();
-        ISecurePreferences node = secureStorage.node("codealike");
-        try {
-          node.put("identity", identity, true);
-          node.put("token", token, true);
-          this.credentialsStored = true;
-        } catch (StorageException e) {
-        	LogManager.INSTANCE.logError(e, "Could not store credentials.");
-        }*/
 	}
 	
 	private void removeStoredCredentials() {
@@ -144,19 +133,9 @@ public class IdentityService extends Observable {
 		configuration.saveCurrentGlobalSettings();
 
 		// remove fallback ones also!
-		// TODO: check a way to do this in a secure encrypted way
 		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
 		propertiesComponent.unsetValue("codealike.identity");
 		propertiesComponent.unsetValue("codealike.token");
-
-        /*ISecurePreferences secureStorage = SecurePreferencesFactory
-                .getDefault();
-        if (secureStorage.nodeExists("codealike")) {
-        	ISecurePreferences node = secureStorage.node("codealike");
-        	node.remove("identity");
-        	node.remove("token");
-        }
-        this.credentialsStored = false;*/
 	}
 
 	public boolean tryLoginWithStoredCredentials() {
@@ -191,19 +170,6 @@ public class IdentityService extends Observable {
 		if (identity != "" && token != "")
 			return login(identity, token, false, false);
 
-        /*ISecurePreferences secureStorage = SecurePreferencesFactory
-                .getDefault();
-        if (secureStorage.nodeExists("codealike")) {
-            ISecurePreferences node = secureStorage.node("codealike");
-            try {
-              String identity = node.get("identity", "");
-              String token = node.get("token", "");
-              return login(identity, token, false, false);
-            } catch (StorageException e) {
-            	LogManager.INSTANCE.logError(e, "Could not load stored credentials.");
-              return false;
-            }
-        }*/
         return false;
 	}
 
