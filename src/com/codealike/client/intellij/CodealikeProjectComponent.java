@@ -3,17 +3,12 @@ package com.codealike.client.intellij;
 import com.codealike.client.core.internal.services.IdentityService;
 import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.startup.PluginContext;
-import com.intellij.debugger.DebuggerManager;
-import com.intellij.debugger.engine.DebugProcessEvents;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.debugger.DebugEventListener;
 import org.joda.time.DateTime;
 
 /**

@@ -10,20 +10,17 @@ import com.codealike.client.core.internal.utils.TrackingConsole;
 import com.codealike.client.intellij.EventListeners.CustomCaretListener;
 import com.codealike.client.intellij.EventListeners.CustomDocumentListener;
 import com.codealike.client.intellij.EventListeners.CustomEditorMouseListener;
-import com.codealike.client.intellij.EventListeners.CustomVisibleAreaListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.editor.event.VisibleAreaListener;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import com.codealike.client.core.internal.dto.ActivityType;
 import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.startup.PluginContext;
@@ -31,7 +28,6 @@ import com.codealike.client.core.internal.tracking.ActivitiesRecorder.FlushResul
 import com.codealike.client.core.internal.tracking.code.ContextCreator;
 import com.codealike.client.core.internal.utils.LogManager;
 import org.joda.time.Period;
-import org.joda.time.Seconds;
 
 public class StateTracker {
 

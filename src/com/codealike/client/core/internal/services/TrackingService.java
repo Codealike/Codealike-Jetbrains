@@ -13,7 +13,6 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 
 import com.codealike.client.core.internal.model.TrackedProjectManager;
 import com.codealike.client.core.internal.startup.PluginContext;
@@ -73,7 +72,7 @@ public class TrackingService extends Observable {
 		if (this.flushExecutor != null)
 			return;
 
-		this.flushExecutor = Executors.newScheduledThreadPool(1);;
+		this.flushExecutor = Executors.newScheduledThreadPool(1);
 		Runnable flushPeriodicTask = new Runnable() {
 			
 			@Override
