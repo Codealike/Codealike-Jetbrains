@@ -3,6 +3,7 @@ package com.codealike.client.intellij.ui;
 import com.codealike.client.core.internal.services.IdentityService;
 import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.startup.PluginContext;
+import com.codealike.client.core.internal.utils.Configuration;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -116,27 +117,26 @@ public class CodealikeSettingsDialog extends DialogWrapper {
     private void loadSettings() {
         IdentityService identityService = IdentityService.getInstance();
 
+        Configuration configuration = PluginContext.getInstance().getConfiguration();
+        tokenInput.setText(configuration.getUserToken());
+
         if (identityService.isAuthenticated() || identityService.isCredentialsStored()) {
             tokenInput.setEnabled(false);
             forgetButton.setVisible(true);
-            tokenInput.setText(identityService.getIdentity() + "/" + identityService.getToken());
         }
         else {
-            tokenInput.setText("");
             tokenInput.setEnabled(true);
             forgetButton.setVisible(false);
         }
 
         identityService.addObserver((o, arg) -> {
+            tokenInput.setText(configuration.getUserToken());
             if (identityService.isAuthenticated() || identityService.isCredentialsStored())
             {
                 tokenInput.setEnabled(false);
                 forgetButton.setVisible(true);
-                tokenInput.setText(identityService.getIdentity() + "/" + identityService.getToken());
-
             }
             else {
-                tokenInput.setText("");
                 tokenInput.setEnabled(true);
                 forgetButton.setVisible(false);
             }
