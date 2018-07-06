@@ -198,6 +198,14 @@ public class ActivitiesRecorder {
 		return lastEvent;
 	}
 
+	private Boolean HasOnlyIdleState() {
+		for (ActivityState state:this.states) {
+			if (state.getType() != ActivityType.Idle)
+				return false;
+		}
+		return true;
+	}
+
 	public FlushResult flush(String username, String token) throws UnknownHostException {
 		List<ActivityState> statesToSend = null;
 		List<ActivityEvent> eventsToSend = null;
@@ -206,7 +214,7 @@ public class ActivitiesRecorder {
 
 		// if lastState or lastEvent are null then there is no info to flush
 		// so lets skip this attempt
-		if (lastState == null || lastEvent == null) {
+		if (lastState == null || lastEvent == null || this.HasOnlyIdleState()) {
 			return FlushResult.Skip;
 		}
 
