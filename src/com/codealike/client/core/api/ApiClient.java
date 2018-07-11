@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import jdk.nashorn.internal.parser.JSONParser;
+import org.glassfish.jersey.client.ClientProperties;
 
 public class ApiClient {
 
@@ -54,24 +55,24 @@ public class ApiClient {
 		 
 		ClientBuilder builder = ClientBuilder.newBuilder();
 
-		TrustManager[] certs = new TrustManager[] { new  javax.net.ssl.X509TrustManager() { 
-            @Override 
-            public X509Certificate[] getAcceptedIssuers() { 
-                    return new X509Certificate[] {}; 
-            } 
+		TrustManager[] certs = new TrustManager[] { new  javax.net.ssl.X509TrustManager() {
+			@Override
+			public X509Certificate[] getAcceptedIssuers() {
+				return new X509Certificate[]{};
+			}
 
 
-            @Override 
-            public void checkServerTrusted(X509Certificate[] chain, 
-                            String authType) throws CertificateException { 
-            } 
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain,
+										   String authType) throws CertificateException {
+			}
 
 
-            @Override 
-            public void checkClientTrusted(X509Certificate[] chain, 
-                            String authType) throws CertificateException { 
-            } 
-    } }; 
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain,
+										   String authType) throws CertificateException {
+			}
+		}};
 		
 		SSLContext sslContext=null;
 		 try {
@@ -84,6 +85,9 @@ public class ApiClient {
 		builder.sslContext(sslContext).hostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 		
 		Client client = builder.build();
+		client.property(ClientProperties.CONNECT_TIMEOUT, 30000);
+		client.property(ClientProperties.READ_TIMEOUT,    5000);
+
 		apiTarget = client.target(PluginContext.getInstance().getConfiguration().getApiUrl());
 		this.identity = "";
 		this.token = "";
@@ -152,6 +156,9 @@ public class ApiClient {
 		ObjectMapper mapper = new ObjectMapper();
 		ClientBuilder builder = ClientBuilder.newBuilder();
 		Client client = builder.build();
+		client.property(ClientProperties.CONNECT_TIMEOUT, 30000);
+		client.property(ClientProperties.READ_TIMEOUT,    5000);
+
 		WebTarget pluginSettingsTarget = client.target("https://codealike.com/api/v2/public/PluginsConfiguration");
 
 		Invocation.Builder invocationBuilder = pluginSettingsTarget.request(
