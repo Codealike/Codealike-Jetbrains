@@ -122,7 +122,7 @@ public class ActivitiesRecorder {
 			}
 			else {
 				// else, we ensure it does not have inconsistent time
-				endableEntity.setDuration(new Period(endableEntity.getCreationTime(), endableEntity.getCreationTime().plusSeconds(idleMinIntervalInSeconds).toDateTime()));
+				endableEntity.setDuration(new Period(endableEntity.getCreationTime(), entityBaseEnd.plusSeconds(idleMinIntervalInSeconds).toDateTime()));
 			}
 
 		}
