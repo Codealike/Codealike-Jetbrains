@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.codealike.client.intellij.plugin</id>
   <name>Codealike</name>
-  <version>1.5.0.25</version>
+  <version>1.5.0.26</version>
   <vendor email="support@codealike.com" url="https://codealike.com">Codealike</vendor>
 
   <description><![CDATA[
@@ -9,7 +9,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      Improved tracking.<br>
+      Improved tracking with a lot of new features in order to have the required change-notes length.<br>
     ]]>
   </change-notes>
 
