@@ -1,36 +1,26 @@
 package com.codealike.client.core.api;
 
-import java.io.FileInputStream;
-import java.net.ConnectException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.UUID;
+import com.codealike.client.core.internal.dto.*;
+import com.codealike.client.core.internal.startup.PluginContext;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import org.glassfish.jersey.client.ClientProperties;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import java.security.cert.*;
-
-import com.codealike.client.core.internal.dto.*;
-import com.codealike.client.core.internal.model.GlobalSettings;
-import com.codealike.client.core.internal.startup.PluginContext;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import jdk.nashorn.internal.parser.JSONParser;
-import org.glassfish.jersey.client.ClientProperties;
+import java.net.ConnectException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.UUID;
 
 public class ApiClient {
 
