@@ -8,11 +8,14 @@ public class PluginSettingsInfo {
     private int idleMaxPeriod;
     @JsonProperty("flushInterval")
     private int flushInterval;
+    @JsonProperty("overrideTrackingSettings")
+    private boolean overrideTrackingSettings;
 
     public PluginSettingsInfo() {
         this.idleCheckInterval = 0;
         this.idleMaxPeriod = 0;
         this.flushInterval = 0;
+        this.overrideTrackingSettings = false;
     }
 
     public int getIdleCheckInterval() {
@@ -40,5 +43,14 @@ public class PluginSettingsInfo {
     @JsonProperty("flushInterval")
     public void setFlushInterval(int flushInterval) {
         this.flushInterval = flushInterval;
+    }
+
+    public boolean getOverrideTrackingSettings() {
+        return this.overrideTrackingSettings;
+    }
+
+    @JsonProperty("overrideTrackingSettings")
+    public void setOverrideTrackingSettings(boolean overrideTrackingSettings) {
+        this.overrideTrackingSettings = overrideTrackingSettings;
     }
 }
