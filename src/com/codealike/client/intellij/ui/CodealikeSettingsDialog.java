@@ -1,6 +1,7 @@
 package com.codealike.client.intellij.ui;
 
 import com.codealike.client.core.internal.services.IdentityService;
+import com.codealike.client.core.internal.services.LoggerService;
 import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.utils.Configuration;
@@ -29,10 +30,12 @@ public class CodealikeSettingsDialog extends DialogWrapper {
     private JLabel labelWarning;
     private JButton forgetButton;
     private Project _project;
+    private LoggerService loggerService;
 
     public CodealikeSettingsDialog(@Nullable Project project) {
         super(project, true);
 
+        loggerService = PluginContext.getInstance().getLogger();
         _project = project;
 
         setTitle("Codealike Settings");
@@ -75,7 +78,7 @@ public class CodealikeSettingsDialog extends DialogWrapper {
         forgetButton.setText("I want to remove/change my token on this computer");
         forgetButton.addActionListener(e -> {
             // log off
-            IdentityService.getInstance().logOff();
+            IdentityService.getInstance(loggerService).logOff();
         });
 
         JPanel inputPanel = new JPanel(new FlowLayout());
@@ -96,7 +99,7 @@ public class CodealikeSettingsDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        IdentityService identityService = IdentityService.getInstance();
+        IdentityService identityService = IdentityService.getInstance(loggerService);
 
         labelError.setVisible(false);
 
@@ -115,7 +118,7 @@ public class CodealikeSettingsDialog extends DialogWrapper {
     }
 
     private void loadSettings() {
-        IdentityService identityService = IdentityService.getInstance();
+        IdentityService identityService = IdentityService.getInstance(loggerService);
 
         Configuration configuration = PluginContext.getInstance().getConfiguration();
         tokenInput.setText(configuration.getUserToken());

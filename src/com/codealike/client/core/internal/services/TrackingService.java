@@ -18,7 +18,6 @@ import com.codealike.client.core.internal.model.TrackedProjectManager;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.tracking.StateTracker;
 import com.codealike.client.core.internal.tracking.ActivitiesRecorder.FlushResult;
-import com.codealike.client.core.internal.utils.LogManager;
 import com.google.common.collect.BiMap;
 
 public class TrackingService extends Observable {
@@ -92,7 +91,7 @@ public class TrackingService extends Observable {
 	}
 
 	private void flushTrackingInformation() {
-		Boolean verboseMode = Boolean.parseBoolean(context.getProperty("activity-verbose-notifications"));
+		Boolean verboseMode = false; //Boolean.parseBoolean(context.getProperty("activity-verbose-notifications"));
 
 		Notification resultNote = null;
 
@@ -202,7 +201,7 @@ public class TrackingService extends Observable {
 			tracker.startTrackingProject(project, projectId, workspaceInitDate);
 		}
 		else {
-			LogManager.INSTANCE.logWarn(String.format("Could not track project %s. "
+			context.getLogger().logWarn(String.format("Could not track project %s. "
 					+ "If you have a duplicated UUID in any of your \"com.codealike.client.intellij.prefs\" please delete one of those to generate a new UUID for"
 					+ "that project", project.getName()));
 		}
@@ -212,7 +211,7 @@ public class TrackingService extends Observable {
 		try {
 			PluginContext.getInstance().registerProjectContext(PluginContext.UNASSIGNED_PROJECT, "Unassigned");
 		} catch (Exception e) {
-			LogManager.INSTANCE.logWarn("Could not track unassigned project.");
+			context.getLogger().logWarn("Could not track unassigned project.");
 		}
 	}
 

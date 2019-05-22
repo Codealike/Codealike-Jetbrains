@@ -1,28 +1,18 @@
 package com.codealike.client.core.internal.processing;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import com.codealike.client.core.internal.dto.ActivityEntryInfo;
 import com.codealike.client.core.internal.dto.ActivityInfo;
-import com.codealike.client.core.internal.dto.ActivityType;
 import com.codealike.client.core.internal.dto.CodeContextInfo;
 import com.codealike.client.core.internal.dto.ProjectContextInfo;
 import com.codealike.client.core.internal.model.ActivityEvent;
 import com.codealike.client.core.internal.model.ActivityState;
-import com.codealike.client.core.internal.model.BuildActivityEvent;
-import com.codealike.client.core.internal.model.NullActivityState;
 import com.codealike.client.core.internal.startup.PluginContext;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 
 public class ActivityInfoProcessor {
 	private List<ActivityState> processedStates;
@@ -31,6 +21,7 @@ public class ActivityInfoProcessor {
 	private DateTime batchEnd;
 	
 	public ActivityInfoProcessor(List<ActivityState> states, List<ActivityEvent> events, DateTime batchStart, DateTime batchEnd) {
+		PluginContext.getInstance().getLogger().log("ActivityInfoProcessor created for [States: " + states.size() + ", Events: " + events.size() + "]");
 		this.processedStates = states;
 		this.processedEvents = events;
 		this.batchStart = batchStart;

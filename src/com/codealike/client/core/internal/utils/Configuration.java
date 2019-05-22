@@ -78,10 +78,12 @@ public class Configuration {
                 if (existingConfiguration != null) {
                     this.globalSettings.setUserToken(existingConfiguration.getUserToken());
                     this.globalSettings.setApiUrl(Optional.ofNullable(existingConfiguration.getApiUrl()).orElse("https://codealike.com/api/v2"));
+                    this.globalSettings.setLogLevel(Optional.ofNullable((existingConfiguration.getLogLevel())).orElse(0));
                 }
                 else {
                     this.globalSettings.setUserToken(null);
                     this.globalSettings.setApiUrl("https://codealike.com/api/v2");
+                    this.globalSettings.setLogLevel(0);
                 }
             }
         }
@@ -185,6 +187,12 @@ public class Configuration {
                 }
             }
         }
+    }
+
+    public int getLogLevel() { return this.globalSettings.getLogLevel(); }
+
+    public File getLogFile() {
+        return new File(instancePath, "codealike.log");
     }
 
     public int getIdleMinInterval() {

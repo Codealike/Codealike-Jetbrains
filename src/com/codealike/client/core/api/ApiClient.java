@@ -1,6 +1,7 @@
 package com.codealike.client.core.api;
 
 import com.codealike.client.core.internal.dto.*;
+import com.codealike.client.core.internal.services.LoggerService;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -142,7 +143,7 @@ public class ApiClient {
 		return doGet(target, Version.class);
 	}
 
-	public static ApiResponse<PluginSettingsInfo> getPluginSettings() {
+	public static ApiResponse<PluginSettingsInfo> getPluginSettings(LoggerService loggerInstance) {
 		ObjectMapper mapper = new ObjectMapper();
 		ClientBuilder builder = ClientBuilder.newBuilder();
 		Client client = builder.build();
@@ -171,18 +172,22 @@ public class ApiClient {
 				PluginSettingsInfo pluginSettingsInfo = mapper.readValue(normalizedObject, PluginSettingsInfo.class);
 
 				if (pluginSettingsInfo != null) {
+					loggerInstance.log("Plugin settings retrieved " + serializedObject);
 					return new ApiResponse<PluginSettingsInfo>(
 							response.getStatus(), response.getStatusInfo()
 							.getReasonPhrase(), pluginSettingsInfo);
 				} else {
+					loggerInstance.log("Plugin settings not retrieved because a problem parsing data from the server.");
 					return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ClientError,
 							"Problem parsing data from the server.");
 				}
 			} else {
+				loggerInstance.log("Plugin settings not retrieved because a problem. [" + response.getStatusInfo().getReasonPhrase() + "]");
 				return new ApiResponse<PluginSettingsInfo>(response.getStatus(), response
 						.getStatusInfo().getReasonPhrase());
 			}
 		} catch (Exception e) {
+			loggerInstance.logError(e, "Problem parsing data from the server");
 			return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ClientError,
 					String.format("Problem parsing data from the server. %s",
 							e.getMessage()));

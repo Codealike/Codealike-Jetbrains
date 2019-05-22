@@ -1,17 +1,15 @@
 package com.codealike.client.core.internal.startup;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
 import java.security.KeyManagementException;
-import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 
 import com.codealike.client.core.internal.dto.PluginSettingsInfo;
 import com.codealike.client.core.internal.model.ProjectSettings;
+import com.codealike.client.core.internal.services.LoggerService;
 import com.codealike.client.core.internal.utils.Configuration;
 import com.codealike.client.intellij.ProjectConfig;
 import com.intellij.ide.util.PropertiesComponent;
@@ -31,7 +29,6 @@ import com.codealike.client.core.internal.serialization.JodaPeriodModule;
 import com.codealike.client.core.internal.services.IdentityService;
 import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.tracking.code.ContextCreator;
-import com.codealike.client.core.internal.utils.LogManager;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -44,7 +41,6 @@ public class PluginContext {
 
 	private String ideName;
 	private Version protocolVersion;
-	private Properties properties;
 	private ObjectWriter jsonWriter;
 	private ObjectMapper jsonMapper;
 	private ContextCreator contextCreator;
@@ -53,27 +49,40 @@ public class PluginContext {
 	private DateTimeFormatter dateTimeParser;
 	private IdentityService identityService;
 	private TrackingService trackingService;
+	private LoggerService loggerService;
 	private String instanceValue;
 	private String machineName;
 
 	private Configuration configuration;
 	
 	public static final UUID UNASSIGNED_PROJECT = UUID.fromString("00000000-0000-0000-0000-0000000001");
-	
-	public static PluginContext getInstance() {
-		return PluginContext.getInstance(null);
+
+	public LoggerService getLogger() {
+		return this.loggerService;
 	}
-	
-	public static PluginContext getInstance(Properties properties) {
+
+	public static PluginContext getInstance() {
 			if (_instance == null)
 			{
-				_instance = new PluginContext(properties);
+				_instance = new PluginContext();
 			}
 		return _instance;
 	}
 	
-	public PluginContext(Properties properties) {
+	public PluginContext() {
 		DateTimeZone.setDefault(DateTimeZone.UTC);
+
+		this.ideName = PlatformUtils.getPlatformPrefix();
+		this.instanceValue = String.valueOf(new Random(DateTime.now().getMillis()).nextInt(Integer.MAX_VALUE) + 1);
+
+		// initialize codealike configuration and load global settings
+		this.configuration = new Configuration(this.ideName, VERSION, this.instanceValue);
+
+		// load user preferences from global settings file
+		this.configuration.loadGlobalSettings();
+
+		// initialize logger
+		this.loggerService = new LoggerService(configuration);
 
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JodaPeriodModule());
@@ -87,21 +96,21 @@ public class PluginContext {
 				appendLiteral("T").appendHourOfDay(2).appendLiteral(":").
 				appendMinuteOfHour(2).appendLiteral(":").appendSecondOfMinute(2).
 				appendLiteral(".").appendMillisOfSecond(3).appendLiteral("Z").toFormatter();
-		this.identityService = IdentityService.getInstance();
-		this.instanceValue = String.valueOf(new Random(DateTime.now().getMillis()).nextInt(Integer.MAX_VALUE) + 1);
-		this.protocolVersion = new Version(0, 9);
-		this.properties = properties;
-		this.ideName = PlatformUtils.getPlatformPrefix();
-		this.machineName = findLocalHostNameOr("unknown");
+		this.identityService = IdentityService.getInstance(this.loggerService);
 
-		// initialize configuration with required parameters
-		this.configuration = new Configuration(this.ideName, VERSION, this.instanceValue);
-		this.configuration.loadGlobalSettings();
+		this.protocolVersion = new Version(0, 9);
+
+		this.machineName = findLocalHostNameOr("unknown");
+		this.loggerService.log("Codealike initialized with host name " + this.machineName);
 
 		// try to load plugin settings from server
-		ApiResponse<PluginSettingsInfo> pluginSettings = ApiClient.getPluginSettings();
+		ApiResponse<PluginSettingsInfo> pluginSettings = ApiClient.getPluginSettings(this.loggerService);
 		if (pluginSettings.success()) {
+			this.loggerService.log("Plugin settings retrieved");
 			this.configuration.loadPluginSettings(pluginSettings.getObject());
+		}
+		else {
+			this.loggerService.log("Plugin settings could not been retrieved");
 		}
 	}
 
@@ -156,7 +165,7 @@ public class PluginContext {
 					}
 				} catch (Exception e) {
 					String projectName = project != null ? project.getName() : "";
-					LogManager.INSTANCE.logError(e, "Could not create UUID for project "+projectName);
+					this.loggerService.logError(e, "Could not create UUID for project "+projectName);
 				}
 			}
 		}
@@ -177,7 +186,7 @@ public class PluginContext {
 		}
 		catch(Exception e) {
 			String projectName = project != null ? project.getName() : "";
-			LogManager.INSTANCE.logError(e, "Could not retrieve solution id from legacy store " + projectName);
+			this.loggerService.logError(e, "Could not retrieve solution id from legacy store " + projectName);
 		}
 
 		return solutionId;
@@ -188,7 +197,7 @@ public class PluginContext {
 		UUID solutionId = null;
 
 		// try first to load codealike.json file from project folder
-		ProjectSettings projectSettings = configuration.loadProjectSettings(project.getBaseDir().getPath());
+		ProjectSettings projectSettings = configuration.loadProjectSettings(project.getBasePath());
 
 		if (projectSettings.getProjectId() == null) {
 			// if configuration was not found in the expected place
@@ -204,7 +213,7 @@ public class PluginContext {
 				projectSettings.setProjectName(project.getName());
 
 				// and save the file for future uses
-				configuration.saveProjectSettings(project.getBaseDir().getPath(), projectSettings);
+				configuration.saveProjectSettings(project.getBasePath(), projectSettings);
 			}
 			else {
 				// if we reached this branch
@@ -234,12 +243,12 @@ public class PluginContext {
 			client = ApiClient.tryCreateNew(this.identityService.getIdentity(), this.identityService.getToken());
 		}
 		catch (KeyManagementException e) {
-			LogManager.INSTANCE.logError(e, "Could not create unique Id synchronized with the server. There was a problem with SSL configuration.");
+			this.loggerService.logError(e, "Could not create unique Id synchronized with the server. There was a problem with SSL configuration.");
 			return solutionId;
 		}
 		ApiResponse<SolutionContextInfo> response = client.getSolutionContext(solutionId);
 		if (response.connectionTimeout()) {
-			LogManager.INSTANCE.logInfo("Communication problems running in offline mode.");
+			this.loggerService.logInfo("Communication problems running in offline mode.");
 			return solutionId;
 		}
 		int numberOfRetries = 0;
@@ -257,14 +266,14 @@ public class PluginContext {
 			client = ApiClient.tryCreateNew(this.identityService.getIdentity(), this.identityService.getToken());
 		}
 		catch (KeyManagementException e) {
-			LogManager.INSTANCE.logError(e, "Could not register unique project context in the remote server. There was a problem with SSL configuration.");
+			this.loggerService.logError(e, "Could not register unique project context in the remote server. There was a problem with SSL configuration.");
 			return false;
 		}
 		ApiResponse<SolutionContextInfo> solutionInfoResponse = client.getSolutionContext(solutionId);
 		if (solutionInfoResponse.notFound()) {
 			ApiResponse<Void> response = client.registerProjectContext(solutionId, projectName);
 			if (!response.success()) {
-				LogManager.INSTANCE.logError("Problem registering solution.");
+				this.loggerService.logError("Problem registering solution.");
 			}
 			else {
 				return true;
@@ -274,74 +283,11 @@ public class PluginContext {
 			return true;
 		}
 		else if (solutionInfoResponse.connectionTimeout()) {
-			LogManager.INSTANCE.logInfo("Communication problems running in offline mode.");
+			this.loggerService.logInfo("Communication problems running in offline mode.");
 		}
 		return false;
 	}
-	
-	public boolean checkVersion() {
-		ApiClient client;
-		try {
-			client = ApiClient.tryCreateNew();
-		}
-		catch (KeyManagementException e)
-		{
-			LogManager.INSTANCE.logError(e, "Could not access remote server. There was a problem with SSL configuration.");
-			return false;
-		}
-		
-		ApiResponse<Version> response = client.version();
-		if (response.success()) {
-			Version version = response.getObject();
-			Version expectedVersion = getProtocolVersion();
-			if (expectedVersion.getMajor() < version.getMajor()) {
-				showIcompatibleVersionDialog();
-				return false;
-			}
-			if (expectedVersion.getMinor() < version.getMinor()) {
-				showIcompatibleVersionDialog();
-				return false;
-			}
-			
-			return true;
-		}
-		else if (!response.connectionTimeout()) {
-			LogManager.INSTANCE.logError(String.format("Couldn't check plugin version (Status code=%s)", response.getStatus()));
-			
-			String title = "Houston... I have the feeling we messed up the specs.";
-			String text = "If the problem continues, radio us for assistance.";
-			/*if (PlatformUI.getWorkbench()!=null) {
-				ErrorDialogView dialog = new ErrorDialogView(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, text, "Roger that.", "images/LunarCat.png");
-				dialog.open();
-			}*/
-			
-			return false;
-		}
-		return true;
-	}
-	
-	private void showIcompatibleVersionDialog() {
-		String title = "This version is not updated";
-		String text = "Click below to be on the bleeding edge and enjoy an improved version of CodealikeApplicationComponent.";
-		/*ErrorDialogView dialog = new ErrorDialogView(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, text, "Download the latest.", "images/bigCodealike.jpg",
-			new Runnable() {
-				
-				@Override
-				public void run() {
-					try {
-						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(PluginContext.getInstance().getProperty("codealike.server.url")+"/Public/Home/Download"));
-					} catch (Exception e) {
-						LogManager.INSTANCE.logError(e, "Couldn't open browser to download new version of plugin.");
-					}
-				}
-		});
-		dialog.open();*/
-	}
-	
-	public String getProperty(String key) {
-		return this.properties.getProperty(key);
-	}
-	
+
 	public ObjectWriter getJsonWriter() {
 		return this.jsonWriter;
 	}
@@ -376,9 +322,5 @@ public class PluginContext {
 
 	public String getInstanceValue() {
 		return instanceValue;
-	}
-
-	public Version getProtocolVersion() {
-		return protocolVersion;
 	}
 }

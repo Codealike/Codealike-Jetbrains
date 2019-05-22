@@ -24,7 +24,7 @@ public class TrackingConsole {
 	
 	private TrackingConsole(PluginContext context) {
 		this.context = context;
-		this.enabled = Boolean.parseBoolean(context.getProperty("tracking-console.enabled"));
+		this.enabled = false; //Boolean.parseBoolean(context.getProperty("tracking-console.enabled"));
 	}
 
 	public void trackMessage(String message) {

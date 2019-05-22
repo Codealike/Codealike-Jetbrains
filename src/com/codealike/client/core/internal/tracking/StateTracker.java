@@ -26,7 +26,6 @@ import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.tracking.ActivitiesRecorder.FlushResult;
 import com.codealike.client.core.internal.tracking.code.ContextCreator;
-import com.codealike.client.core.internal.utils.LogManager;
 import org.joda.time.Period;
 
 public class StateTracker {
@@ -78,7 +77,7 @@ public class StateTracker {
 		}
 		catch(Exception psiException) {
 			// for some reason file was not casted properly to expected format
-			LogManager.INSTANCE.logInfo(String.format("Could not track activity in file %s.", context.getFile()));
+			PluginContext.getInstance().getLogger().logInfo(String.format("Could not track activity in file %s.", context.getFile()));
 		}
 	}
 
@@ -140,7 +139,7 @@ public class StateTracker {
 			lastEvent = event;
 
 		} catch (Exception e) {
-			LogManager.INSTANCE.logError(e, "Problem recording document focus.");
+			PluginContext.getInstance().getLogger().logError(e, "Problem recording document focus.");
 		}
 	}
 
@@ -170,7 +169,7 @@ public class StateTracker {
 			lastEvent = event;
 
 		} catch (Exception e) {
-			LogManager.INSTANCE.logError(e, "Problem recording document edit.");
+			PluginContext.getInstance().getLogger().logError(e, "Problem recording document edit.");
 		}
 	}
 
@@ -300,7 +299,7 @@ public class StateTracker {
 			return this.recorder.flush(identity, token);
 		}
 		catch (Exception e) {
-			LogManager.INSTANCE.logError(e, "Couldn't send data to the server.");
+			PluginContext.getInstance().getLogger().logError(e, "Couldn't send data to the server.");
 			return FlushResult.Report;
 		}
 	}

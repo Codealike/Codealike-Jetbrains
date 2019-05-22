@@ -4,21 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
 
 import com.codealike.client.core.internal.model.*;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
 
 import com.codealike.client.core.api.ApiClient;
@@ -28,8 +21,6 @@ import com.codealike.client.core.internal.dto.ActivityInfo;
 import com.codealike.client.core.internal.dto.ActivityType;
 import com.codealike.client.core.internal.processing.ActivityInfoProcessor;
 import com.codealike.client.core.internal.startup.PluginContext;
-import com.codealike.client.core.internal.utils.GenericExtensionFilter;
-import com.codealike.client.core.internal.utils.LogManager;
 import com.codealike.client.core.internal.utils.TrackingConsole;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -66,10 +57,10 @@ public class ActivitiesRecorder {
 	}
 
 	/*
-             *  isLastEventPropagating:
-             *  This method checks if provided event is continuation
-             *  of the last event recorded by the system.
-             */
+	 *  isLastEventPropagating:
+	 *  This method checks if provided event is continuation
+	 *  of the last event recorded by the system.
+	 */
 	public boolean isLastEventPropagating(ActivityEvent event) {
 		return (lastEvent != null &&
 				event.getType() == lastEvent.getType() &&
@@ -212,9 +203,12 @@ public class ActivitiesRecorder {
 		DateTime batchStart = currentBatchStart;
 		DateTime batchEnd = DateTime.now();
 
+		context.getLogger().log("Codealike activity flush started");
+
 		// if lastState or lastEvent are null then there is no info to flush
 		// so lets skip this attempt
 		if (lastState == null || lastEvent == null || this.HasOnlyIdleState()) {
+			context.getLogger().log("Codealike activity flush skipped");
 			return FlushResult.Skip;
 		}
 
@@ -242,6 +236,8 @@ public class ActivitiesRecorder {
 			currentBatchStart = DateTime.now();
 		}
 
+		context.getLogger().log("Codealike activity flush running for [States: " + statesToSend.size() + " - Events: " + eventsToSend.size() + "]");
+
 		// creates an info procesor
 		ActivityInfoProcessor processor = new ActivityInfoProcessor(statesToSend, eventsToSend, batchStart, batchEnd);
 
@@ -255,7 +251,7 @@ public class ActivitiesRecorder {
 			}
 			File cacheFolder = context.getConfiguration().getCachePath();
 			if (cacheFolder == null) {
-				LogManager.INSTANCE.logError("Could not access cache folder. It might not be created.");
+				context.getLogger().logError("Could not access cache folder. It might not be created.");
 				continue;
 			}
 			FlushResult intermediateResult = trySendEntries(info, username, token);
@@ -275,7 +271,7 @@ public class ActivitiesRecorder {
 						stream.write(json.getBytes(Charset.forName("UTF-8")));
 					}
 					catch (Exception e) {
-						LogManager.INSTANCE.logError(e, "There was a problem trying to store activity data locally.");
+						context.getLogger().logError(e, "There was a problem trying to store activity data locally.");
 					}
 					finally {
 						if (stream != null)
@@ -300,7 +296,7 @@ public class ActivitiesRecorder {
 					stream.write(json.getBytes(Charset.forName("UTF-8")));
 				}
 				catch (Exception e) {
-					LogManager.INSTANCE.logError(e, "There was a problem trying to store activity data locally.");
+					context.getLogger().logError(e, "There was a problem trying to store activity data locally.");
 				}
 				finally {
 					if (stream != null)
@@ -319,6 +315,8 @@ public class ActivitiesRecorder {
 				result = intermediateResult;
 			}
 		}
+
+		context.getLogger().log("Codealike activity flush finished");
 		return result;
 	}
 
@@ -339,11 +337,11 @@ public class ActivitiesRecorder {
 					result = FlushResult.Report;
 				}
 			} catch (IOException e) {
-				LogManager.INSTANCE.logError(e, "There was a problem trying to send offline activity data to the server.");
+				context.getLogger().logError(e, "There was a problem trying to send offline activity data to the server.");
 				result = FlushResult.Report;
 			} 
 			catch (KeyManagementException e) {
-				LogManager.INSTANCE.logError(e, "Could not send data to remote server. There was a problem with SSL configuration.");
+				context.getLogger().logError(e, "Could not send data to remote server. There was a problem with SSL configuration.");
 				result = FlushResult.Skip;
 			}
 			
@@ -370,7 +368,7 @@ public class ActivitiesRecorder {
 			}
 		}
 		catch (Throwable t) {
-			LogManager.INSTANCE.logError(t, "There was a problem trying to send offline activity data to the server.");
+			context.getLogger().logError(t, "There was a problem trying to send offline activity data to the server.");
 		}
 	}
 
@@ -381,13 +379,13 @@ public class ActivitiesRecorder {
 				client = ApiClient.tryCreateNew(username, token);
 			}
 			catch (KeyManagementException e) {
-				LogManager.INSTANCE.logError(e, "Could send activity to remote server. There was a problem with SSL configuration.");
+				context.getLogger().logError(e, "Could send activity to remote server. There was a problem with SSL configuration.");
 				return FlushResult.Offline;
 			}
 			
 			ApiResponse<Void> response = client.postActivityInfo(info);
 			if (!response.success()) {
-				LogManager.INSTANCE.logWarn(String.format("There was a problem trying to send activity data to the server (Status: %s). "
+				context.getLogger().logWarn(String.format("There was a problem trying to send activity data to the server (Status: %s). "
 						+ "Data will be stored offline until it can be sent.", response.getStatus().toString()));
 				if (response.conflict() || response.getStatus() == Status.BadRequest || response.error() || response.notFound()) {
 					return FlushResult.Report;
@@ -398,7 +396,7 @@ public class ActivitiesRecorder {
 			return FlushResult.Succeded;
 		}
 		catch (Throwable t) {
-			LogManager.INSTANCE.logError(t, "There was a problem trying to send activity data to the server.");
+			context.getLogger().logError(t, "There was a problem trying to send activity data to the server.");
 			return FlushResult.Report;
 		}
 	}

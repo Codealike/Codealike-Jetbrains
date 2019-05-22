@@ -3,10 +3,6 @@ package com.codealike.client.core.internal.services;
 import java.security.KeyManagementException;
 import java.util.Observable;
 
-/*import org.eclipse.equinox.security.storage.ISecurePreferences;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.equinox.security.storage.StorageException;*/
-
 import com.codealike.client.core.api.ApiClient;
 import com.codealike.client.core.api.ApiResponse;
 import com.codealike.client.core.internal.dto.ProfileInfo;
@@ -15,12 +11,10 @@ import com.codealike.client.core.internal.model.Profile;
 import com.codealike.client.core.internal.model.TrackActivity;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.utils.Configuration;
-import com.codealike.client.core.internal.utils.LogManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-//import com.codealike.client.core.internal.utils.WorkbenchUtils;
 
 public class IdentityService extends Observable {
 	
@@ -31,16 +25,18 @@ public class IdentityService extends Observable {
 	private Profile profile;
 	private boolean credentialsStored;
 	private TrackActivity trackActivities;
+	private LoggerService loggerService;
 	
-	public static IdentityService getInstance() {
+	public static IdentityService getInstance(LoggerService loggerService) {
 		if (_instance == null) {
-			_instance = new IdentityService();
+			_instance = new IdentityService(loggerService);
 		}
 		
 		return _instance;
 	}
 	
-	public IdentityService() {
+	public IdentityService(LoggerService loggerService) {
+		this.loggerService = loggerService;
 		this.identity = "";
 		this.isAuthenticated = false;
 		this.credentialsStored = false;
@@ -88,7 +84,7 @@ public class IdentityService extends Observable {
 					}
 				}
 				catch(Exception e) {
-					LogManager.INSTANCE.logError(e, "Could not get user profile.");
+					loggerService.logError(e, "Could not get user profile.");
 				}
 
 				try {
@@ -99,7 +95,7 @@ public class IdentityService extends Observable {
 					}
 				}
 				catch(Exception e) {
-					LogManager.INSTANCE.logError(e, "Could not get user configuration");
+					loggerService.logError(e, "Could not get user configuration");
 				}
 
 				this.isAuthenticated = true;
@@ -110,7 +106,7 @@ public class IdentityService extends Observable {
 			
 		}
 		catch (KeyManagementException e){
-			LogManager.INSTANCE.logError(e, "Could not log in. There was a problem with SSL configuration.");
+			loggerService.logError(e, "Could not log in. There was a problem with SSL configuration.");
 		}
 		return false;
 	}

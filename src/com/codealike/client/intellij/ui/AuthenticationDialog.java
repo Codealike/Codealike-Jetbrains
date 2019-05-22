@@ -1,6 +1,7 @@
 package com.codealike.client.intellij.ui;
 
 import com.codealike.client.core.internal.services.IdentityService;
+import com.codealike.client.core.internal.services.LoggerService;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.utils.Configuration;
 import com.intellij.openapi.project.Project;
@@ -20,10 +21,12 @@ public class AuthenticationDialog extends DialogWrapper {
     private JLabel labelError;
     private JLabel labelMessage;
     private Project _project;
+    private LoggerService loggerService;
 
     public AuthenticationDialog(Project project) {
         super(project, true);
 
+        loggerService = PluginContext.getInstance().getLogger();
         _project = project;
 
         setTitle("Codealike Authentication");
@@ -71,7 +74,7 @@ public class AuthenticationDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        IdentityService identityService = IdentityService.getInstance();
+        IdentityService identityService = IdentityService.getInstance(loggerService);
 
         labelError.setVisible(false);
         String[] split = authInput.getText().split("/");
