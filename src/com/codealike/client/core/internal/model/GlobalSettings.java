@@ -7,10 +7,12 @@ public class GlobalSettings {
     private String userToken;
     private String apiUrl;
     private boolean trackSent;
+    private int logLevel;
 
     public GlobalSettings() {
         this.setApiUrl("https://codealike.com/api/v2");
         this.trackSent = true;
+        this.logLevel = 0;
     }
 
     public String getUserToken() {
@@ -36,4 +38,8 @@ public class GlobalSettings {
     public void setTrackSent(boolean trackSent) {
         this.trackSent = trackSent;
     }
+
+    public int getLogLevel() { return logLevel; }
+
+    public void setLogLevel(int logLevel) { this.logLevel = logLevel; }
 }
