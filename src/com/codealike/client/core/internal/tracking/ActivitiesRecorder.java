@@ -204,6 +204,9 @@ public class ActivitiesRecorder {
 		DateTime batchEnd = DateTime.now();
 
 		context.getLogger().log("Codealike activity flush started");
+		context.getLogger().log("LastState:" + lastState);
+		context.getLogger().log("LastEvent:" + lastEvent);
+		context.getLogger().log("Has only idle:" + this.HasOnlyIdleState());
 
 		// if lastState or lastEvent are null then there is no info to flush
 		// so lets skip this attempt
@@ -226,12 +229,14 @@ public class ActivitiesRecorder {
 			eventsToSend = new LinkedList<>(this.events);
 
 			// recreate state list for next batch
+			this.lastState = this.lastState.recreate();
 			this.states = new LinkedList<>();
-			this.recordState(lastState.recreate());
+			this.states.add(this.lastState);
 
 			// recreate events list for next batch
+			this.lastEvent = this.lastEvent.recreate();
 			this.events = new LinkedList<>();
-			this.recordEvent(lastEvent.recreate());
+			this.events.add(this.lastEvent);
 
 			currentBatchStart = DateTime.now();
 		}
