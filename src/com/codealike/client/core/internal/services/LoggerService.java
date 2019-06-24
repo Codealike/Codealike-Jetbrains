@@ -18,6 +18,7 @@ public class LoggerService {
         if (this.logLevel > 0) {
             FileHandler handler = null;
             try {
+                System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT %4$s %5$s%6$s%n");
                 handler = new FileHandler(configuration.getLogFile().getPath());
                 handler.setFormatter(new SimpleFormatter());
             } catch (IOException e) {
@@ -38,7 +39,7 @@ public class LoggerService {
 
     public void logInfo(String message) {
         if (this.logger != null)
-            this.logger.fine(message);
+            this.logger.info(message);
     }
 
     public void logError(Throwable error, String message) {
