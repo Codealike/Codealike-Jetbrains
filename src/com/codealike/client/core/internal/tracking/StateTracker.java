@@ -126,9 +126,11 @@ public class StateTracker {
 					lastEvent.getContext().isEquivalent(event.getContext())) {
 				// this fix the issue with focus event comming right after
 				// each coding event.
-				TrackingConsole.getInstance().trackMessage("Focus event skiped");
+				PluginContext.getInstance().getLogger().logInfo("Focus event skiped");
 				return;
 			}
+
+			PluginContext.getInstance().getLogger().logInfo("Document focus tracked");
 
 			// record events to be processed
 			recorder.recordState(state);
@@ -159,6 +161,8 @@ public class StateTracker {
 			// create related events
 			ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);
 			ActivityState state = ActivityState.createDesignState(projectId);
+
+			PluginContext.getInstance().getLogger().logInfo("Coding event tracked");
 
 			// record events to be processed
 			recorder.recordState(state);
