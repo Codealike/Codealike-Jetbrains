@@ -27,7 +27,7 @@ public class PeriodDeserializer extends JsonDeserializer<Period> {
 			}
 		}
 
-		throw context.mappingException("Expected string");
+		throw context.instantiationException(Period.class, "Expected string");
 	}
 
 }
