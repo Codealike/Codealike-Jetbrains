@@ -30,7 +30,7 @@ import java.util.Properties;
  * Created by Daniel on 11/4/2016.
  */
 public class CodealikeApplicationComponent implements ApplicationComponent {
-    private static final String CODEALIKE_PROPERTIES_FILE = "codealike.properties";
+    private static final String CODEALIKE_PROPERTIES_FILE = "/codealike.properties";
 
     private PluginContext pluginContext;
 

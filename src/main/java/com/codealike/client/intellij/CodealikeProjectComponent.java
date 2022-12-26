@@ -2,8 +2,6 @@ package com.codealike.client.intellij;
 
 import com.codealike.client.core.internal.services.IdentityService;
 import com.codealike.client.core.internal.services.TrackingService;
-import com.intellij.debugger.DebuggerManager;
-import com.intellij.debugger.engine.DebugProcessEvents;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;

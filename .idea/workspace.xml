@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="883acd61-1366-4d8f-bdbd-0844c3099273" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Codealike-Jetbrains.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/codealike.json" beforeDir="false" afterPath="$PROJECT_DIR$/codealike.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/com.codealike.client.intellij.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/api/ApiClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/api/ApiResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ActivityEntryInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ActivityInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ActivityType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/CodeContextInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/HealthInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ProfileInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ProjectContextInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/SolutionContextInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/UserConfigurationInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/Version.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/ActivityEvent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/ActivityState.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/BuildActivityEvent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/CodeContext.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/IProject.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/IdleActivityState.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/NullActivityState.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/Profile.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/StructuralCodeContext.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/TrackActivity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/TrackedProjectManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/exception/NonExistingResourceException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/processing/ActivityInfoProcessor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/ActivityTypeDeserializer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/ActivityTypeSerializer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/DateTimeDeserializer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/DateTimeSerializer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/JodaPeriodModule.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/PeriodDeserializer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/PeriodSerializer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/services/IIdentityService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/services/IdentityService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/services/TrackingService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/startup/PluginContext.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/tracking/ActivitiesRecorder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/tracking/ActivityFlushResult.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/tracking/StateTracker.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/tracking/code/ContextCreator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/CodeContextUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/ExceptionUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/GenericExtensionFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/LogManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/ResourcesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/TrackingConsole.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/URIUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/CodealikeApplicationComponent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/CodealikeModuleComponent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/CodealikeProjectComponent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/CodealikeSettingsAction.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/EventListeners/CustomCaretListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/EventListeners/CustomDocumentListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/EventListeners/CustomEditorMouseListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/EventListeners/CustomVisibleAreaListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/codealike.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/ui/AuthenticationDialog.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/ui/CodealikeSettingsDialog.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation>
+            <after_sync>
+              <task name="setupDependencies" />
+            </after_sync>
+          </activation>
+        </task>
+        <projects_view />
+      </state>
+    </system>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="LogFilters">
+    <option name="FILTER_ERRORS" value="false" />
+    <option name="FILTER_WARNINGS" value="false" />
+    <option name="FILTER_INFO" value="true" />
+    <option name="FILTER_DEBUG" value="true" />
+    <option name="CUSTOM_FILTER" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="workspaceImportEnabled" value="true" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="2JSHSnjInTkp0VinU7Y8ovYpfnf" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "C:/Users/UQAR/OneDrive - PETROBRAS/Documents/2. Pessoal/2. OpenTorc/CodeAlike/Codealike-Jetbrains/libs/jakarta.inject-api-2.0.1.jar",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\UQAR\OneDrive - PETROBRAS\Documents\2. Pessoal\2. OpenTorc\CodeAlike\Codealike-Jetbrains\src\main\resources\META-INF" />
+      <recent name="C:\Users\UQAR\OneDrive - PETROBRAS\Documents\2. Pessoal\2. OpenTorc\CodeAlike\Codealike-Jetbrains\src\main\resources" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="883acd61-1366-4d8f-bdbd-0844c3099273" name="Changes" comment="" />
+      <created>1672064567822</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1672064567822</updated>
+    </task>
+    <servers />
+  </component>
+</project>
