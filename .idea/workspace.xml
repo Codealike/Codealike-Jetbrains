@@ -5,68 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="883acd61-1366-4d8f-bdbd-0844c3099273" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Codealike-Jetbrains.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/codealike.json" beforeDir="false" afterPath="$PROJECT_DIR$/codealike.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/com.codealike.client.intellij.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/api/ApiClient.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/api/ApiResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ActivityEntryInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ActivityInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ActivityType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/CodeContextInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/HealthInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ProfileInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/ProjectContextInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/SolutionContextInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/UserConfigurationInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/dto/Version.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/ActivityEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/ActivityState.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/BuildActivityEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/CodeContext.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/IProject.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/IdleActivityState.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/NullActivityState.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/Profile.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/StructuralCodeContext.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/TrackActivity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/TrackedProjectManager.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/model/exception/NonExistingResourceException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/processing/ActivityInfoProcessor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/ActivityTypeDeserializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/ActivityTypeSerializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/DateTimeDeserializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/DateTimeSerializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/JodaPeriodModule.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/PeriodDeserializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/serialization/PeriodSerializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/services/IIdentityService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/services/IdentityService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/services/TrackingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/startup/PluginContext.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/tracking/ActivitiesRecorder.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/tracking/ActivityFlushResult.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/tracking/StateTracker.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/tracking/code/ContextCreator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/CodeContextUtils.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/ExceptionUtils.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/GenericExtensionFilter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/LogManager.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/ResourcesUtils.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/TrackingConsole.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/core/internal/utils/URIUtils.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/CodealikeApplicationComponent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/CodealikeModuleComponent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/CodealikeProjectComponent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/CodealikeSettingsAction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/EventListeners/CustomCaretListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/EventListeners/CustomDocumentListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/EventListeners/CustomEditorMouseListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/EventListeners/CustomVisibleAreaListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/codealike.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/ui/AuthenticationDialog.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/codealike/client/intellij/ui/CodealikeSettingsDialog.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/cglib-3.3.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/guava-31.1-jre.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/hk2-api-3.0.3.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/hk2-locator-3.0.3.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/hk2-utils-3.0.3.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/httpclient-4.5.14.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/httpcore-4.4.16.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/jackson-annotations-2.14.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/jackson-core-2.14.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/jackson-databind-2.14.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/jakarta.annotation-api-2.1.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/jakarta.inject-api-2.0.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/jakarta.ws.rs-api-3.1.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/javax.inject-2.5.0-b62.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/jersey-client-3.1.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/jersey-common-3.1.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/jersey-hk2-3.1.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/joda-time-2.12.2.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/log4j-1.2.17.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/nekohtml-1.9.6.2.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/xercesImpl-2.8.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/xml-apis-1.3.03.jar" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
