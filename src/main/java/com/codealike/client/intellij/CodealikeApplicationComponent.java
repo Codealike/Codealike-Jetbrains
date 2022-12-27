@@ -94,7 +94,7 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
             }
             catch (KeyManagementException e1) {
                 e1.printStackTrace();
-                LogManager.INSTANCE.logError(e, "Couldn't send HealtInfo.");
+                LogManager.INSTANCE.logError(e, "Couldn't send Health Info.");
             }
             LogManager.INSTANCE.logError(e, "Couldn't start plugin.");
         }
