@@ -1,22 +1,12 @@
 package com.codealike.client.intellij.ui;
 
 import com.codealike.client.core.internal.services.IdentityService;
-import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
-import org.cyberneko.html.filters.Identity;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Created by Daniel on 11/14/2016.
@@ -106,13 +96,12 @@ public class CodealikeSettingsDialog extends DialogWrapper {
             forgetButton.setVisible(false);
         }
 
-        identityService.addObserver((o, arg) -> {
+        identityService.addListener(() -> {
             if (identityService.isAuthenticated() || identityService.isCredentialsStored())
             {
                 tokenInput.setEnabled(false);
                 forgetButton.setVisible(true);
                 tokenInput.setText(identityService.getIdentity() + "/" + identityService.getToken());
-
             }
             else {
                 tokenInput.setText("");
@@ -120,5 +109,6 @@ public class CodealikeSettingsDialog extends DialogWrapper {
                 forgetButton.setVisible(false);
             }
         });
+
     }
 }

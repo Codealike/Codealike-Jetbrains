@@ -22,7 +22,7 @@ import com.codealike.client.core.internal.utils.LogManager;
 //import com.codealike.client.core.internal.utils.WorkbenchUtils;
 import com.google.common.collect.BiMap;
 
-public class TrackingService extends Observable {
+public class TrackingService extends BaseService {
 
 	public static final Duration TWO_MINUTES = Duration.standardMinutes(2);
 	public static final Duration TEN_SECONDS = Duration.standardSeconds(10);
@@ -62,8 +62,7 @@ public class TrackingService extends Observable {
 		startTrackingUnassignedProject();
 		
 		this.isTracking = true;
-		setChanged();
-		notifyObservers();
+		publishEvent();
 	}
 
 	public void trackDocumentFocus(Editor editor, int offset) {
@@ -142,10 +141,7 @@ public class TrackingService extends Observable {
 		this.trackedProjectManager.stopTracking();
 		
 		this.isTracking = false;
-		if (propagate) {
-			setChanged();
-			notifyObservers();
-		}
+		publishEvent();
 	}
 
 	public void enableTracking() {

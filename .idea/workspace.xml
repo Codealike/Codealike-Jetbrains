@@ -5,12 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="883acd61-1366-4d8f-bdbd-0844c3099273" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/IdentityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/IdentityService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/TrackingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/TrackingService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/intellij/CodealikeApplicationComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/intellij/CodealikeApplicationComponent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/intellij/CodealikeModuleComponent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/intellij/CodealikeProjectComponent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/intellij/codealike.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/intellij/ui/CodealikeSettingsDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/intellij/ui/CodealikeSettingsDialog.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,13 +33,29 @@
             </after_sync>
           </activation>
         </task>
-        <projects_view />
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="Codealike-Jetbrains" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="Codealike-Jetbrains" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
       </state>
     </system>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -77,10 +93,11 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/UQAR/OneDrive - PETROBRAS/Documents/2. Pessoal/2. OpenTorc/CodeAlike/Codealike-Jetbrains/libs/jakarta.inject-api-2.0.1.jar&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/UQAR/OneDrive - PETROBRAS/Documents/2. Pessoal/2. OpenTorc/CodeAlike/Codealike-Jetbrains&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
+    &quot;project.structure.side.proportion&quot;: &quot;0.37586206&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -99,5 +116,16 @@
       <updated>1672064567822</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

@@ -1,7 +1,6 @@
 package com.codealike.client.core.internal.services;
 
 import java.security.KeyManagementException;
-import java.util.Observable;
 
 /*import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
@@ -19,10 +18,8 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-//import com.codealike.client.core.internal.utils.WorkbenchUtils;
 
-public class IdentityService extends Observable {
-	
+public class IdentityService extends BaseService {
 	private static IdentityService _instance;
 	private boolean isAuthenticated;
 	private String identity;
@@ -58,8 +55,7 @@ public class IdentityService extends Observable {
 		Notifications.Bus.notify(note);
 
 		if (this.isAuthenticated) {
-			setChanged();
-			notifyObservers();
+			publishEvent();
 			return true;
 		}
 		try {
@@ -94,8 +90,7 @@ public class IdentityService extends Observable {
 					this.trackActivities = config.getTrackActivities();
 				}
 				this.isAuthenticated = true;
-				setChanged();
-				notifyObservers();
+				publishEvent();
 				return true;
 			}
 			
@@ -145,7 +140,7 @@ public class IdentityService extends Observable {
 		String identity = propertiesComponent.getValue("codealike.identity", "");
 		String token = propertiesComponent.getValue("codealike.token", "");
 
-		if (identity != "" && token != "")
+		if (!identity.trim().isEmpty() && !token.trim().isEmpty())
 			return login(identity, token, false, false);
 
         /*ISecurePreferences secureStorage = SecurePreferencesFactory
@@ -197,8 +192,7 @@ public class IdentityService extends Observable {
 		this.identity = null;
 		this.token = null;
 		removeStoredCredentials();
-		
-		setChanged();
-		notifyObservers();
+
+		publishEvent();
 	}
 }

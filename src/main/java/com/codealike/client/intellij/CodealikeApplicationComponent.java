@@ -3,18 +3,16 @@ package com.codealike.client.intellij;
 import com.codealike.client.core.api.ApiClient;
 import com.codealike.client.core.internal.dto.HealthInfo;
 import com.codealike.client.core.internal.services.IdentityService;
+import com.codealike.client.core.internal.services.ServiceListener;
 import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.utils.LogManager;
-import com.codealike.client.intellij.EventListeners.CustomCaretListener;
-import com.codealike.client.intellij.EventListeners.CustomDocumentListener;
 import com.codealike.client.intellij.ui.AuthenticationDialog;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +76,7 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
             }
 
             pluginContext.getTrackingService().setBeforeOpenProjectDate();
-            pluginContext.getIdentityService().addObserver(loginObserver);
+            pluginContext.getIdentityService().addListener(loginObserver);
             if (!pluginContext.getIdentityService().tryLoginWithStoredCredentials()) {
                 authenticate();
             }
@@ -127,34 +125,62 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
         });
     }
 
-    Observer loginObserver = new Observer() {
+    ServiceListener loginObserver = new ServiceListener() {
+        @Override
+        public void onEvent() {
+            TrackingService trackingService = pluginContext.getTrackingService();
+            IdentityService identityService = pluginContext.getIdentityService();
+            if (identityService.isAuthenticated()) {
+                switch(identityService.getTrackActivity()) {
+                    case Always:
+                    {
+                        trackingService.enableTracking();
+                        break;
+                    }
+                    case AskEveryTime:
+                    case Never:
+                        Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+                                "Codealike",
+                                "Codealike  is not tracking your projects",
+                                NotificationType.INFORMATION);
+                        Notifications.Bus.notify(note);
+                        break;
+                }
+            }
+            else {
+                trackingService.disableTracking();
+            }
+        }
+    };
+
+    Observer loginObserverOld = new Observer() {
 
         @Override
         public void update(Observable o, Object arg1) {
-            if (o == pluginContext.getIdentityService()) {
-                TrackingService trackingService = pluginContext.getTrackingService();
-                IdentityService identityService = pluginContext.getIdentityService();
-                if (identityService.isAuthenticated()) {
-                    switch(identityService.getTrackActivity()) {
-                        case Always:
-                        {
-                            trackingService.enableTracking();
-                            break;
-                        }
-                        case AskEveryTime:
-                        case Never:
-                            Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-                                    "Codealike",
-                                    "Codealike  is not tracking your projects",
-                                    NotificationType.INFORMATION);
-                            Notifications.Bus.notify(note);
-                            break;
+            // if (o == pluginContext.getIdentityService()) {
+            TrackingService trackingService = pluginContext.getTrackingService();
+            IdentityService identityService = pluginContext.getIdentityService();
+            if (identityService.isAuthenticated()) {
+                switch(identityService.getTrackActivity()) {
+                    case Always:
+                    {
+                        trackingService.enableTracking();
+                        break;
                     }
-                }
-                else {
-                    trackingService.disableTracking();
+                    case AskEveryTime:
+                    case Never:
+                        Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+                                "Codealike",
+                                "Codealike  is not tracking your projects",
+                                NotificationType.INFORMATION);
+                        Notifications.Bus.notify(note);
+                        break;
                 }
             }
+            else {
+                trackingService.disableTracking();
+            }
+            // }
         }
     };
 }
