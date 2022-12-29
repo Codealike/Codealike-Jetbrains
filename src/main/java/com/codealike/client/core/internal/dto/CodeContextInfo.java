@@ -1,20 +1,34 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.dto;
 
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Code context information DTO class.
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
+ */
 public class CodeContextInfo {
-
 	private String member;
 	private String className;
 	private String namespace;
 	private UUID projectId;
 	private String file;
 
+	/**
+	 * Default constructor.
+	 */
 	public CodeContextInfo() {
 	}
-	
+
+	/**
+	 * Constructor from project id
+	 * @param projectId the project UUID
+	 */
 	public CodeContextInfo(UUID projectId) {
 		this.projectId = projectId;
 	}

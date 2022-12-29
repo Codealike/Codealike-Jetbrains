@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.intellij.ui;
 
 import com.codealike.client.core.internal.services.IdentityService;
@@ -8,7 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 /**
- * Created by Daniel on 11/14/2016.
+ * Authentication dialog. Used to set Codealike token.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
  */
 public class AuthenticationDialog extends DialogWrapper {
 
@@ -17,9 +23,7 @@ public class AuthenticationDialog extends DialogWrapper {
 
     public AuthenticationDialog(Project project) {
         super(project, true);
-
         setTitle("Codealike Authentication");
-
         init();
     }
 
@@ -51,14 +55,12 @@ public class AuthenticationDialog extends DialogWrapper {
         labelError.setVisible(false);
         String[] split = authInput.getText().split("/");
         if (split.length == 2) {
-            if(identityService.login(split[0], split[1], true, true)) {
+            if (identityService.login(split[0], split[1], true, true)) {
                 super.doOKAction();
-            }
-            else {
+            } else {
                 labelError.setVisible(true);
             }
-        }
-        else {
+        } else {
             labelError.setVisible(true);
         }
     }

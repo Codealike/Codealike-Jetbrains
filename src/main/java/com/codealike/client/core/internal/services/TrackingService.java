@@ -1,6 +1,8 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.services;
 
-import java.util.Observable;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -10,7 +12,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
@@ -22,218 +23,212 @@ import com.codealike.client.core.internal.utils.LogManager;
 //import com.codealike.client.core.internal.utils.WorkbenchUtils;
 import com.google.common.collect.BiMap;
 
+/**
+ * Tracking service class.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
+ */
 public class TrackingService extends BaseService {
+    public static final Duration TWO_MINUTES = Duration.standardMinutes(2);
+    public static final Duration TEN_SECONDS = Duration.standardSeconds(10);
+    public static final int ONE_SECOND = 1000;
+    private static TrackingService _instance;
+    private final TrackedProjectManager trackedProjectManager;
+    private final StateTracker tracker;
+    private ScheduledThreadPoolExecutor flushExecutor = null;
+    private boolean isTracking;
+    private DateTime startWorkspaceDate;
+    private PluginContext context;
 
-	public static final Duration TWO_MINUTES = Duration.standardMinutes(2);
-	public static final Duration TEN_SECONDS = Duration.standardSeconds(10);
-	public static final int ONE_SECOND = 1000;
-	private static TrackingService _instance;
-	
-	private TrackedProjectManager trackedProjectManager;
-	private ScheduledThreadPoolExecutor flushExecutor = null;
-	private StateTracker tracker;
-	private boolean isTracking;
-	private DateTime startWorkspaceDate;
-	private PluginContext context;
-	
-	public static TrackingService getInstance() {
-		if (_instance == null) {
-			_instance = new TrackingService();
-		}
-		if (_instance.context == null) {
-			_instance.context = PluginContext.getInstance();
-		}
-		
-		return _instance;
-	}
-	
-	public TrackingService() {
-		this.trackedProjectManager = new TrackedProjectManager();
-		this.tracker = new StateTracker(ONE_SECOND, TWO_MINUTES);
-		this.isTracking = false;
-	}
+    public static TrackingService getInstance() {
+        if (_instance == null) {
+            _instance = new TrackingService();
+        }
+        if (_instance.context == null) {
+            _instance.context = PluginContext.getInstance();
+        }
 
-	public void startTracking() {
-		this.tracker.startTracking();
-		
-		startFlushExecutor();
-		
-		//We need to start tracking unassigned project for states like "debugging" which does not belong to any project.
-		startTrackingUnassignedProject();
-		
-		this.isTracking = true;
-		publishEvent();
-	}
+        return _instance;
+    }
 
-	public void trackDocumentFocus(Editor editor, int offset) {
-		tracker.trackDocumentFocus(editor, offset);
-	}
+    public TrackingService() {
+        this.trackedProjectManager = new TrackedProjectManager();
+        this.tracker = new StateTracker(ONE_SECOND, TWO_MINUTES);
+        this.isTracking = false;
+    }
 
-	public void trackCodingEvent(Editor editor, int offset) {
-		tracker.trackCodingEvent(editor, offset);
-	}
+    public void startTracking() {
+        this.tracker.startTracking();
 
-	private void startFlushExecutor() {
-		if (this.flushExecutor != null)
-			return;
+        startFlushExecutor();
 
-		this.flushExecutor = new ScheduledThreadPoolExecutor(1);
-		Runnable idlePeriodicTask = new Runnable() {
-			
-			@Override
-			public void run() {
-				Boolean verboseMode = Boolean.parseBoolean(context.getProperty("activity-verbose-notifications"));
+        // We need to start tracking unassigned project for states like "debugging" which
+        // does not belong to any project.
+        startTrackingUnassignedProject();
 
-				Notification resultNote = null;
+        this.isTracking = true;
+        publishEvent();
+    }
 
-				Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-						"Codealike",
-						"Codealike is sending activities...",
-						NotificationType.INFORMATION);
-				if (verboseMode) {
-					Notifications.Bus.notify(note);
-				}
+    public void trackDocumentFocus(Editor editor, int offset) {
+        tracker.trackDocumentFocus(editor, offset);
+    }
 
-				FlushResult result = tracker.flush(context.getIdentityService().getIdentity(), context.getIdentityService().getToken());
-				switch (result) {
-				case Succeded:
-					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
-							"Codealike",
-							"Codealike sent activities",
-							NotificationType.INFORMATION);
+    public void trackCodingEvent(Editor editor, int offset) {
+        tracker.trackCodingEvent(editor, offset);
+    }
 
-					break;
-				case Skip:
-					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
-							"Codealike",
-							"No data to be sent",
-							NotificationType.INFORMATION);
-					break;
-				case Offline:
-					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
-							"Codealike",
-							"Codealike is working in offline mode",
-							NotificationType.INFORMATION);
-				case Report:
-					resultNote = new Notification("CodealikeApplicationComponent.Notifications",
-							"Codealike",
-							"Codealike is storing corrupted entries for further inspection",
-							NotificationType.INFORMATION);
-				}
+    private void startFlushExecutor() {
+        if (this.flushExecutor != null)
+            return;
 
-				if (verboseMode) {
-					Notifications.Bus.notify(resultNote);
-				}
-			}
-		};
-		
-		int flushInterval = Integer.valueOf(context.getProperty("activity-log.interval.secs"));
-		this.flushExecutor.scheduleWithFixedDelay(idlePeriodicTask, flushInterval, flushInterval, TimeUnit.SECONDS);
-	}
+        this.flushExecutor = new ScheduledThreadPoolExecutor(1);
+        Runnable idlePeriodicTask = () -> {
+            boolean verboseMode = Boolean.parseBoolean(context.getProperty("activity-verbose-notifications"));
 
-	public void stopTracking(boolean propagate) {
-		this.tracker.stopTracking();
-		if (this.flushExecutor != null) {
-			this.flushExecutor.shutdown();
-			this.flushExecutor = null;
-		}
-		
-		this.trackedProjectManager.stopTracking();
-		
-		this.isTracking = false;
-		publishEvent();
-	}
+            Notification resultNote = null;
 
-	public void enableTracking() {
-		if (context.isAuthenticated()) {
-			startTracking();
+            Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+                    "Codealike",
+                    "Codealike is sending activities...",
+                    NotificationType.INFORMATION);
+            if (verboseMode) {
+                Notifications.Bus.notify(note);
+            }
 
-			Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-					"Codealike",
-					"Codealike  is tracking your projects",
-					NotificationType.INFORMATION);
-			Notifications.Bus.notify(note);
-		}
-	}
+            FlushResult result = tracker.flush(context.getIdentityService().getIdentity(), context.getIdentityService().getToken());
+            switch (result) {
+                case Succeded:
+                    resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+                            "Codealike",
+                            "Codealike sent activities",
+                            NotificationType.INFORMATION);
 
-	public void disableTracking() {
-		stopTracking(true);
+                    break;
+                case Skip:
+                    resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+                            "Codealike",
+                            "No data to be sent",
+                            NotificationType.INFORMATION);
+                    break;
+                case Offline:
+                    resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+                            "Codealike",
+                            "Codealike is working in offline mode",
+                            NotificationType.INFORMATION);
+                case Report:
+                    resultNote = new Notification("CodealikeApplicationComponent.Notifications",
+                            "Codealike",
+                            "Codealike is storing corrupted entries for further inspection",
+                            NotificationType.INFORMATION);
+            }
 
-		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-				"Codealike",
-				"Codealike  is not tracking your projects",
-				NotificationType.INFORMATION);
-		Notifications.Bus.notify(note);
-	}
+            if (verboseMode) {
+                Notifications.Bus.notify(resultNote);
+            }
+        };
 
-	public synchronized void startTracking(Project project) {
-		if (!project.isOpen()) {
-			return;
-		}
-		if (isTracked(project)) {
-			return;
-		}
-		UUID projectId = PluginContext.getInstance().getOrCreateUUID(project);
-		if (projectId != null && trackedProjectManager.trackProject(project, projectId)) {
-			tracker.startTrackingProject(project, projectId, this.startWorkspaceDate);
-		}
-		else {
-			LogManager.INSTANCE.logWarn(String.format("Could not track project %s. "
-					+ "If you have a duplicated UUID in any of your \"com.codealike.client.intellij.prefs\" please delete one of those to generate a new UUID for"
-					+ "that project", project.getName()));
-		}
-	}
-	
-	private void startTrackingUnassignedProject() {
-		try {
-			PluginContext.getInstance().registerProjectContext(PluginContext.UNASSIGNED_PROJECT, "Unassigned");
-		} catch (Exception e) {
-			LogManager.INSTANCE.logWarn("Could not track unassigned project.");
-		}
-	}
+        int flushInterval = Integer.valueOf(context.getProperty("activity-log.interval.secs"));
+        this.flushExecutor.scheduleWithFixedDelay(idlePeriodicTask, flushInterval, flushInterval, TimeUnit.SECONDS);
+    }
 
-	public boolean isTracked(Project project) {
-		return this.trackedProjectManager.isTracked(project);
-	}
+    public void stopTracking(boolean propagate) {
+        this.tracker.stopTracking();
+        if (this.flushExecutor != null) {
+            this.flushExecutor.shutdown();
+            this.flushExecutor = null;
+        }
 
-	public void stopTracking(Project project) {
-		this.trackedProjectManager.stopTrackingProject(project);
-	}
+        this.trackedProjectManager.stopTracking();
 
-	public TrackedProjectManager getTrackedProjectManager() {
-		return this.trackedProjectManager;
-	}
+        this.isTracking = false;
+        publishEvent();
+    }
 
-	public UUID getUUID(Project project) {
-		return this.trackedProjectManager.getTrackedProjectId(project);
-	}
+    public void enableTracking() {
+        if (context.isAuthenticated()) {
+            startTracking();
 
-	public Project getProject(UUID projectId) {
-		return this.trackedProjectManager.getTrackedProject(projectId);
-	}
+            Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+                    "Codealike",
+                    "Codealike  is tracking your projects",
+                    NotificationType.INFORMATION);
+            Notifications.Bus.notify(note);
+        }
+    }
 
-	public BiMap<Project, UUID> getTrackedProjects() {
-		return this.trackedProjectManager.getTrackedProjects();
-	}
+    public void disableTracking() {
+        stopTracking(true);
 
-	public void setBeforeOpenProjectDate() {
-		this.startWorkspaceDate = DateTime.now();
-	}
+        Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+                "Codealike",
+                "Codealike  is not tracking your projects",
+                NotificationType.INFORMATION);
+        Notifications.Bus.notify(note);
+    }
 
-	public boolean isTracking() {
-		return this.isTracking;
-	}
+    public synchronized void startTracking(Project project) {
+        if (!project.isOpen()) {
+            return;
+        }
+        if (isTracked(project)) {
+            return;
+        }
+        UUID projectId = PluginContext.getInstance().getOrCreateUUID(project);
+        if (projectId != null && trackedProjectManager.trackProject(project, projectId)) {
+            tracker.startTrackingProject(project, projectId, this.startWorkspaceDate);
+        } else {
+            LogManager.INSTANCE.logWarn(String.format("Could not track project %s. "
+                    + "If you have a duplicated UUID in any of your \"com.codealike.client.intellij.prefs\" please delete one of those to generate a new UUID for"
+                    + "that project", project.getName()));
+        }
+    }
 
-	public void flushRecorder(final String identity, final String token) {
-		if (this.isTracking) {
-			this.flushExecutor.execute( new Runnable() {
-				
-				@Override
-				public void run() {
-					tracker.flush(identity, token);
-				}
-			});
-		}
-	}
-	
+    private void startTrackingUnassignedProject() {
+        try {
+            PluginContext.getInstance().registerProjectContext(PluginContext.UNASSIGNED_PROJECT, "Unassigned");
+        } catch (Exception e) {
+            LogManager.INSTANCE.logWarn("Could not track unassigned project.");
+        }
+    }
+
+    public boolean isTracked(Project project) {
+        return this.trackedProjectManager.isTracked(project);
+    }
+
+    public void stopTracking(Project project) {
+        this.trackedProjectManager.stopTrackingProject(project);
+    }
+
+    public TrackedProjectManager getTrackedProjectManager() {
+        return this.trackedProjectManager;
+    }
+
+    public UUID getUUID(Project project) {
+        return this.trackedProjectManager.getTrackedProjectId(project);
+    }
+
+    public Project getProject(UUID projectId) {
+        return this.trackedProjectManager.getTrackedProject(projectId);
+    }
+
+    public BiMap<Project, UUID> getTrackedProjects() {
+        return this.trackedProjectManager.getTrackedProjects();
+    }
+
+    public void setBeforeOpenProjectDate() {
+        this.startWorkspaceDate = DateTime.now();
+    }
+
+    public boolean isTracking() {
+        return this.isTracking;
+    }
+
+    public void flushRecorder(final String identity, final String token) {
+        if (this.isTracking) {
+            this.flushExecutor.execute(() -> tracker.flush(identity, token));
+        }
+    }
+
 }

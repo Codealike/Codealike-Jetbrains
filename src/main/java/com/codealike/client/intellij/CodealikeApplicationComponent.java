@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.intellij;
 
 import com.codealike.client.core.api.ApiClient;
@@ -25,7 +28,10 @@ import java.util.Observer;
 import java.util.Properties;
 
 /**
- * Created by Daniel on 11/4/2016.
+ * Plugin application component class.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
  */
 public class CodealikeApplicationComponent implements ApplicationComponent {
     private static final String CODEALIKE_PROPERTIES_FILE = "/codealike.properties";
@@ -43,7 +49,6 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
         start();
     }
 
-
     @Override
     public void disposeComponent() {
         // TODO: insert component disposal logic here
@@ -56,7 +61,6 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
     }
 
     protected void start() {
-
         // load plugin properties
         Properties properties = new Properties();
         try {
@@ -79,18 +83,14 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
             pluginContext.getIdentityService().addListener(loginObserver);
             if (!pluginContext.getIdentityService().tryLoginWithStoredCredentials()) {
                 authenticate();
-            }
-            else {
+            } else {
                 startTracker();
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             try {
                 ApiClient client = ApiClient.tryCreateNew();
                 client.logHealth(new HealthInfo(e, "Plugin could not start.", "intellij", HealthInfo.HealthInfoType.Error, pluginContext.getIdentityService().getIdentity()));
-            }
-            catch (KeyManagementException e1) {
+            } catch (KeyManagementException e1) {
                 e1.printStackTrace();
                 LogManager.INSTANCE.logError(e, "Couldn't send Health Info.");
             }
@@ -113,15 +113,16 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
 
     protected void authenticate() {
         ApplicationManager.getApplication().invokeLater(() -> {
-                // prompt for apiKey if it does not already exist
-                Project project = null;
-                try {
-                    project = ProjectManager.getInstance().getDefaultProject();
-                } catch (NullPointerException e) { }
+            // prompt for apiKey if it does not already exist
+            Project project = null;
+            try {
+                project = ProjectManager.getInstance().getDefaultProject();
+            } catch (NullPointerException e) {
+            }
 
-                // lets ask for a api key
-                AuthenticationDialog dialog = new AuthenticationDialog(project);
-                dialog.show();
+            // lets ask for a api key
+            AuthenticationDialog dialog = new AuthenticationDialog(project);
+            dialog.show();
         });
     }
 
@@ -131,9 +132,8 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
             TrackingService trackingService = pluginContext.getTrackingService();
             IdentityService identityService = pluginContext.getIdentityService();
             if (identityService.isAuthenticated()) {
-                switch(identityService.getTrackActivity()) {
-                    case Always:
-                    {
+                switch (identityService.getTrackActivity()) {
+                    case Always: {
                         trackingService.enableTracking();
                         break;
                     }
@@ -146,41 +146,10 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
                         Notifications.Bus.notify(note);
                         break;
                 }
-            }
-            else {
+            } else {
                 trackingService.disableTracking();
             }
         }
     };
 
-    Observer loginObserverOld = new Observer() {
-
-        @Override
-        public void update(Observable o, Object arg1) {
-            // if (o == pluginContext.getIdentityService()) {
-            TrackingService trackingService = pluginContext.getTrackingService();
-            IdentityService identityService = pluginContext.getIdentityService();
-            if (identityService.isAuthenticated()) {
-                switch(identityService.getTrackActivity()) {
-                    case Always:
-                    {
-                        trackingService.enableTracking();
-                        break;
-                    }
-                    case AskEveryTime:
-                    case Never:
-                        Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-                                "Codealike",
-                                "Codealike  is not tracking your projects",
-                                NotificationType.INFORMATION);
-                        Notifications.Bus.notify(note);
-                        break;
-                }
-            }
-            else {
-                trackingService.disableTracking();
-            }
-            // }
-        }
-    };
 }

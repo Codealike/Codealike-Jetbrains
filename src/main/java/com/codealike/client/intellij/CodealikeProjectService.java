@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.intellij;
 
 import com.codealike.client.core.internal.services.TrackingService;
@@ -6,6 +9,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Plugin project service.
+ *
+ * @author pvmagacho
+ * @version 1.5.0.2
+ */
 public class CodealikeProjectService implements Disposable {
     private final Project project;
 

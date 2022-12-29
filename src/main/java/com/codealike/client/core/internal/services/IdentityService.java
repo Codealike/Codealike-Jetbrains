@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.services;
 
 import java.security.KeyManagementException;
@@ -19,93 +22,95 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 
+/**
+ * Identity service class.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
+ */
 public class IdentityService extends BaseService {
-	private static IdentityService _instance;
-	private boolean isAuthenticated;
-	private String identity;
-	private String token;
-	private Profile profile;
-	private boolean credentialsStored;
-	private TrackActivity trackActivities;
-	
-	public static IdentityService getInstance() {
-		if (_instance == null) {
-			_instance = new IdentityService();
-		}
-		
-		return _instance;
-	}
-	
-	public IdentityService() {
-		this.identity = "";
-		this.isAuthenticated = false;
-		this.credentialsStored = false;
-		this.token = "";
-	}
+    private static IdentityService _instance;
+    private boolean isAuthenticated;
+    private String identity;
+    private String token;
+    private Profile profile;
+    private boolean credentialsStored;
+    private TrackActivity trackActivities;
 
-	public boolean isAuthenticated() {
-		return isAuthenticated;
-	}
+    public static IdentityService getInstance() {
+        if (_instance == null) {
+            _instance = new IdentityService();
+        }
 
-	public boolean login(String identity, String token, boolean storeCredentials, boolean rememberMe) {
-		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-				"Codealike",
-				"Codealike  is connecting...",
-				NotificationType.INFORMATION);
-		Notifications.Bus.notify(note);
+        return _instance;
+    }
 
-		if (this.isAuthenticated) {
-			publishEvent();
-			return true;
-		}
-		try {
-			ApiClient apiClient = ApiClient.tryCreateNew(identity, token);
-			ApiResponse<Void> response = apiClient.tokenAuthenticate();
-			
-			if (response.success()) {
+    public IdentityService() {
+        this.identity = "";
+        this.isAuthenticated = false;
+        this.credentialsStored = false;
+        this.token = "";
+    }
 
-				this.identity = identity;
-				this.token = token;
-				if (storeCredentials) {
-					if (rememberMe) {
-						storeCredentials(identity, token);
-					}
-					else {
-						removeStoredCredentials();
-					}
-				}
-				
-				ApiResponse<ProfileInfo> profileResponse = apiClient.getProfile(identity);
-				if (profileResponse.success())
-				{
-					ProfileInfo profile = profileResponse.getObject();
-					this.profile = new Profile(this.identity, profile.getFullName(), profile.getDisplayName(), 
-								profile.getAddress(), profile.getState(), profile.getCountry(), profile.getAvatarUri(), profile.getEmail());
-				}
-				
-				ApiResponse<UserConfigurationInfo> configResponse = apiClient.getUserConfiguration(identity);
-				if (configResponse.success())
-				{
-					UserConfigurationInfo config = configResponse.getObject();
-					this.trackActivities = config.getTrackActivities();
-				}
-				this.isAuthenticated = true;
-				publishEvent();
-				return true;
-			}
-			
-		}
-		catch (KeyManagementException e){
-			LogManager.INSTANCE.logError(e, "Could not log in. There was a problem with SSL configuration.");
-		}
-		return false;
-	}
+    public boolean isAuthenticated() {
+        return isAuthenticated;
+    }
 
-	private void storeCredentials(String identity, String token) {
-		// TODO: check a way to do this in a secure encrypted way
-		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-		propertiesComponent.setValue("codealike.identity", identity);
-		propertiesComponent.setValue("codealike.token", token);
+    public boolean login(String identity, String token, boolean storeCredentials, boolean rememberMe) {
+        Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+                "Codealike",
+                "Codealike  is connecting...",
+                NotificationType.INFORMATION);
+        Notifications.Bus.notify(note);
+
+        if (this.isAuthenticated) {
+            publishEvent();
+            return true;
+        }
+        try {
+            ApiClient apiClient = ApiClient.tryCreateNew(identity, token);
+            ApiResponse<Void> response = apiClient.tokenAuthenticate();
+
+            if (response.success()) {
+
+                this.identity = identity;
+                this.token = token;
+                if (storeCredentials) {
+                    if (rememberMe) {
+                        storeCredentials(identity, token);
+                    } else {
+                        removeStoredCredentials();
+                    }
+                }
+
+                ApiResponse<ProfileInfo> profileResponse = apiClient.getProfile(identity);
+                if (profileResponse.success()) {
+                    ProfileInfo profile = profileResponse.getObject();
+                    this.profile = new Profile(this.identity, profile.getFullName(), profile.getDisplayName(),
+                            profile.getAddress(), profile.getState(), profile.getCountry(), profile.getAvatarUri(), profile.getEmail());
+                }
+
+                ApiResponse<UserConfigurationInfo> configResponse = apiClient.getUserConfiguration(identity);
+                if (configResponse.success()) {
+                    UserConfigurationInfo config = configResponse.getObject();
+                    this.trackActivities = config.getTrackActivities();
+                }
+                this.isAuthenticated = true;
+                publishEvent();
+                return true;
+            }
+
+        } catch (KeyManagementException e) {
+            LogManager.INSTANCE.logError(e, "Could not log in. There was a problem with SSL configuration.");
+        }
+        return false;
+    }
+
+    private void storeCredentials(String identity, String token) {
+        // TODO: check a way to do this in a secure encrypted way
+        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+        propertiesComponent.setValue("codealike.identity", identity);
+        propertiesComponent.setValue("codealike.token", token);
 
         /*ISecurePreferences secureStorage = SecurePreferencesFactory
                 .getDefault();
@@ -117,13 +122,13 @@ public class IdentityService extends BaseService {
         } catch (StorageException e) {
         	LogManager.INSTANCE.logError(e, "Could not store credentials.");
         }*/
-	}
-	
-	private void removeStoredCredentials() {
-		// TODO: check a way to do this in a secure encrypted way
-		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-		propertiesComponent.unsetValue("codealike.identity");
-		propertiesComponent.unsetValue("codealike.token");
+    }
+
+    private void removeStoredCredentials() {
+        // TODO: check a way to do this in a secure encrypted way
+        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+        propertiesComponent.unsetValue("codealike.identity");
+        propertiesComponent.unsetValue("codealike.token");
 
         /*ISecurePreferences secureStorage = SecurePreferencesFactory
                 .getDefault();
@@ -133,15 +138,15 @@ public class IdentityService extends BaseService {
         	node.remove("token");
         }
         this.credentialsStored = false;*/
-	}
+    }
 
-	public boolean tryLoginWithStoredCredentials() {
-		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-		String identity = propertiesComponent.getValue("codealike.identity", "");
-		String token = propertiesComponent.getValue("codealike.token", "");
+    public boolean tryLoginWithStoredCredentials() {
+        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+        String identity = propertiesComponent.getValue("codealike.identity", "");
+        String token = propertiesComponent.getValue("codealike.token", "");
 
-		if (!identity.trim().isEmpty() && !token.trim().isEmpty())
-			return login(identity, token, false, false);
+        if (!identity.trim().isEmpty() && !token.trim().isEmpty())
+            return login(identity, token, false, false);
 
         /*ISecurePreferences secureStorage = SecurePreferencesFactory
                 .getDefault();
@@ -157,42 +162,42 @@ public class IdentityService extends BaseService {
             }
         }*/
         return false;
-	}
+    }
 
-	public String getIdentity() {
-		return identity;
-	}
+    public String getIdentity() {
+        return identity;
+    }
 
-	public String getToken() {
-		return token;
-	}
+    public String getToken() {
+        return token;
+    }
 
-	public Profile getProfile() {
-		return profile;
-	}
+    public Profile getProfile() {
+        return profile;
+    }
 
-	public TrackActivity getTrackActivity() {
-		return trackActivities;
-	}
+    public TrackActivity getTrackActivity() {
+        return trackActivities;
+    }
 
-	public boolean isCredentialsStored() {
-		return credentialsStored;
-	}
+    public boolean isCredentialsStored() {
+        return credentialsStored;
+    }
 
-	public void logOff() {
-		Notification note = new Notification("CodealikeApplicationComponent.Notifications",
-				"Codealike",
-				"Codealike  is disconnecting...",
-				NotificationType.INFORMATION);
-		Notifications.Bus.notify(note);
+    public void logOff() {
+        Notification note = new Notification("CodealikeApplicationComponent.Notifications",
+                "Codealike",
+                "Codealike  is disconnecting...",
+                NotificationType.INFORMATION);
+        Notifications.Bus.notify(note);
 
-		PluginContext.getInstance().getTrackingService().flushRecorder(this.identity, this.token);
-		
-		this.isAuthenticated = false;
-		this.identity = null;
-		this.token = null;
-		removeStoredCredentials();
+        PluginContext.getInstance().getTrackingService().flushRecorder(this.identity, this.token);
 
-		publishEvent();
-	}
+        this.isAuthenticated = false;
+        this.identity = null;
+        this.token = null;
+        removeStoredCredentials();
+
+        publishEvent();
+    }
 }

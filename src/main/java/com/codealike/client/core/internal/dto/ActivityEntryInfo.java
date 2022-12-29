@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.dto;
 
 import java.util.UUID;
@@ -5,68 +8,82 @@ import java.util.UUID;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+/**
+ * Activity entry information DTO class.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
+ */
 public class ActivityEntryInfo {
 
-	private UUID parentId;
-	private DateTime start;
-	private DateTime end;
-	private ActivityType type;
-	private Period duration;
-	private CodeContextInfo context;
+    private UUID parentId;
+    private DateTime start;
+    private DateTime end;
+    private ActivityType type;
+    private Period duration;
+    private CodeContextInfo context;
 
-	public ActivityEntryInfo() {
-	}
-	
-	public ActivityEntryInfo(UUID parentId) {
-		this.parentId = parentId;
-	}
+    /**
+     * Default constructor.
+     */
+    public ActivityEntryInfo() {
+    }
 
-	public void setStart(DateTime start) {
-		this.start = start;
-	}
+    /**
+     * Activity Entry constructor with parent UUID.
+     *
+     * @param parentId the parent UUID
+     */
+    public ActivityEntryInfo(UUID parentId) {
+        this.parentId = parentId;
+    }
 
-	public void setEnd(DateTime end) {
-		this.end = end;
-	}
+    public void setStart(DateTime start) {
+        this.start = start;
+    }
 
-	public void setType(ActivityType type) {
-		this.type = type;
-	}
-	
-	public void setDuration(Period duration) {
-		this.duration = duration;
-	}
+    public void setEnd(DateTime end) {
+        this.end = end;
+    }
 
-	public void setContext(CodeContextInfo context) {
-		this.context = context;
-	}
-	
-	public void setParentId(UUID parentId) {
-		this.parentId = parentId;
-	}
-	
-	public UUID getParentId() {
-		return parentId;
-	}
-	
-	public CodeContextInfo getContext() {
-		return context;
-	}
-	
-	public ActivityType getType() {
-		return type;
-	}
+    public void setType(ActivityType type) {
+        this.type = type;
+    }
 
-	public DateTime getStart() {
-		return start;
-	}
+    public void setDuration(Period duration) {
+        this.duration = duration;
+    }
 
-	public DateTime getEnd() {
-		return end;
-	}
+    public void setContext(CodeContextInfo context) {
+        this.context = context;
+    }
 
-	public Period getDuration() {
-		return duration;
-	}
+    public void setParentId(UUID parentId) {
+        this.parentId = parentId;
+    }
+
+    public UUID getParentId() {
+        return parentId;
+    }
+
+    public CodeContextInfo getContext() {
+        return context;
+    }
+
+    public ActivityType getType() {
+        return type;
+    }
+
+    public DateTime getStart() {
+        return start;
+    }
+
+    public DateTime getEnd() {
+        return end;
+    }
+
+    public Period getDuration() {
+        return duration;
+    }
 
 }

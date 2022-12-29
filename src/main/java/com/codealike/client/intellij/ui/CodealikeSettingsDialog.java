@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.intellij.ui;
 
 import com.codealike.client.core.internal.services.IdentityService;
@@ -9,7 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 /**
- * Created by Daniel on 11/14/2016.
+ * Settings dialog. Used to set Codealike token.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
  */
 public class CodealikeSettingsDialog extends DialogWrapper {
     private JTextField tokenInput;
@@ -19,13 +25,9 @@ public class CodealikeSettingsDialog extends DialogWrapper {
 
     public CodealikeSettingsDialog(@Nullable Project project) {
         super(project, true);
-
         _project = project;
-
         setTitle("Codealike Settings");
-
         init();
-
         loadSettings();
     }
 
@@ -62,53 +64,43 @@ public class CodealikeSettingsDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         IdentityService identityService = IdentityService.getInstance();
-
         labelError.setVisible(false);
-
         String[] split = tokenInput.getText().split("/");
         if (split.length == 2) {
-            if(identityService.login(split[0], split[1], true, true)) {
-
+            if (identityService.login(split[0], split[1], true, true)) {
                 PluginContext.getInstance().getTrackingService().startTracking(_project);
-
                 super.doOKAction();
-            }
-            else {
+            } else {
                 labelError.setVisible(true);
             }
-        }
-        else {
+        } else {
             labelError.setVisible(true);
         }
     }
 
     private void loadSettings() {
         IdentityService identityService = IdentityService.getInstance();
-
         if (identityService.isAuthenticated() || identityService.isCredentialsStored()) {
             tokenInput.setEnabled(false);
             forgetButton.setVisible(true);
             tokenInput.setText(identityService.getIdentity() + "/" + identityService.getToken());
-        }
-        else {
+        } else {
             tokenInput.setText("");
             tokenInput.setEnabled(true);
             forgetButton.setVisible(false);
         }
 
         identityService.addListener(() -> {
-            if (identityService.isAuthenticated() || identityService.isCredentialsStored())
-            {
+            if (identityService.isAuthenticated() || identityService.isCredentialsStored()) {
                 tokenInput.setEnabled(false);
                 forgetButton.setVisible(true);
                 tokenInput.setText(identityService.getIdentity() + "/" + identityService.getToken());
-            }
-            else {
+            } else {
                 tokenInput.setText("");
                 tokenInput.setEnabled(true);
                 forgetButton.setVisible(false);
             }
         });
-
     }
+
 }

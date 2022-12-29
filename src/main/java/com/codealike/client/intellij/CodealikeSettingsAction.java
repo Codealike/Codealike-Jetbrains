@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.intellij;
 
 import com.codealike.client.intellij.ui.CodealikeSettingsDialog;
@@ -9,7 +12,10 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.Messages;
 
 /**
- * Created by Daniel on 12/7/2016.
+ * Plugin settings action.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
  */
 public class CodealikeSettingsAction extends AnAction {
 

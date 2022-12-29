@@ -1,5 +1,7 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.tracking;
-
 
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -31,229 +33,232 @@ import com.codealike.client.core.internal.tracking.ActivitiesRecorder.FlushResul
 import com.codealike.client.core.internal.tracking.code.ContextCreator;
 import com.codealike.client.core.internal.utils.LogManager;
 
+/**
+ * Class to track state.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
+ */
 public class StateTracker {
+    private ActivitiesRecorder recorder;
+    private ActivityState lastState;
+    private final Duration idleMinInterval;
+    private final int idleDetectionPeriod;
+    protected Document currentCompilationUnit;
+    private CodeContext lastCodeContext;
+    private ActivityEvent lastEvent;
+    private ContextCreator contextCreator;
+    private ScheduledThreadPoolExecutor idleDetectionExecutor;
 
-	private ActivitiesRecorder recorder;
-	private ActivityState lastState;
-	private final Duration idleMinInterval;
-	private final int idleDetectionPeriod;
-	protected Document currentCompilationUnit;
-	private CodeContext lastCodeContext;
-	private ActivityEvent lastEvent;
-	private ContextCreator contextCreator;
-	private ScheduledThreadPoolExecutor idleDetectionExecutor;
+    private DocumentListener documentListener;
+    private CaretListener caretListener;
+    private VisibleAreaListener visibleAreaListener;
+    private CustomEditorMouseListener editorMouseListener;
 
-	private DocumentListener documentListener;
-	private CaretListener caretListener;
-	private VisibleAreaListener visibleAreaListener;
-	private CustomEditorMouseListener editorMouseListener;
+    private synchronized void populateContext(PsiFile file, CodeContext context, int offset) {
+        if (file == null) {
+            return;
+        }
 
-	private synchronized void populateContext(PsiFile file, CodeContext context, int offset) {
-		if (file == null) {
-			return;
-		}
+        // sets file name
+        context.setFile(file.getName());
 
-		// sets file name
-		context.setFile(file.getName());
+        try {
+            // sets the rest of the context based on file type
+            switch (file.getFileType().getName()) {
+                case "JAVA":
+                    PsiJavaFile javaPsiFile = (PsiJavaFile) file;
+                    if (javaPsiFile != null) {
+                        context.setPackageName(javaPsiFile.getPackageName());
 
-		try {
-			// sets the rest of the context based on file type
-			switch (file.getFileType().getName()) {
-				case "JAVA":
-					PsiJavaFile javaPsiFile = (PsiJavaFile) file;
-					if (javaPsiFile != null) {
-						context.setPackageName(javaPsiFile.getPackageName());
+                        PsiElement elementAt = javaPsiFile.findElementAt(offset);
+                        if (elementAt != null) {
+                            PsiClass elementClass = PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
+                            if (elementClass != null) {
+                                context.setClassName(elementClass.getName());
+                            }
 
-						PsiElement elementAt = javaPsiFile.findElementAt(offset);
-						if (elementAt != null) {
-							PsiClass elementClass = PsiTreeUtil.getParentOfType(elementAt, PsiClass.class);
-							if (elementClass != null) {
-								context.setClassName(elementClass.getName());
-							}
+                            PsiMember member = PsiTreeUtil.getParentOfType(elementAt, PsiMember.class);
+                            if (member != null) {
+                                context.setMemberName(member.getName());
+                            }
+                        }
+                    }
+                    break;
+                case "PLAIN_TEXT":
+                case "HTML":
+                case "Kotlin":
+                case "GUI_DESIGNER_FORM":
+                    break;
+            }
+        } catch (Exception psiException) {
+            // for some reason file was not casted properly to expected format
+            LogManager.INSTANCE.logError(String.format("Could not track activity in file %s.", context.getFile()));
+        }
+    }
 
-							PsiMember member = PsiTreeUtil.getParentOfType(elementAt, PsiMember.class);
-							if (member != null) {
-								context.setMemberName(member.getName());
-							}
-						}
-					}
-					break;
-				case "PLAIN_TEXT":
-				case "HTML":
-				case "Kotlin":
-				case "GUI_DESIGNER_FORM":
-					break;
-			}
-		}
-		catch(Exception psiException) {
-			// for some reason file was not casted properly to expected format
-			LogManager.INSTANCE.logError(String.format("Could not track activity in file %s.", context.getFile()));
-		}
-	}
+    public void trackDocumentFocus(Editor editor, int offset) {
+        try {
+            FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+            TrackingService trackingService = PluginContext.getInstance().getTrackingService();
 
-	public  void trackDocumentFocus(Editor editor, int offset) {
-		try {
-			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+            if (editor == null || !trackingService.isTracked(editor.getProject())) {
+                return;
+            }
 
-			if (editor == null || !trackingService.isTracked(editor.getProject())) {
-				return;
-			}
+            UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
 
-			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
+            StructuralCodeContext context = new StructuralCodeContext(projectId);
+            context.setProject(editor.getProject().getName());
 
-			StructuralCodeContext context = new StructuralCodeContext(projectId);
-			context.setProject(editor.getProject().getName());
+            Document focusedResource = editor.getDocument();
+            PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
 
-			Document focusedResource = editor.getDocument();
-			PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
+            VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
+            if (file != null) {
+                context.setFile(file.getName());
 
-			VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
-			if (file != null) {
-				context.setFile(file.getName());
+                PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
+                populateContext(psiFile, context, offset);
+            }
 
-				PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
-				populateContext(psiFile, context, offset);
-			}
+            if (!focusedResource.equals(currentCompilationUnit) || !context.equals(lastCodeContext)) {
+                ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
 
-			if (!focusedResource.equals(currentCompilationUnit) || !context.equals(lastCodeContext)) {
-				ActivityEvent event = new ActivityEvent(projectId, ActivityType.DocumentFocus, context);
+                recorder.recordState(ActivityState.createDesignState(projectId));
+                recorder.recordEvent(event);
 
-				recorder.recordState(ActivityState.createDesignState(projectId));
-				recorder.recordEvent(event);
+                lastEvent = event;
+                currentCompilationUnit = focusedResource;
+                lastCodeContext = context;
+            }
+        } catch (Exception e) {
+            LogManager.INSTANCE.logError(e, "Problem recording document focus.");
+        }
+    }
 
-				lastEvent = event;
-				currentCompilationUnit = focusedResource;
-				lastCodeContext = context;
-			}
-		} catch (Exception e) {
-			LogManager.INSTANCE.logError(e, "Problem recording document focus.");
-		}
-	}
+    public synchronized void trackCodingEvent(Editor editor, int offset) {
+        try {
+            FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+            TrackingService trackingService = PluginContext.getInstance().getTrackingService();
+            ActivityEvent event = null;
 
-	public synchronized void trackCodingEvent(Editor editor, int offset) {
-		try {
-			FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-			TrackingService trackingService = PluginContext.getInstance().getTrackingService();
-			ActivityEvent event = null;
+            if (editor == null || !trackingService.isTracked(editor.getProject())) {
+                return;
+            }
 
-			if (editor == null || !trackingService.isTracked(editor.getProject())) {
-				return;
-			}
+            UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
 
-			UUID projectId = trackingService.getTrackedProjects().get(editor.getProject());
+            Document focusedResource = editor.getDocument();
+            PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
 
-			Document focusedResource = editor.getDocument();
-			PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(editor.getProject());
+            if (focusedResource.equals(currentCompilationUnit) && lastEvent != null && lastEvent.getType() != ActivityType.DocumentEdit) {
+                //Currently in design mode, so we need to save an editing event
 
-			if (focusedResource.equals(currentCompilationUnit) && lastEvent != null && lastEvent.getType() != ActivityType.DocumentEdit) {
-				//Currently in design mode, so we need to save an editing event
+                CodeContext context = new StructuralCodeContext(projectId);
+                context.setProject(editor.getProject().getName());
 
-				CodeContext context = new StructuralCodeContext(projectId);
-				context.setProject(editor.getProject().getName());
+                VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
+                if (file != null) {
+                    PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
+                    populateContext(psiFile, context, offset);
+                }
 
-				VirtualFile file = fileDocumentManager.getFile(editor.getDocument());
-				if (file != null) {
-					PsiFile psiFile = psiDocumentManager.getPsiFile(editor.getDocument());
-					populateContext(psiFile, context, offset);
-				}
+                event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);
+                recorder.recordState(ActivityState.createDesignState(projectId));
+                recorder.recordEvent(event);
 
-				event = new ActivityEvent(projectId, ActivityType.DocumentEdit, context);
-				recorder.recordState(ActivityState.createDesignState(projectId));
-				recorder.recordEvent(event);
+                lastEvent = event;
+            }
 
-				lastEvent = event;
-			}
+        } catch (Exception e) {
+            LogManager.INSTANCE.logError(e, "Problem recording document edit.");
+        }
+    }
 
-		} catch (Exception e) {
-			LogManager.INSTANCE.logError(e, "Problem recording document edit.");
-		}
-	}
+    public void startTrackingProject(Project project, UUID projectId, DateTime startWorkspaceDate) {
+        ActivityEvent openSolutionEvent = new ActivityEvent(projectId, ActivityType.OpenSolution, contextCreator.createCodeContext(project));
+        openSolutionEvent.setCreationTime(startWorkspaceDate);
+        ActivityState systemState = ActivityState.createSystemState(projectId);
+        systemState.setCreationTime(startWorkspaceDate);
 
-	public void startTrackingProject(Project project, UUID projectId, DateTime startWorkspaceDate) {
-		ActivityEvent openSolutionEvent = new ActivityEvent(projectId, ActivityType.OpenSolution, contextCreator.createCodeContext(project));
-		openSolutionEvent.setCreationTime(startWorkspaceDate);
-		ActivityState systemState = ActivityState.createSystemState(projectId);
-		systemState.setCreationTime(startWorkspaceDate);
-		
-		recorder.recordState(systemState);
-		recorder.recordEvent(openSolutionEvent);
-		ActivityState nullState = ActivityState.createNullState(projectId);
-		recorder.recordState(nullState);
-	}
+        recorder.recordState(systemState);
+        recorder.recordEvent(openSolutionEvent);
+        ActivityState nullState = ActivityState.createNullState(projectId);
+        recorder.recordState(nullState);
+    }
 
-	public StateTracker(int idleDetectionPeriod,
-			Duration idleMinInterval) {
-		this.idleDetectionPeriod = idleDetectionPeriod;
-		this.idleMinInterval = idleMinInterval;
-		this.contextCreator = PluginContext.getInstance().getContextCreator();
+    public StateTracker(int idleDetectionPeriod,
+                        Duration idleMinInterval) {
+        this.idleDetectionPeriod = idleDetectionPeriod;
+        this.idleMinInterval = idleMinInterval;
+        this.contextCreator = PluginContext.getInstance().getContextCreator();
 
-		recorder = new ActivitiesRecorder(PluginContext.getInstance());
-	}
+        recorder = new ActivitiesRecorder(PluginContext.getInstance());
+    }
 
-	public void startTracking() {
-		documentListener = new CustomDocumentListener();
-		caretListener = new CustomCaretListener();
-		visibleAreaListener = new CustomVisibleAreaListener();
-		editorMouseListener = new CustomEditorMouseListener();
+    public void startTracking() {
+        documentListener = new CustomDocumentListener();
+        caretListener = new CustomCaretListener();
+        visibleAreaListener = new CustomVisibleAreaListener();
+        editorMouseListener = new CustomEditorMouseListener();
 
-		ApplicationManager.getApplication().invokeLater(() -> {
+        ApplicationManager.getApplication().invokeLater(() -> {
 
-			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.addDocumentListener(documentListener);
+            EditorFactory
+                    .getInstance()
+                    .getEventMulticaster()
+                    .addDocumentListener(documentListener);
 
-			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.addCaretListener(caretListener);
+            EditorFactory
+                    .getInstance()
+                    .getEventMulticaster()
+                    .addCaretListener(caretListener);
 
-			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.addEditorMouseListener(editorMouseListener);
+            EditorFactory
+                    .getInstance()
+                    .getEventMulticaster()
+                    .addEditorMouseListener(editorMouseListener);
 
 /*			EditorFactory
 					.getInstance()
 					.getEventMulticaster()
 					.addVisibleAreaListener(visibleAreaListener);*/
-		});
-	}
+        });
+    }
 
-	public void stopTracking() {
-		ApplicationManager.getApplication().invokeLater(() -> {
+    public void stopTracking() {
+        ApplicationManager.getApplication().invokeLater(() -> {
 
-			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.removeDocumentListener(documentListener);
+            EditorFactory
+                    .getInstance()
+                    .getEventMulticaster()
+                    .removeDocumentListener(documentListener);
 
-			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.removeCaretListener(caretListener);
+            EditorFactory
+                    .getInstance()
+                    .getEventMulticaster()
+                    .removeCaretListener(caretListener);
 
-			EditorFactory
-					.getInstance()
-					.getEventMulticaster()
-					.removeEditorMouseListener(editorMouseListener);
+            EditorFactory
+                    .getInstance()
+                    .getEventMulticaster()
+                    .removeEditorMouseListener(editorMouseListener);
 
 /*			EditorFactory
 					.getInstance()
 					.getEventMulticaster()
 					.removeVisibleAreaListener(visibleAreaListener);*/
-		});
-	}
+        });
+    }
 
-	public FlushResult flush(String identity, String token) {
-		try {
-			return this.recorder.flush(identity, token);
-		}
-		catch (Exception e) {
-			LogManager.INSTANCE.logError(e, "Couldn't send data to the server.");
-			return FlushResult.Report;
-		}
-	}
+    public FlushResult flush(String identity, String token) {
+        try {
+            return this.recorder.flush(identity, token);
+        } catch (Exception e) {
+            LogManager.INSTANCE.logError(e, "Couldn't send data to the server.");
+            return FlushResult.Report;
+        }
+    }
 
 }

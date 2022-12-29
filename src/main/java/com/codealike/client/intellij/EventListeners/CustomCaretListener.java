@@ -1,6 +1,8 @@
+/*
+ * Copyright (c) 2022. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.intellij.EventListeners;
 
-import com.codealike.client.core.internal.model.ActivityEvent;
 import com.codealike.client.core.internal.services.TrackingService;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.intellij.openapi.editor.Document;
@@ -8,12 +10,12 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.CaretEvent;
 import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.project.Project;
-
-import java.util.UUID;
 
 /**
- * Created by Daniel on 11/4/2016.
+ * Custom caret listener.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
  */
 public class CustomCaretListener implements CaretListener {
 
