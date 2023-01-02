@@ -27,12 +27,12 @@ import com.google.common.collect.Collections2;
  * @version 1.5.0.2
  */
 public class ActivityInfoProcessor {
+    // the build events map
+    private final Map<UUID, BuildActivityEvent> buildEvents = new HashMap<>();
     // list of processed states
     private final List<ActivityState> processedStates;
     // list of processed events
     private final List<ActivityEvent> processedEvents;
-    // the build events map
-    private final Map<UUID, BuildActivityEvent> buildEvents = new HashMap<>();
 
     /**
      * Activity information processor constructor

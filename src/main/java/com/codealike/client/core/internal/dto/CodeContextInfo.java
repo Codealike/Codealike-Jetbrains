@@ -27,6 +27,7 @@ public class CodeContextInfo {
 
 	/**
 	 * Constructor from project id
+	 *
 	 * @param projectId the project UUID
 	 */
 	public CodeContextInfo(UUID projectId) {

@@ -22,7 +22,8 @@ public class ProjectContextInfo {
 
 	/**
 	 * Project context information class constructor
-	 * @param projectId the project UUID
+	 *
+	 * @param projectId   the project UUID
 	 * @param projectName the project Name
 	 */
 	public ProjectContextInfo(UUID projectId, String projectName) {

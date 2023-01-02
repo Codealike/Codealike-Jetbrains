@@ -6,35 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="883acd61-1366-4d8f-bdbd-0844c3099273" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/api/ApiClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/api/ApiClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/api/ApiResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/api/ApiResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ActivityEntryInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ActivityEntryInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ActivityInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ActivityInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ActivityType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ActivityType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/CodeContextInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/CodeContextInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/HealthInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/HealthInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ProfileInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ProfileInfo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ProjectContextInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/ProjectContextInfo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/SolutionContextInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/SolutionContextInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/UserConfigurationInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/UserConfigurationInfo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/Version.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/dto/Version.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/model/exception/NonExistingResourceException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/model/exception/NonExistingResourceException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/processing/ActivityInfoProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/processing/ActivityInfoProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/BaseService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/BaseService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/IIdentityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/IIdentityService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/IdentityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/IdentityService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/ServiceListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/ServiceListener.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/TrackingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/services/TrackingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/startup/PluginContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/startup/PluginContext.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/tracking/ActivitiesRecorder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/tracking/ActivitiesRecorder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/tracking/ActivityFlushResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/tracking/ActivityFlushResult.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/tracking/StateTracker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/tracking/StateTracker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/tracking/code/ContextCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/tracking/code/ContextCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/ExceptionUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/ExceptionUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/GenericExtensionFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/GenericExtensionFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/LogManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/LogManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/TrackingConsole.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/TrackingConsole.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/intellij/CodealikeApplicationComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/intellij/CodealikeApplicationComponent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/URIUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codealike/client/core/internal/utils/URIUtils.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,18 +92,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "ToolWindowGit.ShowToolbar": "false",
-    "last_opened_file_path": "C:/Users/UQAR/OneDrive - PETROBRAS/Documents/2. Pessoal/2. OpenTorc/CodeAlike/Codealike-Jetbrains",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.37586206",
-    "settings.editor.selected.configurable": "template.copyright.formatting"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;ToolWindowGit.ShowToolbar&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/UQAR/OneDrive - PETROBRAS/Documents/2. Pessoal/2. OpenTorc/CodeAlike/Codealike-Jetbrains&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.37586206&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;template.copyright.formatting&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\UQAR\OneDrive - PETROBRAS\Documents\2. Pessoal\2. OpenTorc\CodeAlike\Codealike-Jetbrains\src\main\resources\META-INF" />
@@ -158,6 +138,10 @@
         <line-breakpoint enabled="true" type="java-line">
           <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/jakarta.ws.rs/jakarta.ws.rs-api/3.1.0/f0816bb784efd91e181a62057362ef2acd91fc9c/jakarta.ws.rs-api-3.1.0-sources.jar!/jakarta/ws/rs/client/ClientBuilder.java</url>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/codealike/client/core/api/ApiClient.java</url>
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -20,7 +20,6 @@ import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.tracking.StateTracker;
 import com.codealike.client.core.internal.tracking.ActivitiesRecorder.FlushResult;
 import com.codealike.client.core.internal.utils.LogManager;
-//import com.codealike.client.core.internal.utils.WorkbenchUtils;
 import com.google.common.collect.BiMap;
 
 /**

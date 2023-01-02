@@ -6,7 +6,7 @@ package com.codealike.client.core.internal.utils;
 import com.intellij.openapi.diagnostic.Logger;
 
 /**
- * Log manager class. This class will be used to lg messages to console.
+ * Log manager class. This class will be used to log messages to console.
  *
  * @author Daniel, pvmagacho
  * @version 1.5.0.2

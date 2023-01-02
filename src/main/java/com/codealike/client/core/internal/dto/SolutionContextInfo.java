@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Solution context information DTO class.
- *
  * @author Daniel, pvmagacho
  * @version 1.5.0.2
  */
@@ -32,7 +31,7 @@ public class SolutionContextInfo {
     }
 
     /**
-     * Solution context information constructor
+     * Solution context information constructor.
      *
      * @param solutionID the solution UUID
      * @param name       the context name

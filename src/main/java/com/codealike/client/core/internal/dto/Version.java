@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Version DTO class.
- *
  * @author Daniel, pvmagacho
  * @version 1.5.0.2
  */

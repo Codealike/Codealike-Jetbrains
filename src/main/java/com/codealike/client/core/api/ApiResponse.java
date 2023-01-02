@@ -138,12 +138,12 @@ public class ApiResponse<T> {
                     return NotFound;
                 case 400:
                     return BadRequest;
+                case 401:
+                    return Unauthorized;
                 case 409:
                     return Conflict;
                 case 503:
                     return ServiceUnavailable;
-                case 401:
-                    return Unauthorized;
                 default:
                     return InternalServerError;
             }
