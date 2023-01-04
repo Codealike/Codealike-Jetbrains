@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PLUGIN_MODULE" version="4">
+  <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/resources/META-INF/plugin.xml" />
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="javax.ws.rs-api-2.0" level="project" />
+    <orderEntry type="library" name="joda-time-2.3" level="project" />
+    <orderEntry type="library" name="jackson-core-2.2.3" level="project" />
+    <orderEntry type="library" name="jackson-databind-2.2.3" level="project" />
+    <orderEntry type="library" name="jackson-annotations-2.2.3" level="project" />
+    <orderEntry type="library" name="jersey-bundle-1.19.1" level="project" />
+    <orderEntry type="library" name="jersey-client" level="project" />
+    <orderEntry type="library" name="jersey-common" level="project" />
+    <orderEntry type="library" name="log4j-1.2.17" level="project" />
+    <orderEntry type="library" name="httpclient-4.3.1" level="project" />
+    <orderEntry type="library" name="httpcore-4.3" level="project" />
+    <orderEntry type="library" name="cglib-2.2.0-b14" level="project" />
+    <orderEntry type="library" name="guava-14.0.1" level="project" />
+    <orderEntry type="library" name="hk2-api-2.2.0-b14" level="project" />
+    <orderEntry type="library" name="hk2-locator-2.2.0-b14" level="project" />
+    <orderEntry type="library" name="hk2-utils-2.2.0-b14" level="project" />
+    <orderEntry type="library" name="javax.inject-2.2.0-b14" level="project" />
+  </component>
+</module>
