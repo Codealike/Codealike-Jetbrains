@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. All rights reserved to Torc LLC.
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
  */
 package com.codealike.client.core.internal.tracking.code;
 
@@ -17,10 +17,17 @@ import com.intellij.openapi.project.Project;
  * @version 1.5.0.2
  */
 public class ContextCreator {
+
+    /**
+     * Create the code context model from a {@link Project}.
+     *
+     * @param project the current project
+     * @return the created code context model
+     */
     public CodeContext createCodeContext(Project project) {
         UUID projectId = PluginContext.getInstance().getTrackingService().getUUID(project);
 
-        StructuralCodeContext context = new StructuralCodeContext(projectId);
+        CodeContext context = new StructuralCodeContext(projectId);
         context.setProject(project.getName());
 
         return context;

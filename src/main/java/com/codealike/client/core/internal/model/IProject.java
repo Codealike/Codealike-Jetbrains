@@ -1,7 +1,13 @@
+/*
+ * Copyright (c) 2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.model;
 
 /**
- * Created by Daniel on 11/15/2016.
+ * Project model interface.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
  */
 public interface IProject {
     public String getName();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. All rights reserved to Torc LLC.
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
  */
 package com.codealike.client.core.internal.dto;
 
@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @version 1.5.0.2
  */
 public class ActivityInfo {
+
     private String machine;
     private String client;
     private String extension;

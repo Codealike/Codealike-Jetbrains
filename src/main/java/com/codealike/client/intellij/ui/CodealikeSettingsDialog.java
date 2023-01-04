@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. All rights reserved to Torc LLC.
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
  */
 package com.codealike.client.intellij.ui;
 
@@ -23,6 +23,11 @@ public class CodealikeSettingsDialog extends DialogWrapper {
     private JButton forgetButton;
     private Project _project;
 
+    /**
+     * Constructor. Creates the Codelike settings dialog from the menu.
+     *
+     * @param project the current open {@link Project}
+     */
     public CodealikeSettingsDialog(@Nullable Project project) {
         super(project, true);
         _project = project;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. All rights reserved to Torc LLC.
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
  */
 package com.codealike.client.core.internal.utils;
 
@@ -18,11 +18,17 @@ import com.codealike.client.core.internal.startup.PluginContext;
  * @version 1.5.0.2
  */
 public class TrackingConsole {
-
+    // Singleton instance
     private static TrackingConsole _instance;
+    // The plugin context instance
     private PluginContext context;
+    // Flag to enable messages to the console
     private boolean enabled;
 
+    /**
+     * Get the singleton {@link TrackingConsole} instance. If it doesn't exist, one is created.
+     * @return the {@link TrackingConsole} instance
+     */
     public static TrackingConsole getInstance() {
         if (_instance == null) {
             _instance = new TrackingConsole(PluginContext.getInstance());
@@ -31,11 +37,17 @@ public class TrackingConsole {
         return _instance;
     }
 
+    // private constructor
     private TrackingConsole(PluginContext context) {
         this.context = context;
         this.enabled = Boolean.parseBoolean(context.getProperty("tracking-console.enabled"));
     }
 
+    /**
+     * Track event record to console.
+     *
+     * @param event the {@link ActivityEvent} to track
+     */
     public void trackEvent(ActivityEvent event) {
         if (enabled) {
             System.out.println("---------------------------------------------------------------------");
@@ -46,6 +58,11 @@ public class TrackingConsole {
         }
     }
 
+    /**
+     * Track state record to console.
+     *
+     * @param state the {@link ActivityState} to track
+     */
     public void trackState(ActivityState state) {
         if (enabled) {
             PeriodFormatter formatter = PeriodSerializer.FORMATER;
@@ -53,12 +70,24 @@ public class TrackingConsole {
         }
     }
 
+    /**
+     * Project tracking has ended.
+     *
+     * @param name the project name
+     * @param id the project UUID
+     */
     public void trackProjectEnd(String name, UUID id) {
         if (enabled) {
             System.out.println(String.format("Stopped tracking project \"%s\" with id %s", name, id));
         }
     }
 
+    /**
+     * Project tracking has started.
+     *
+     * @param name the project name
+     * @param id the project UUID
+     */
     public void trackProjectStart(String name, UUID id) {
         if (enabled) {
             System.out.println(String.format("Started tracking project \"%s\" with id %s", name, id));

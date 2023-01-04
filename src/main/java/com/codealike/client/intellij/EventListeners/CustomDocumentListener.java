@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. All rights reserved to Torc LLC.
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
  */
 package com.codealike.client.intellij.EventListeners;
 
@@ -18,6 +18,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
  * @version 1.5.0.2
  */
 public class CustomDocumentListener implements DocumentListener {
+
     @Override
     public void beforeDocumentChange(DocumentEvent documentEvent) {
     }
@@ -34,4 +35,5 @@ public class CustomDocumentListener implements DocumentListener {
             }
         }
     }
+
 }

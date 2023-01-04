@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. All rights reserved to Torc LLC.
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
  */
 package com.codealike.client.core.internal.tracking;
 
@@ -171,9 +171,9 @@ public class ActivitiesRecorder {
 
         ActivityInfoProcessor processor = new ActivityInfoProcessor(statesToSend, eventsToSend);
 
-        //if (!processor.isValid()) {
-        //	return FlushResult.Skip;
-        //}
+        // if (!processor.isValid()) {
+        //	 return FlushResult.Skip;
+        // }
 
         String machineName = findLocalHostNameOr("unknown");
         List<ActivityInfo> activityInfoList = processor.getSerializableEntities(machineName,

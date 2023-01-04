@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. All rights reserved to Torc LLC.
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
  */
 package com.codealike.client.core.api;
 
@@ -46,12 +46,12 @@ public class ApiClient {
     // Number of API retries
     public static final int MAX_RETRIES = 5;
 
-    private WebTarget apiTarget;
+    private final WebTarget apiTarget;
     private String identity;
     private String token;
 
     /**
-     * Create a new API client.
+     * Create a new API client. Used to communicate with the Codealike remote server.
      *
      * @param identity the user identity
      * @param token    the user token
@@ -63,7 +63,7 @@ public class ApiClient {
     }
 
     /**
-     * Create a new API client.
+     * Create a new API client. Used to communicate with the Codealike remote server.
      *
      * @return the created APIClient instance
      * @throws KeyManagementException if any error with token occurs
@@ -73,7 +73,7 @@ public class ApiClient {
     }
 
     /**
-     * API Client constructor.
+     * API Client constructor. Used to communicate with the Codealike remote server.
      *
      * @throws KeyManagementException if any error with token occurs
      */
@@ -144,20 +144,20 @@ public class ApiClient {
             Invocation.Builder invocationBuilder = target
                     .request(MediaType.APPLICATION_JSON);
             Response response = invocationBuilder.get();
-            return new ApiResponse<Void>(response.getStatus(), response
+            return new ApiResponse<>(response.getStatus(), response
                     .getStatusInfo().getReasonPhrase());
         } catch (ProcessingException e) {
             if (e.getCause() != null
                     && e.getCause() instanceof ConnectException) {
-                return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+                return new ApiResponse<>(ApiResponse.Status.ConnectionProblems);
             } else {
-                return new ApiResponse<Void>(ApiResponse.Status.ClientError);
+                return new ApiResponse<>(ApiResponse.Status.ClientError);
             }
         }
     }
 
     /**
-     * Updates health information.
+     * Log the plugin health information to the remote server.
      *
      * @param healthInfo the health information object to update
      * @return the {@link ApiResponse} instance
@@ -173,17 +173,17 @@ public class ApiClient {
                     MediaType.APPLICATION_JSON);
             addHeaders(invocationBuilder);
 
-            Response response = null;
+            Response response;
             try {
                 response = invocationBuilder.put(Entity.entity(healthInfoLog,
                         MediaType.APPLICATION_JSON));
             } catch (Exception e) {
-                return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+                return new ApiResponse<>(ApiResponse.Status.ConnectionProblems);
             }
-            return new ApiResponse<Void>(response.getStatus(), response
+            return new ApiResponse<>(response.getStatus(), response
                     .getStatusInfo().getReasonPhrase());
         } catch (JsonProcessingException e) {
-            return new ApiResponse<Void>(ApiResponse.Status.ClientError,
+            return new ApiResponse<>(ApiResponse.Status.ClientError,
                     String.format("Problem parsing data from the server. %s",
                             e.getMessage()));
         }
@@ -233,7 +233,7 @@ public class ApiClient {
     }
 
     /**
-     * Register project being tracked.
+     * Register the project being tracked with the remote server.
      *
      * @param projectId the project identifier to track
      * @param name      the project name
@@ -251,17 +251,17 @@ public class ApiClient {
                     MediaType.APPLICATION_JSON);
             addHeaders(invocationBuilder);
 
-            Response response = null;
+            Response response;
             try {
                 response = invocationBuilder.post(Entity.entity(solutionAsJson,
                         MediaType.APPLICATION_JSON));
             } catch (Exception e) {
-                return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+                return new ApiResponse<>(ApiResponse.Status.ConnectionProblems);
             }
-            return new ApiResponse<Void>(response.getStatus(), response
+            return new ApiResponse<>(response.getStatus(), response
                     .getStatusInfo().getReasonPhrase());
         } catch (JsonProcessingException e) {
-            return new ApiResponse<Void>(ApiResponse.Status.ClientError,
+            return new ApiResponse<>(ApiResponse.Status.ClientError,
                     String.format("Problem parsing data from the server. %s",
                             e.getMessage()));
         }
@@ -283,24 +283,24 @@ public class ApiClient {
                     MediaType.APPLICATION_JSON);
             addHeaders(invocationBuilder);
 
-            Response response = null;
+            Response response;
             try {
                 response = invocationBuilder.post(Entity.entity(
                         activityInfoAsJson, MediaType.APPLICATION_JSON));
             } catch (Exception e) {
-                return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+                return new ApiResponse<>(ApiResponse.Status.ConnectionProblems);
             }
-            return new ApiResponse<Void>(response.getStatus(), response
+            return new ApiResponse<>(response.getStatus(), response
                     .getStatusInfo().getReasonPhrase());
         } catch (JsonProcessingException e) {
-            return new ApiResponse<Void>(ApiResponse.Status.ClientError,
+            return new ApiResponse<>(ApiResponse.Status.ClientError,
                     String.format("Problem parsing data from the server. %s",
                             e.getMessage()));
         }
     }
 
     /**
-     * Do an account authentication using token.
+     * Do an account authentication using the Codealike token.
      *
      * @return the {@link ApiResponse} instance
      */
@@ -312,13 +312,13 @@ public class ApiClient {
 
         addHeaders(invocationBuilder);
 
-        Response response = null;
+        Response response;
         try {
             response = invocationBuilder.get();
         } catch (Exception e) {
-            return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+            return new ApiResponse<>(ApiResponse.Status.ConnectionProblems);
         }
-        return new ApiResponse<Void>(response.getStatus(), response.getStatusInfo()
+        return new ApiResponse<>(response.getStatus(), response.getStatusInfo()
                 .getReasonPhrase());
     }
 
@@ -340,11 +340,11 @@ public class ApiClient {
         addHeaders(invocationBuilder);
 
         try {
-            Response response = null;
+            Response response;
             try {
                 response = invocationBuilder.get();
             } catch (Exception e) {
-                return new ApiResponse<T>(ApiResponse.Status.ConnectionProblems);
+                return new ApiResponse<>(ApiResponse.Status.ConnectionProblems);
             }
 
             if (response.getStatusInfo().getStatusCode() == Response.Status.OK
@@ -357,19 +357,19 @@ public class ApiClient {
                         solutionContextInfoSerialized,
                         type);
                 if (contextInfo != null) {
-                    return new ApiResponse<T>(
+                    return new ApiResponse<>(
                             response.getStatus(), response.getStatusInfo()
                             .getReasonPhrase(), contextInfo);
                 } else {
-                    return new ApiResponse<T>(ApiResponse.Status.ClientError,
+                    return new ApiResponse<>(ApiResponse.Status.ClientError,
                             "Problem parsing data from the server.");
                 }
             } else {
-                return new ApiResponse<T>(response.getStatus(), response
+                return new ApiResponse<>(response.getStatus(), response
                         .getStatusInfo().getReasonPhrase());
             }
         } catch (Exception e) {
-            return new ApiResponse<T>(ApiResponse.Status.ClientError,
+            return new ApiResponse<>(ApiResponse.Status.ClientError,
                     String.format("Problem parsing data from the server. %s",
                             e.getMessage()));
         }

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.model;
 
 import java.util.UUID;
@@ -6,6 +9,12 @@ import org.joda.time.DateTime;
 
 import com.codealike.client.core.internal.dto.ActivityType;
 
+/**
+ * Idle activity state model.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.2
+ */
 public class IdleActivityState extends ActivityState {
 	
 	private DateTime lastActivity;

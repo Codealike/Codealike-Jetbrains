@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. All rights reserved to Torc LLC.
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
  */
 package com.codealike.client.intellij.EventListeners;
 
@@ -42,4 +42,5 @@ public class CustomEditorMouseListener implements EditorMouseListener {
     @Override
     public void mouseExited(EditorMouseEvent editorMouseEvent) {
     }
+
 }

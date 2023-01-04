@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. All rights reserved to Torc LLC.
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
  */
 package com.codealike.client.core.api;
 
@@ -63,7 +63,7 @@ public class ApiResponse<T> {
     }
 
     /**
-     * Check if response is success.
+     * Check if response was successful.
      *
      * @return true if response was successful, false otherwise
      */
@@ -72,7 +72,7 @@ public class ApiResponse<T> {
     }
 
     /**
-     * Check if response has not found status.
+     * Check if response had not found status.
      *
      * @return true if response had not found status, false otherwise
      */
