@@ -1,9 +1,18 @@
+/*
+ * Copyright (c) 2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.model;
 
 import com.codealike.client.core.internal.startup.PluginContext;
 
 import java.util.UUID;
 
+/**
+ * Structural code context model.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
+ */
 public class StructuralCodeContext implements CodeContext {
 
     private UUID projectId;

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.intellij.EventListeners;
 
 import com.codealike.client.core.internal.services.TrackingService;
@@ -9,7 +12,10 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 
 /**
- * Created by Daniel on 11/4/2016.
+ * Custom document listener.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
  */
 public class CustomDocumentListener implements DocumentListener {
     @Override

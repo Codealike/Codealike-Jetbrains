@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.intellij;
 
 import com.codealike.client.core.api.ApiClient;
@@ -18,7 +21,10 @@ import java.security.KeyManagementException;
 import java.util.Properties;
 
 /**
- * Created by Daniel on 11/4/2016.
+ * Plugin application component class.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
  */
 public class CodealikeApplicationComponent implements ApplicationComponent {
     private static final String CODEALIKE_PROPERTIES_FILE = "/codealike.properties";

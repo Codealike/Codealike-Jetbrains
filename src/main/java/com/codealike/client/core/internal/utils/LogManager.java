@@ -1,7 +1,16 @@
+/*
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.utils;
 
 import com.intellij.openapi.diagnostic.Logger;
 
+/**
+ * Log manager class. This class will be used to log messages to console.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
+ */
 @SuppressWarnings("restriction")
 public class LogManager {
     public static final LogManager INSTANCE = new LogManager();

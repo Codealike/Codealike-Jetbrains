@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.tracking;
 
 import com.codealike.client.core.internal.dto.ActivityType;
@@ -32,6 +35,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class to track state.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
+ */
 public class StateTracker {
 
     private ActivitiesRecorder recorder;

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.tracking.code;
 
 import com.codealike.client.core.internal.model.CodeContext;
@@ -6,9 +9,13 @@ import com.codealike.client.core.internal.startup.PluginContext;
 import com.intellij.openapi.project.Project;
 
 import java.util.UUID;
-//import com.codealike.client.core.internal.utils.CodeContextUtils;
-//import com.codealike.client.core.internal.utils.EditorUtils;
 
+/**
+ * Context creator class.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
+ */
 public class ContextCreator {
 
     public CodeContext createCodeContextInternal(/*JavaEditor javaEditor,*/ UUID projectId) /*throws JavaModelException*/ {
@@ -44,7 +51,7 @@ public class ContextCreator {
     public CodeContext createCodeContext(Project project) {
         UUID projectId = PluginContext.getInstance().getTrackingService().getUUID(project);
 
-        StructuralCodeContext context = new StructuralCodeContext(projectId);
+        CodeContext context = new StructuralCodeContext(projectId);
         context.setProject(project.getName());
 
         return context;

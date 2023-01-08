@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.model;
 
 import com.codealike.client.core.internal.dto.ActivityType;
@@ -9,6 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Activity state model.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
+ */
 public class ActivityState implements IEndable {
 
     public static final ActivityState NONE = new ActivityState();

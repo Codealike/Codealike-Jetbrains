@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.intellij.ui;
 
 import com.codealike.client.core.internal.services.IdentityService;
@@ -12,7 +15,10 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by Daniel on 11/14/2016.
+ * Authentication dialog. Used to set the Codealike token.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
  */
 public class AuthenticationDialog extends DialogWrapper {
 
@@ -21,6 +27,11 @@ public class AuthenticationDialog extends DialogWrapper {
     private JLabel labelMessage;
     private Project _project;
 
+    /**
+     * Constructor. Creates the authentication dialog when running the plugin for the first time.
+     *
+     * @param project the current open {@link Project}
+     */
     public AuthenticationDialog(Project project) {
         super(project, true);
 

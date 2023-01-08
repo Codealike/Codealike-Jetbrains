@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022-2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.services;
 
 import com.codealike.client.core.internal.model.TrackedProjectManager;
@@ -19,6 +22,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Tracking service class.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
+ */
 public class TrackingService extends BaseService {
     private static TrackingService _instance;
 

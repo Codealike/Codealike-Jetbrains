@@ -19,7 +19,7 @@ import org.joda.time.DateTime;
  * Plugin project service.
  *
  * @author pvmagacho
- * @version 1.5.0.2
+ * @version 1.5.0.26
  */
 public class CodealikeProjectService implements Disposable {
     private final Project project;

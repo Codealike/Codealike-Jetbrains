@@ -1,7 +1,16 @@
+/*
+ * Copyright (c) 2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+/**
+ * Global settings event model.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GlobalSettings {
     private String userToken;

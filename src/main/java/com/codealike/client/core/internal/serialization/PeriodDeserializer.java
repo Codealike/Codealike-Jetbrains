@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.serialization;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -25,7 +28,7 @@ public class PeriodDeserializer extends JsonDeserializer<Period> {
             }
         }
 
-        throw context.mappingException("Expected string");
+        throw context.instantiationException(Period.class, "Expected string");
     }
 
 }

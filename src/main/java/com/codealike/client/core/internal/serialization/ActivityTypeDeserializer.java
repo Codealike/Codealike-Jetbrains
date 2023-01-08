@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.serialization;
 
 import com.codealike.client.core.internal.dto.ActivityType;
@@ -17,7 +20,7 @@ public class ActivityTypeDeserializer extends JsonDeserializer<ActivityType> {
         if (jsonParser.getCurrentToken() == JsonToken.VALUE_NUMBER_INT) {
             return ActivityType.fromId(jsonParser.getNumberValue().intValue());
         }
-        throw context.mappingException("Expected int value to parse an ActivityType");
+        throw context.instantiationException(ActivityType.class, "Expected int value to parse an ActivityType");
     }
 
 }

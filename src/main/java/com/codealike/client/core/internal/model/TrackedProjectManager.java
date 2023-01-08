@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2023. All rights reserved to Torc LLC.
+ */
 package com.codealike.client.core.internal.model;
 
 import com.codealike.client.core.internal.utils.TrackingConsole;
@@ -9,6 +12,12 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.*;
 
+/**
+ * Tracked project manager class. Track changes to the project.
+ *
+ * @author Daniel, pvmagacho
+ * @version 1.5.0.26
+ */
 public class TrackedProjectManager {
 
     private List<String> trackedProjectsLabels;
@@ -17,8 +26,7 @@ public class TrackedProjectManager {
 
     public TrackedProjectManager() {
         this.trackedProjects = HashBiMap.create();
-        this.trackedProjectsLabels = new ArrayList<String>();
-
+        this.trackedProjectsLabels = new ArrayList<>();
     }
 
     public List<String> getTrackedProjectsLabels() {
@@ -96,7 +104,7 @@ public class TrackedProjectManager {
     }
 
     public void stopTracking() {
-        Set<Project> projects = new HashSet<Project>(trackedProjects.keySet());
+        Set<Project> projects = new HashSet<>(trackedProjects.keySet());
         for (Project trackedProject : projects) {
             stopTrackingProject(trackedProject);
         }
