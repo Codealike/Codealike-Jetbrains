@@ -3,10 +3,6 @@ package com.codealike.client.core.internal.services;
 import java.security.KeyManagementException;
 import java.util.Observable;
 
-/*import org.eclipse.equinox.security.storage.ISecurePreferences;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.equinox.security.storage.StorageException;*/
-
 import com.codealike.client.core.api.ApiClient;
 import com.codealike.client.core.api.ApiResponse;
 import com.codealike.client.core.internal.dto.ProfileInfo;
@@ -20,7 +16,6 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-//import com.codealike.client.core.internal.utils.WorkbenchUtils;
 
 public class IdentityService extends Observable {
 	
