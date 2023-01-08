@@ -6,7 +6,10 @@ import org.joda.time.Period;
 
 public interface IEndable {
     DateTime getCreationTime();
+
     Period getDuration();
+
     void setDuration(Period duration);
+
     ActivityType getType();
 }

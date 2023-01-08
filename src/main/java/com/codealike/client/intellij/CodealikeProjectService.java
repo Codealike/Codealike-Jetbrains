@@ -28,6 +28,10 @@ public class CodealikeProjectService implements Disposable {
         this.project = project;
     }
 
+    static CodealikeProjectService getInstance(Project project) {
+        return project.getService(CodealikeProjectService.class);
+    }
+
     @Override
     public void dispose() {
         onProjectClosed();
@@ -70,10 +74,6 @@ public class CodealikeProjectService implements Disposable {
             if (trackingService.getTrackedProjects().values().isEmpty())
                 trackingService.disableTracking();
         }
-    }
-
-    static CodealikeProjectService getInstance(Project project) {
-        return project.getService(CodealikeProjectService.class);
     }
 
     static class CodealikeProjectServiceActivity implements StartupActivity {

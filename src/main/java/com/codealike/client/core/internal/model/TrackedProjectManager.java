@@ -1,110 +1,105 @@
 package com.codealike.client.core.internal.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import com.codealike.client.core.internal.utils.TrackingConsole;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.intellij.openapi.project.Project;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.*;
+
 public class TrackedProjectManager {
-	
-	private List<String> trackedProjectsLabels;
-	private BiMap<Project, UUID> trackedProjects;
-	
-	public TrackedProjectManager() {
-		this.trackedProjects = HashBiMap.create();
-		this.trackedProjectsLabels = new ArrayList<String>();
-		
-	}
-	
-	public List<String> getTrackedProjectsLabels() {
-		return trackedProjectsLabels;
-	}
-	
-	public void setTrackedProjectsLabels(List<String> trackedProjectsLabels) {
-		this.trackedProjectsLabels = trackedProjectsLabels;
-		firePropertyChange("trackedProjectsLabels", null, null);
-	}
-	
-	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		changeSupport.addPropertyChangeListener(listener);
-	}
+    private List<String> trackedProjectsLabels;
+    private BiMap<Project, UUID> trackedProjects;
+    private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		changeSupport.removePropertyChangeListener(listener);
-	}
+    public TrackedProjectManager() {
+        this.trackedProjects = HashBiMap.create();
+        this.trackedProjectsLabels = new ArrayList<String>();
 
-	public void addPropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
-		changeSupport.addPropertyChangeListener(propertyName, listener);
-	}
+    }
 
-	public void removePropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
-		changeSupport.removePropertyChangeListener(propertyName, listener);
-	}
+    public List<String> getTrackedProjectsLabels() {
+        return trackedProjectsLabels;
+    }
 
-	protected void firePropertyChange(String propertyName, Object oldValue,
-			Object newValue) {
-		changeSupport.firePropertyChange(propertyName, oldValue, newValue);
-	}
+    public void setTrackedProjectsLabels(List<String> trackedProjectsLabels) {
+        this.trackedProjectsLabels = trackedProjectsLabels;
+        firePropertyChange("trackedProjectsLabels", null, null);
+    }
 
-	public boolean trackProject(Project project, UUID projectId) {
-		if (trackedProjects.containsKey(project) || trackedProjects.containsValue(projectId)) {
-			return false;
-		}
-		this.trackedProjects.put(project, projectId);
-		this.trackedProjectsLabels.add(String.format("%s - %s", project.getName(), projectId));
-		
-		TrackingConsole.getInstance().trackProjectStart(project.getName(), projectId);
-		
-		firePropertyChange("trackedProjectsLabels", null, null);
-		return true;
-	}
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.addPropertyChangeListener(listener);
+    }
 
-	public UUID getTrackedProjectId(Project project) {
-		return this.trackedProjects.get(project);
-	}
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.removePropertyChangeListener(listener);
+    }
 
-	public Project getTrackedProject(UUID projectId) {
-		return this.trackedProjects.inverse().get(projectId);
-	}
+    public void addPropertyChangeListener(String propertyName,
+                                          PropertyChangeListener listener) {
+        changeSupport.addPropertyChangeListener(propertyName, listener);
+    }
 
-	public BiMap<Project, UUID> getTrackedProjects() {
-		return this.trackedProjects;
-	}
+    public void removePropertyChangeListener(String propertyName,
+                                             PropertyChangeListener listener) {
+        changeSupport.removePropertyChangeListener(propertyName, listener);
+    }
 
-	public boolean isTracked(Project project) {
-		return project != null && this.trackedProjects.get(project) != null;
-	}
+    protected void firePropertyChange(String propertyName, Object oldValue,
+                                      Object newValue) {
+        changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+    }
 
-	public void stopTrackingProject(Project project) {
-		if (!this.trackedProjects.containsKey(project)) {
-			return;
-		}
-		UUID trackedProjectId = getTrackedProjectId(project);
-	
-		TrackingConsole.getInstance().trackProjectEnd(project.getName(), trackedProjectId);
-		this.trackedProjects.remove(project);
+    public boolean trackProject(Project project, UUID projectId) {
+        if (trackedProjects.containsKey(project) || trackedProjects.containsValue(projectId)) {
+            return false;
+        }
+        this.trackedProjects.put(project, projectId);
+        this.trackedProjectsLabels.add(String.format("%s - %s", project.getName(), projectId));
 
-		this.trackedProjectsLabels.remove(String.format("%s - %s", project.getName(), trackedProjectId));
-		firePropertyChange("trackedProjectsLabels", null, null);
-	}
-	
-	public void stopTracking() {
-		Set<Project> projects = new HashSet<Project>(trackedProjects.keySet());
-		for (Project trackedProject : projects) {
-			stopTrackingProject(trackedProject);
-		}
-	}
+        TrackingConsole.getInstance().trackProjectStart(project.getName(), projectId);
+
+        firePropertyChange("trackedProjectsLabels", null, null);
+        return true;
+    }
+
+    public UUID getTrackedProjectId(Project project) {
+        return this.trackedProjects.get(project);
+    }
+
+    public Project getTrackedProject(UUID projectId) {
+        return this.trackedProjects.inverse().get(projectId);
+    }
+
+    public BiMap<Project, UUID> getTrackedProjects() {
+        return this.trackedProjects;
+    }
+
+    public boolean isTracked(Project project) {
+        return project != null && this.trackedProjects.get(project) != null;
+    }
+
+    public void stopTrackingProject(Project project) {
+        if (!this.trackedProjects.containsKey(project)) {
+            return;
+        }
+        UUID trackedProjectId = getTrackedProjectId(project);
+
+        TrackingConsole.getInstance().trackProjectEnd(project.getName(), trackedProjectId);
+        this.trackedProjects.remove(project);
+
+        this.trackedProjectsLabels.remove(String.format("%s - %s", project.getName(), trackedProjectId));
+        firePropertyChange("trackedProjectsLabels", null, null);
+    }
+
+    public void stopTracking() {
+        Set<Project> projects = new HashSet<Project>(trackedProjects.keySet());
+        for (Project trackedProject : projects) {
+            stopTrackingProject(trackedProject);
+        }
+    }
 
 }

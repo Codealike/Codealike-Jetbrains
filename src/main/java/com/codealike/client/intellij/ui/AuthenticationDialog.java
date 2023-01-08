@@ -34,7 +34,7 @@ public class AuthenticationDialog extends DialogWrapper {
     @NotNull
     @Override
     protected Action[] createActions() {
-        return new Action[] {
+        return new Action[]{
                 myOKAction, myCancelAction
         };
     }
@@ -76,14 +76,12 @@ public class AuthenticationDialog extends DialogWrapper {
         labelError.setVisible(false);
         String[] split = authInput.getText().split("/");
         if (split.length == 2) {
-            if(identityService.login(split[0], split[1], true, true)) {
+            if (identityService.login(split[0], split[1], true, true)) {
                 super.doOKAction();
-            }
-            else {
+            } else {
                 labelError.setVisible(true);
             }
-        }
-        else {
+        } else {
             labelError.setVisible(true);
         }
     }

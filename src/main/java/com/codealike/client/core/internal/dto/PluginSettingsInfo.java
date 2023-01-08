@@ -1,4 +1,5 @@
 package com.codealike.client.core.internal.dto;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PluginSettingsInfo {

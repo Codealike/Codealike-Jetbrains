@@ -1,6 +1,9 @@
 package com.codealike.client.intellij;
 
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,14 +19,15 @@ import java.util.UUID;
         }
 )
 public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Config> {
-    static class Config {
-        public String projectId;
-    }
-
     Config config;
 
     public ProjectConfig() {
         this.config = new Config();
+    }
+
+    @Nullable
+    public static ProjectConfig getInstance(Project project) {
+        return ServiceManager.getService(project, ProjectConfig.class);
     }
 
     public UUID getProjectId() {
@@ -45,8 +49,7 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Con
         config = state;
     }
 
-    @Nullable
-    public static ProjectConfig getInstance(Project project) {
-        return ServiceManager.getService(project, ProjectConfig.class);
+    static class Config {
+        public String projectId;
     }
 }

@@ -6,8 +6,6 @@ import com.codealike.client.core.internal.model.PluginSettings;
 import com.codealike.client.core.internal.model.ProjectSettings;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.NotImplementedException;
-import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,7 +17,6 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 
 public class Configuration {
     private ObjectMapper mapper = new ObjectMapper();
@@ -78,14 +75,12 @@ public class Configuration {
                 if (existingConfiguration != null) {
                     this.globalSettings.setUserToken(existingConfiguration.getUserToken());
                     this.globalSettings.setApiUrl(Optional.ofNullable(existingConfiguration.getApiUrl()).orElse("https://codealike.com/api/v2"));
-                }
-                else {
+                } else {
                     this.globalSettings.setUserToken(null);
                     this.globalSettings.setApiUrl("https://codealike.com/api/v2");
                 }
             }
-        }
-        catch(IOException exception) {
+        } catch (IOException exception) {
             // check what to do if this fails
         }
     }
@@ -118,14 +113,11 @@ public class Configuration {
             stream = new FileOutputStream(codealikeSettingsFile);
             stream.write(jsonString.getBytes(Charset.forName("UTF-8")));
             stream.close();
-        }
-        catch(JsonProcessingException jsonEx) {
+        } catch (JsonProcessingException jsonEx) {
             // check what to do if this fails
-        }
-        catch(IOException exception) {
+        } catch (IOException exception) {
             // check what to do if this fails
-        }
-        finally {
+        } finally {
             if (stream != null) {
                 try {
                     stream.close();
@@ -146,8 +138,7 @@ public class Configuration {
                 ObjectMapper mapper = new ObjectMapper();
                 projectSettings = mapper.readValue(new FileInputStream(codealikeProjectFile), ProjectSettings.class);
             }
-        }
-        catch(IOException exception) {
+        } catch (IOException exception) {
             // check what to do if this fails
         }
 
@@ -168,14 +159,11 @@ public class Configuration {
             stream = new FileOutputStream(codealikeProjectFile);
             stream.write(jsonString.getBytes(Charset.forName("UTF-8")));
             stream.close();
-        }
-        catch(JsonProcessingException jsonEx) {
+        } catch (JsonProcessingException jsonEx) {
             // check what to do if this fails
-        }
-        catch(IOException exception) {
+        } catch (IOException exception) {
             // check what to do if this fails
-        }
-        finally {
+        } finally {
             if (stream != null) {
                 try {
                     stream.close();
@@ -229,12 +217,12 @@ public class Configuration {
         return this.globalSettings.getApiUrl();
     }
 
-    public void setUserToken(String userToken) {
-        this.globalSettings.setUserToken(userToken);
-    }
-
     public String getUserToken() {
         return this.globalSettings.getUserToken();
+    }
+
+    public void setUserToken(String userToken) {
+        this.globalSettings.setUserToken(userToken);
     }
 
     private void ensurePathExists(File path) {
@@ -242,8 +230,7 @@ public class Configuration {
         if (!Files.exists(path.toPath())) {
             try {
                 Files.createDirectories(path.toPath());
-            }
-            catch(IOException ex) {
+            } catch (IOException ex) {
                 // check what to do if this fails
             }
         }

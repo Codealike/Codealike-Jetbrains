@@ -4,32 +4,32 @@ import java.util.UUID;
 
 public interface CodeContext {
 
-	UUID getProjectId();
+    UUID getProjectId();
 
-	String getProject();
+    String getProject();
 
-	void setProject(String project);
+    void setProject(String project);
 
-	String getFile();
+    String getFile();
 
-	void setFile(String file);
+    void setFile(String file);
 
-	int getLine();
+    int getLine();
 
-	void setLine(int lineNumber);
+    void setLine(int lineNumber);
 
-	String getPackageName();
+    String getPackageName();
 
-	void setPackageName(String packageName);
+    void setPackageName(String packageName);
 
-	String getClassName();
+    String getClassName();
 
-	void setClassName(String className);
+    void setClassName(String className);
 
-	String getMemberName();
+    String getMemberName();
 
-	void setMemberName(String memberName);
+    void setMemberName(String memberName);
 
-	boolean isEquivalent(CodeContext context);
+    boolean isEquivalent(CodeContext context);
 
 }

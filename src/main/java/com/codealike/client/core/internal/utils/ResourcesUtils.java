@@ -1,8 +1,5 @@
 package com.codealike.client.core.internal.utils;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 /*import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;*/
 

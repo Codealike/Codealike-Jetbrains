@@ -4,6 +4,7 @@ import com.codealike.client.core.internal.services.TrackingService;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.VisibleAreaEvent;
 import com.intellij.openapi.editor.event.VisibleAreaListener;
+
 /**
  * Created by Daniel on 12/9/2016.
  */

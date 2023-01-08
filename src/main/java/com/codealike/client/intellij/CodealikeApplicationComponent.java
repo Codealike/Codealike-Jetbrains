@@ -22,7 +22,7 @@ import java.util.Properties;
  */
 public class CodealikeApplicationComponent implements ApplicationComponent {
     private static final String CODEALIKE_PROPERTIES_FILE = "/codealike.properties";
-
+    ServiceListener loginObserver = () -> reloadOpenedProjects();
     private PluginContext pluginContext;
 
     public CodealikeApplicationComponent() {
@@ -35,7 +35,6 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
 
         start();
     }
-
 
     @Override
     public void disposeComponent() {
@@ -72,14 +71,11 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
             if (!pluginContext.getIdentityService().tryLoginWithStoredCredentials()) {
                 authenticate();
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             try {
                 ApiClient client = ApiClient.tryCreateNew();
                 client.logHealth(new HealthInfo(e, "Plugin could not start.", "intellij", HealthInfo.HealthInfoType.Error, pluginContext.getIdentityService().getIdentity()));
-            }
-            catch (KeyManagementException e1) {
+            } catch (KeyManagementException e1) {
                 e1.printStackTrace();
                 LogManager.INSTANCE.logError(e, "Couldn't send HealtInfo.");
             }
@@ -98,15 +94,16 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
 
     protected void authenticate() {
         ApplicationManager.getApplication().invokeLater(() -> {
-                // prompt for apiKey if it does not already exist
-                Project project = null;
-                try {
-                    project = ProjectManager.getInstance().getDefaultProject();
-                } catch (NullPointerException e) { }
+            // prompt for apiKey if it does not already exist
+            Project project = null;
+            try {
+                project = ProjectManager.getInstance().getDefaultProject();
+            } catch (NullPointerException e) {
+            }
 
-                // lets ask for a api key
-                AuthenticationDialog dialog = new AuthenticationDialog(project);
-                dialog.show();
+            // lets ask for a api key
+            AuthenticationDialog dialog = new AuthenticationDialog(project);
+            dialog.show();
         });
     }
 
@@ -118,6 +115,4 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
             }
         }
     }
-
-    ServiceListener loginObserver = () -> reloadOpenedProjects();
 }

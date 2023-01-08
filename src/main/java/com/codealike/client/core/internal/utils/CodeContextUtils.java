@@ -1,12 +1,5 @@
 package com.codealike.client.core.internal.utils;
 
-import java.util.UUID;
-
-import com.codealike.client.core.internal.model.CodeContext;
-import com.codealike.client.core.internal.model.StructuralCodeContext;
-import com.codealike.client.core.internal.model.exception.NonExistingResourceException;
-import com.codealike.client.core.internal.startup.PluginContext;
-
 public class CodeContextUtils {
 	
 	/*public static IType findClass(IJavaElement element) {

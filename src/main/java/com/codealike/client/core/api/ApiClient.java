@@ -1,331 +1,324 @@
 package com.codealike.client.core.api;
 
-import java.net.ConnectException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.UUID;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import jakarta.ws.rs.ProcessingException;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-
-import java.security.cert.*;
-
 import com.codealike.client.core.internal.dto.*;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.client.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.client.ClientProperties;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import java.net.ConnectException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.UUID;
 
 public class ApiClient {
 
-	private static final String X_EAUTH_CLIENT_HEADER = "X-Eauth-Client";
-	private static final String X_EAUTH_TOKEN_HEADER = "X-Api-Token";
-	public static final String X_EAUTH_IDENTITY_HEADER = "X-Api-Identity";
-	public static final int MAX_RETRIES = 5;
+    public static final String X_EAUTH_IDENTITY_HEADER = "X-Api-Identity";
+    public static final int MAX_RETRIES = 5;
+    private static final String X_EAUTH_CLIENT_HEADER = "X-Eauth-Client";
+    private static final String X_EAUTH_TOKEN_HEADER = "X-Api-Token";
+    private WebTarget apiTarget;
+    private String identity;
+    private String token;
 
-	private WebTarget apiTarget;
-	private String identity;
-	private String token;
+    protected ApiClient() throws KeyManagementException {
 
-	public static ApiClient tryCreateNew(String identity, String token) throws KeyManagementException {
-		return new ApiClient(identity, token);
-	}
+        ClientBuilder builder = ClientBuilder.newBuilder();
 
-	public static ApiClient tryCreateNew() throws KeyManagementException {
-		return new ApiClient();
-	}
-
-	protected ApiClient() throws KeyManagementException {
-		 
-		ClientBuilder builder = ClientBuilder.newBuilder();
-
-		TrustManager[] certs = new TrustManager[] { new  javax.net.ssl.X509TrustManager() {
-			@Override
-			public X509Certificate[] getAcceptedIssuers() {
-				return new X509Certificate[]{};
-			}
+        TrustManager[] certs = new TrustManager[]{new javax.net.ssl.X509TrustManager() {
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[]{};
+            }
 
 
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain,
-										   String authType) throws CertificateException {
-			}
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain,
+                                           String authType) throws CertificateException {
+            }
 
 
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain,
-										   String authType) throws CertificateException {
-			}
-		}};
-		
-		SSLContext sslContext=null;
-		 try {
-		 sslContext = SSLContext.getInstance("SSL");
-		 sslContext.init(null, certs, new SecureRandom());
-		 } catch (NoSuchAlgorithmException e1) {
-			 e1.printStackTrace();
-		 }
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain,
+                                           String authType) throws CertificateException {
+            }
+        }};
 
-		builder.sslContext(sslContext).hostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
-		
-		Client client = builder.build();
-		client.property(ClientProperties.CONNECT_TIMEOUT, 30000);
-		client.property(ClientProperties.READ_TIMEOUT,    5000);
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, certs, new SecureRandom());
+        } catch (NoSuchAlgorithmException e1) {
+            e1.printStackTrace();
+        }
 
-		apiTarget = client.target(PluginContext.getInstance().getConfiguration().getApiUrl());
-		this.identity = "";
-		this.token = "";
-	}
+        builder.sslContext(sslContext).hostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 
-	protected ApiClient(String identity, String token) throws KeyManagementException {
-		this();
-		if (identity != null && token != null) {
-			this.identity = identity;
-			this.token = token;
-		}
-	}
+        Client client = builder.build();
+        client.property(ClientProperties.CONNECT_TIMEOUT, 30000);
+        client.property(ClientProperties.READ_TIMEOUT, 5000);
 
-	public ApiResponse<Void> health() {
-		try {
-			WebTarget target = apiTarget.path("health");
+        apiTarget = client.target(PluginContext.getInstance().getConfiguration().getApiUrl());
+        this.identity = "";
+        this.token = "";
+    }
 
-			Invocation.Builder invocationBuilder = target
-					.request(MediaType.APPLICATION_JSON);
-			Response response = invocationBuilder.get();
-			return new ApiResponse<Void>(response.getStatus(), response
-					.getStatusInfo().getReasonPhrase());
-		} catch (ProcessingException e) {
-			if (e.getCause() != null
-					&& e.getCause() instanceof ConnectException) {
-				return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
-			} else {
-				return new ApiResponse<Void>(ApiResponse.Status.ClientError);
-			}
-		}
-	}
-	
-	public ApiResponse<Void> logHealth(HealthInfo healthInfo) {
-		try {
-			WebTarget target = apiTarget.path("health");
+    protected ApiClient(String identity, String token) throws KeyManagementException {
+        this();
+        if (identity != null && token != null) {
+            this.identity = identity;
+            this.token = token;
+        }
+    }
 
-			ObjectWriter writer = PluginContext.getInstance().getJsonWriter();
-			String healthInfoLog = writer.writeValueAsString(healthInfo);
-			
-			Invocation.Builder invocationBuilder = target.request().accept(
-					MediaType.APPLICATION_JSON);
-			addHeaders(invocationBuilder);
-			
-			Response response = null;
-			try {
-				response = invocationBuilder.put(Entity.entity(healthInfoLog,
-						MediaType.APPLICATION_JSON));
-			} catch (Exception e) {
-				return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
-			}
-			return new ApiResponse<Void>(response.getStatus(), response
-					.getStatusInfo().getReasonPhrase());
-		} catch (JsonProcessingException e) {
-			return new ApiResponse<Void>(ApiResponse.Status.ClientError,
-					String.format("Problem parsing data from the server. %s",
-							e.getMessage()));
-		}
-	}
+    public static ApiClient tryCreateNew(String identity, String token) throws KeyManagementException {
+        return new ApiClient(identity, token);
+    }
 
-	public ApiResponse<Version> version() {
-		WebTarget target = apiTarget.path("version").queryParam("client", "intellij");
-		return doGet(target, Version.class);
-	}
+    public static ApiClient tryCreateNew() throws KeyManagementException {
+        return new ApiClient();
+    }
 
-	public static ApiResponse<PluginSettingsInfo> getPluginSettings() {
-		ObjectMapper mapper = new ObjectMapper();
-		ClientBuilder builder = ClientBuilder.newBuilder();
-		Client client = builder.build();
-		client.property(ClientProperties.CONNECT_TIMEOUT, 30000);
-		client.property(ClientProperties.READ_TIMEOUT,    5000);
+    public static ApiResponse<PluginSettingsInfo> getPluginSettings() {
+        ObjectMapper mapper = new ObjectMapper();
+        ClientBuilder builder = ClientBuilder.newBuilder();
+        Client client = builder.build();
+        client.property(ClientProperties.CONNECT_TIMEOUT, 30000);
+        client.property(ClientProperties.READ_TIMEOUT, 5000);
 
-		WebTarget pluginSettingsTarget = client.target("https://codealike.com/api/v2/public/PluginsConfiguration");
+        WebTarget pluginSettingsTarget = client.target("https://codealike.com/api/v2/public/PluginsConfiguration");
 
-		Invocation.Builder invocationBuilder = pluginSettingsTarget.request(
-				MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+        Invocation.Builder invocationBuilder = pluginSettingsTarget.request(
+                MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
-		try {
-			Response response = null;
-			try {
-				response = invocationBuilder.get();
-			} catch (Exception e) {
-				return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ConnectionProblems);
-			}
+        try {
+            Response response = null;
+            try {
+                response = invocationBuilder.get();
+            } catch (Exception e) {
+                return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ConnectionProblems);
+            }
 
-			if (response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()) {
-				// process response to get a valid json string representation
-				String serializedObject = response.readEntity(String.class);
-				String normalizedObject = serializedObject.substring(1, serializedObject.length()-1).replace("\\", "");
+            if (response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()) {
+                // process response to get a valid json string representation
+                String serializedObject = response.readEntity(String.class);
+                String normalizedObject = serializedObject.substring(1, serializedObject.length() - 1).replace("\\", "");
 
-				// parse the json object to get a valid plugin settings object
-				PluginSettingsInfo pluginSettingsInfo = mapper.readValue(normalizedObject, PluginSettingsInfo.class);
+                // parse the json object to get a valid plugin settings object
+                PluginSettingsInfo pluginSettingsInfo = mapper.readValue(normalizedObject, PluginSettingsInfo.class);
 
-				if (pluginSettingsInfo != null) {
-					return new ApiResponse<PluginSettingsInfo>(
-							response.getStatus(), response.getStatusInfo()
-							.getReasonPhrase(), pluginSettingsInfo);
-				} else {
-					return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ClientError,
-							"Problem parsing data from the server.");
-				}
-			} else {
-				return new ApiResponse<PluginSettingsInfo>(response.getStatus(), response
-						.getStatusInfo().getReasonPhrase());
-			}
-		} catch (Exception e) {
-			return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ClientError,
-					String.format("Problem parsing data from the server. %s",
-							e.getMessage()));
-		}
-	}
+                if (pluginSettingsInfo != null) {
+                    return new ApiResponse<PluginSettingsInfo>(
+                            response.getStatus(), response.getStatusInfo()
+                            .getReasonPhrase(), pluginSettingsInfo);
+                } else {
+                    return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ClientError,
+                            "Problem parsing data from the server.");
+                }
+            } else {
+                return new ApiResponse<PluginSettingsInfo>(response.getStatus(), response
+                        .getStatusInfo().getReasonPhrase());
+            }
+        } catch (Exception e) {
+            return new ApiResponse<PluginSettingsInfo>(ApiResponse.Status.ClientError,
+                    String.format("Problem parsing data from the server. %s",
+                            e.getMessage()));
+        }
+    }
 
-	public ApiResponse<SolutionContextInfo> getSolutionContext(UUID projectId) {
-		WebTarget target = apiTarget.path("solution").path(projectId.toString());
-		return doGet(target, SolutionContextInfo.class);
-	}
-	
-	private <T> ApiResponse<T> doGet(WebTarget target, Class<T> type)
-	{
-		Invocation.Builder invocationBuilder = target.request(
-				MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
-		addHeaders(invocationBuilder);
+    public ApiResponse<Void> health() {
+        try {
+            WebTarget target = apiTarget.path("health");
 
-		try {
-			Response response = null;
-			try {
-				response = invocationBuilder.get();
-			} catch (Exception e) {
-				return new ApiResponse<T>(ApiResponse.Status.ConnectionProblems);
-			}
+            Invocation.Builder invocationBuilder = target
+                    .request(MediaType.APPLICATION_JSON);
+            Response response = invocationBuilder.get();
+            return new ApiResponse<Void>(response.getStatus(), response
+                    .getStatusInfo().getReasonPhrase());
+        } catch (ProcessingException e) {
+            if (e.getCause() != null
+                    && e.getCause() instanceof ConnectException) {
+                return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+            } else {
+                return new ApiResponse<Void>(ApiResponse.Status.ClientError);
+            }
+        }
+    }
 
-			if (response.getStatusInfo().getStatusCode() == Response.Status.OK
-					.getStatusCode()) {
-				String solutionContextInfoSerialized = response
-						.readEntity(String.class);
-				ObjectMapper mapper = PluginContext.getInstance()
-						.getJsonMapper();
-				T contextInfo = mapper.readValue(
-						solutionContextInfoSerialized,
-						type);
-				if (contextInfo != null) {
-					return new ApiResponse<T>(
-							response.getStatus(), response.getStatusInfo()
-									.getReasonPhrase(), contextInfo);
-				} else {
-					return new ApiResponse<T>(ApiResponse.Status.ClientError,
-							"Problem parsing data from the server.");
-				}
-			} else {
-				return new ApiResponse<T>(response.getStatus(), response
-						.getStatusInfo().getReasonPhrase());
-			}
-		} catch (Exception e) {
-			return new ApiResponse<T>(ApiResponse.Status.ClientError,
-					String.format("Problem parsing data from the server. %s",
-							e.getMessage()));
-		}
-	}
-	
-	public ApiResponse<ProfileInfo> getProfile(String username) {
-		WebTarget target = apiTarget.path("account").path(username).path("profile");
-		return doGet(target, ProfileInfo.class);
-	}
-	
-	public ApiResponse<UserConfigurationInfo> getUserConfiguration(String username) {
-		WebTarget target = apiTarget.path("account").path(username).path("config");
-		return doGet(target, UserConfigurationInfo.class);
-	}
+    public ApiResponse<Void> logHealth(HealthInfo healthInfo) {
+        try {
+            WebTarget target = apiTarget.path("health");
 
-	public ApiResponse<Void> registerProjectContext(UUID projectId, String name) {
-		try {
-			SolutionContextInfo solutionContext = new SolutionContextInfo(
-					projectId, name);
-			WebTarget target = apiTarget.path("solution");
+            ObjectWriter writer = PluginContext.getInstance().getJsonWriter();
+            String healthInfoLog = writer.writeValueAsString(healthInfo);
 
-			ObjectWriter writer = PluginContext.getInstance().getJsonWriter();
-			String solutionAsJson = writer.writeValueAsString(solutionContext);
-			Invocation.Builder invocationBuilder = target.request().accept(
-					MediaType.APPLICATION_JSON);
-			addHeaders(invocationBuilder);
+            Invocation.Builder invocationBuilder = target.request().accept(
+                    MediaType.APPLICATION_JSON);
+            addHeaders(invocationBuilder);
 
-			Response response = null;
-			try {
-				response = invocationBuilder.post(Entity.entity(solutionAsJson,
-						MediaType.APPLICATION_JSON));
-			} catch (Exception e) {
-				return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
-			}
-			return new ApiResponse<Void>(response.getStatus(), response
-					.getStatusInfo().getReasonPhrase());
-		} catch (JsonProcessingException e) {
-			return new ApiResponse<Void>(ApiResponse.Status.ClientError,
-					String.format("Problem parsing data from the server. %s",
-							e.getMessage()));
-		}
-	}
+            Response response = null;
+            try {
+                response = invocationBuilder.put(Entity.entity(healthInfoLog,
+                        MediaType.APPLICATION_JSON));
+            } catch (Exception e) {
+                return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+            }
+            return new ApiResponse<Void>(response.getStatus(), response
+                    .getStatusInfo().getReasonPhrase());
+        } catch (JsonProcessingException e) {
+            return new ApiResponse<Void>(ApiResponse.Status.ClientError,
+                    String.format("Problem parsing data from the server. %s",
+                            e.getMessage()));
+        }
+    }
 
-	public ApiResponse<Void> postActivityInfo(ActivityInfo info) {
-		try {
-			WebTarget target = apiTarget.path("activity");
+    public ApiResponse<Version> version() {
+        WebTarget target = apiTarget.path("version").queryParam("client", "intellij");
+        return doGet(target, Version.class);
+    }
 
-			ObjectWriter writer = PluginContext.getInstance().getJsonWriter();
-			String activityInfoAsJson = writer.writeValueAsString(info);
-			Invocation.Builder invocationBuilder = target.request().accept(
-					MediaType.APPLICATION_JSON);
-			addHeaders(invocationBuilder);
+    public ApiResponse<SolutionContextInfo> getSolutionContext(UUID projectId) {
+        WebTarget target = apiTarget.path("solution").path(projectId.toString());
+        return doGet(target, SolutionContextInfo.class);
+    }
 
-			Response response = null;
-			try {
-				response = invocationBuilder.post(Entity.entity(
-						activityInfoAsJson, MediaType.APPLICATION_JSON));
-			} catch (Exception e) {
-				return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
-			}
-			return new ApiResponse<Void>(response.getStatus(), response
-					.getStatusInfo().getReasonPhrase());
-		} catch (JsonProcessingException e) {
-			return new ApiResponse<Void>(ApiResponse.Status.ClientError,
-					String.format("Problem parsing data from the server. %s",
-							e.getMessage()));
-		}
-	}
+    private <T> ApiResponse<T> doGet(WebTarget target, Class<T> type) {
+        Invocation.Builder invocationBuilder = target.request(
+                MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+        addHeaders(invocationBuilder);
 
-	private void addHeaders(Invocation.Builder invocationBuilder) {
-		invocationBuilder.header(X_EAUTH_IDENTITY_HEADER, this.identity);
-		invocationBuilder.header(X_EAUTH_TOKEN_HEADER, this.token);
-		invocationBuilder.header(X_EAUTH_CLIENT_HEADER, "intellij");
-	}
+        try {
+            Response response = null;
+            try {
+                response = invocationBuilder.get();
+            } catch (Exception e) {
+                return new ApiResponse<T>(ApiResponse.Status.ConnectionProblems);
+            }
 
-	public ApiResponse<Void> tokenAuthenticate() {
-		WebTarget target = apiTarget.path("account").path(this.identity)
-				.path("authorized");
-		Invocation.Builder invocationBuilder = target.request(
-				MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+            if (response.getStatusInfo().getStatusCode() == Response.Status.OK
+                    .getStatusCode()) {
+                String solutionContextInfoSerialized = response
+                        .readEntity(String.class);
+                ObjectMapper mapper = PluginContext.getInstance()
+                        .getJsonMapper();
+                T contextInfo = mapper.readValue(
+                        solutionContextInfoSerialized,
+                        type);
+                if (contextInfo != null) {
+                    return new ApiResponse<T>(
+                            response.getStatus(), response.getStatusInfo()
+                            .getReasonPhrase(), contextInfo);
+                } else {
+                    return new ApiResponse<T>(ApiResponse.Status.ClientError,
+                            "Problem parsing data from the server.");
+                }
+            } else {
+                return new ApiResponse<T>(response.getStatus(), response
+                        .getStatusInfo().getReasonPhrase());
+            }
+        } catch (Exception e) {
+            return new ApiResponse<T>(ApiResponse.Status.ClientError,
+                    String.format("Problem parsing data from the server. %s",
+                            e.getMessage()));
+        }
+    }
 
-		addHeaders(invocationBuilder);
+    public ApiResponse<ProfileInfo> getProfile(String username) {
+        WebTarget target = apiTarget.path("account").path(username).path("profile");
+        return doGet(target, ProfileInfo.class);
+    }
 
-		Response response = null;
-		try {
-			response = invocationBuilder.get();
-		} catch (Exception e) {
-			return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
-		}
-		return new ApiResponse<Void>(response.getStatus(), response.getStatusInfo()
-				.getReasonPhrase());
-	}
+    public ApiResponse<UserConfigurationInfo> getUserConfiguration(String username) {
+        WebTarget target = apiTarget.path("account").path(username).path("config");
+        return doGet(target, UserConfigurationInfo.class);
+    }
+
+    public ApiResponse<Void> registerProjectContext(UUID projectId, String name) {
+        try {
+            SolutionContextInfo solutionContext = new SolutionContextInfo(
+                    projectId, name);
+            WebTarget target = apiTarget.path("solution");
+
+            ObjectWriter writer = PluginContext.getInstance().getJsonWriter();
+            String solutionAsJson = writer.writeValueAsString(solutionContext);
+            Invocation.Builder invocationBuilder = target.request().accept(
+                    MediaType.APPLICATION_JSON);
+            addHeaders(invocationBuilder);
+
+            Response response = null;
+            try {
+                response = invocationBuilder.post(Entity.entity(solutionAsJson,
+                        MediaType.APPLICATION_JSON));
+            } catch (Exception e) {
+                return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+            }
+            return new ApiResponse<Void>(response.getStatus(), response
+                    .getStatusInfo().getReasonPhrase());
+        } catch (JsonProcessingException e) {
+            return new ApiResponse<Void>(ApiResponse.Status.ClientError,
+                    String.format("Problem parsing data from the server. %s",
+                            e.getMessage()));
+        }
+    }
+
+    public ApiResponse<Void> postActivityInfo(ActivityInfo info) {
+        try {
+            WebTarget target = apiTarget.path("activity");
+
+            ObjectWriter writer = PluginContext.getInstance().getJsonWriter();
+            String activityInfoAsJson = writer.writeValueAsString(info);
+            Invocation.Builder invocationBuilder = target.request().accept(
+                    MediaType.APPLICATION_JSON);
+            addHeaders(invocationBuilder);
+
+            Response response = null;
+            try {
+                response = invocationBuilder.post(Entity.entity(
+                        activityInfoAsJson, MediaType.APPLICATION_JSON));
+            } catch (Exception e) {
+                return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+            }
+            return new ApiResponse<Void>(response.getStatus(), response
+                    .getStatusInfo().getReasonPhrase());
+        } catch (JsonProcessingException e) {
+            return new ApiResponse<Void>(ApiResponse.Status.ClientError,
+                    String.format("Problem parsing data from the server. %s",
+                            e.getMessage()));
+        }
+    }
+
+    private void addHeaders(Invocation.Builder invocationBuilder) {
+        invocationBuilder.header(X_EAUTH_IDENTITY_HEADER, this.identity);
+        invocationBuilder.header(X_EAUTH_TOKEN_HEADER, this.token);
+        invocationBuilder.header(X_EAUTH_CLIENT_HEADER, "intellij");
+    }
+
+    public ApiResponse<Void> tokenAuthenticate() {
+        WebTarget target = apiTarget.path("account").path(this.identity)
+                .path("authorized");
+        Invocation.Builder invocationBuilder = target.request(
+                MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+
+        addHeaders(invocationBuilder);
+
+        Response response = null;
+        try {
+            response = invocationBuilder.get();
+        } catch (Exception e) {
+            return new ApiResponse<Void>(ApiResponse.Status.ConnectionProblems);
+        }
+        return new ApiResponse<Void>(response.getStatus(), response.getStatusInfo()
+                .getReasonPhrase());
+    }
 }

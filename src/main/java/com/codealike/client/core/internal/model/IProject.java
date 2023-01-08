@@ -5,5 +5,6 @@ package com.codealike.client.core.internal.model;
  */
 public interface IProject {
     public String getName();
+
     public boolean isOpen();
 }
