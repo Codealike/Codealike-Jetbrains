@@ -1,7 +1,6 @@
 package com.codealike.client.core.internal.services;
 
 import java.security.KeyManagementException;
-import java.util.Observable;
 
 import com.codealike.client.core.api.ApiClient;
 import com.codealike.client.core.api.ApiResponse;
@@ -17,7 +16,7 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 
-public class IdentityService extends Observable {
+public class IdentityService extends BaseService {
 	
 	private static IdentityService _instance;
 	private boolean isAuthenticated;
@@ -54,8 +53,7 @@ public class IdentityService extends Observable {
 		Notifications.Bus.notify(note);
 
 		if (this.isAuthenticated) {
-			setChanged();
-			notifyObservers();
+			publishEvent();
 			return true;
 		}
 		try {
@@ -98,8 +96,7 @@ public class IdentityService extends Observable {
 				}
 
 				this.isAuthenticated = true;
-				setChanged();
-				notifyObservers();
+				publishEvent();
 				return true;
 			}
 			
@@ -201,8 +198,7 @@ public class IdentityService extends Observable {
 		this.identity = null;
 		this.token = null;
 		removeStoredCredentials();
-		
-		setChanged();
-		notifyObservers();
+
+		publishEvent();
 	}
 }

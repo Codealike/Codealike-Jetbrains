@@ -21,7 +21,7 @@ import com.codealike.client.core.internal.tracking.ActivitiesRecorder.FlushResul
 import com.codealike.client.core.internal.utils.LogManager;
 import com.google.common.collect.BiMap;
 
-public class TrackingService extends Observable {
+public class TrackingService extends BaseService {
 	private static TrackingService _instance;
 	
 	private TrackedProjectManager trackedProjectManager;
@@ -56,8 +56,7 @@ public class TrackingService extends Observable {
 		startTrackingUnassignedProject();
 		
 		this.isTracking = true;
-		setChanged();
-		notifyObservers();
+		publishEvent();
 	}
 
 	public void trackDocumentFocus(Editor editor, int offset, int line) {
@@ -158,8 +157,7 @@ public class TrackingService extends Observable {
 		
 		this.isTracking = false;
 		if (propagate) {
-			setChanged();
-			notifyObservers();
+			publishEvent();
 		}
 	}
 

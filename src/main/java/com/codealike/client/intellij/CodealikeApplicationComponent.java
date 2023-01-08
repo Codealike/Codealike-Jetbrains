@@ -2,30 +2,19 @@ package com.codealike.client.intellij;
 
 import com.codealike.client.core.api.ApiClient;
 import com.codealike.client.core.internal.dto.HealthInfo;
-import com.codealike.client.core.internal.services.IdentityService;
-import com.codealike.client.core.internal.services.TrackingService;
+import com.codealike.client.core.internal.services.ServiceListener;
 import com.codealike.client.core.internal.startup.PluginContext;
 import com.codealike.client.core.internal.utils.LogManager;
-import com.codealike.client.intellij.EventListeners.CustomCaretListener;
-import com.codealike.client.intellij.EventListeners.CustomDocumentListener;
 import com.codealike.client.intellij.ui.AuthenticationDialog;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.util.EnvironmentUtil;
-import com.intellij.util.PathUtilRt;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Properties;
 
 /**
@@ -79,7 +68,7 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
                 throw new Exception();
             }
 
-            pluginContext.getIdentityService().addObserver(loginObserver);
+            pluginContext.getIdentityService().addListener(loginObserver);
             if (!pluginContext.getIdentityService().tryLoginWithStoredCredentials()) {
                 authenticate();
             }
@@ -130,13 +119,5 @@ public class CodealikeApplicationComponent implements ApplicationComponent {
         }
     }
 
-    Observer loginObserver = new Observer() {
-
-        @Override
-        public void update(Observable o, Object arg1) {
-            if (o == pluginContext.getIdentityService()) {
-                reloadOpenedProjects();
-            }
-        }
-    };
+    ServiceListener loginObserver = () -> reloadOpenedProjects();
 }

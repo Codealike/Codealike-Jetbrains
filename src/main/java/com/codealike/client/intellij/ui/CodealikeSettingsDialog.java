@@ -129,7 +129,7 @@ public class CodealikeSettingsDialog extends DialogWrapper {
             forgetButton.setVisible(false);
         }
 
-        identityService.addObserver((o, arg) -> {
+        identityService.addListener(() -> {
             tokenInput.setText(configuration.getUserToken());
             if (identityService.isAuthenticated() || identityService.isCredentialsStored())
             {
