@@ -3,6 +3,10 @@
  */
 package com.codealike.client.core.internal.utils;
 
+import java.util.UUID;
+
+import org.joda.time.format.PeriodFormatter;
+
 import com.codealike.client.core.internal.model.ActivityEvent;
 import com.codealike.client.core.internal.model.ActivityState;
 import com.codealike.client.core.internal.serialization.PeriodSerializer;
