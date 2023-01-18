@@ -29,7 +29,7 @@ import java.util.UUID;
  * Api class to communicate with Codealike server.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class ApiClient {
 

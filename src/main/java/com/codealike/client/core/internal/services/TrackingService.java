@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * Tracking service class.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class TrackingService extends BaseService {
     private static TrackingService _instance;

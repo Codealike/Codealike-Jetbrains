@@ -24,7 +24,7 @@ import java.util.Properties;
  * Plugin application component class.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class CodealikeApplicationComponent implements ApplicationComponent {
     private static final String CODEALIKE_PROPERTIES_FILE = "/codealike.properties";

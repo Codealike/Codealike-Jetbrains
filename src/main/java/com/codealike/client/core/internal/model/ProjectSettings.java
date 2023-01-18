@@ -9,7 +9,7 @@ import java.util.UUID;
  * Project settings model.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class ProjectSettings {
     private UUID projectId;

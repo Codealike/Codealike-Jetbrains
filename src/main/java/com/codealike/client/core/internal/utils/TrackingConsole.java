@@ -16,7 +16,7 @@ import com.codealike.client.core.internal.startup.PluginContext;
  * Tracking console class. Used to print track events messages to console.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class TrackingConsole {
     // Singleton instance
