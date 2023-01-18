@@ -11,7 +11,7 @@ import java.util.UUID;
  * Structural code context model.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class StructuralCodeContext implements CodeContext {
 

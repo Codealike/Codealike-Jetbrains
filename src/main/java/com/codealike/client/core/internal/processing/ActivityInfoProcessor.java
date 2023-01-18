@@ -20,7 +20,7 @@ import java.util.UUID;
  * Class to process activity information.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class ActivityInfoProcessor {
     // list of processed states

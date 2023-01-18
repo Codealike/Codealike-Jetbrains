@@ -10,7 +10,7 @@ import java.io.StringWriter;
  * Exception utils class.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class ExceptionUtils {
 

@@ -18,7 +18,7 @@ import java.awt.*;
  * Settings dialog. Used to set Codealike token.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class CodealikeSettingsDialog extends DialogWrapper {
     private JTextField tokenInput;

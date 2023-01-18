@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  * Class to track state.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class StateTracker {
 

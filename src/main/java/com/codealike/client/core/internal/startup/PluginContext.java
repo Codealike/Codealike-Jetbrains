@@ -40,11 +40,11 @@ import java.util.UUID;
  * Plugin context singleton.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 @SuppressWarnings("restriction")
 public class PluginContext {
-    public static final String VERSION = "1.5.0.26";
+    public static final String VERSION = "1.6.0.0";
     public static final UUID UNASSIGNED_PROJECT = UUID.fromString("00000000-0000-0000-0000-0000000001");
     private static final String PLUGIN_PREFERENCES_QUALIFIER = "com.codealike.client.intellij";
     private static PluginContext _instance;
