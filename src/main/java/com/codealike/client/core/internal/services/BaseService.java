@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
  * Base abstract class to push events.
  *
  * @author pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public abstract class BaseService implements Runnable {
     // Single thread executor to run all tasks in a single queue

@@ -23,7 +23,7 @@ import java.security.KeyManagementException;
  * Identity service class.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class IdentityService extends BaseService {
 

@@ -15,7 +15,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
  * Custom caret listener.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class CustomCaretListener implements CaretListener {
 

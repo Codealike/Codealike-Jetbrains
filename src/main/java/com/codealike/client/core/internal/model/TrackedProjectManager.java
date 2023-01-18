@@ -16,7 +16,7 @@ import java.util.*;
  * Tracked project manager class. Track changes to the project.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class TrackedProjectManager {
 

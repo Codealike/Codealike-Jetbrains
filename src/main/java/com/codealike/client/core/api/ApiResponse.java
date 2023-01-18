@@ -8,7 +8,7 @@ package com.codealike.client.core.api;
  *
  * @param <T> the respose type.
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 public class ApiResponse<T> {
     // The response HTTP status

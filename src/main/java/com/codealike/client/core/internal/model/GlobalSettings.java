@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * Global settings event model.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GlobalSettings {

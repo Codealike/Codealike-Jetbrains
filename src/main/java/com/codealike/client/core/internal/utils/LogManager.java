@@ -9,7 +9,7 @@ import com.intellij.openapi.diagnostic.Logger;
  * Log manager class. This class will be used to log messages to console.
  *
  * @author Daniel, pvmagacho
- * @version 1.5.0.26
+ * @version 1.6.0.0
  */
 @SuppressWarnings("restriction")
 public class LogManager {
