@@ -20,8 +20,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.application.ApplicationNamesInfo;
+import com.intellij.openapi.components.impl.stores.IProjectStore;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.PlatformUtils;
+import com.intellij.project.ProjectKt;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -31,6 +33,7 @@ import org.joda.time.format.DateTimeFormatterBuilder;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
 import java.security.KeyManagementException;
 import java.util.Properties;
 import java.util.Random;
@@ -81,7 +84,7 @@ public class PluginContext {
         this.instanceValue = String.valueOf(new Random(DateTime.now().getMillis()).nextInt(Integer.MAX_VALUE) + 1);
         this.protocolVersion = new Version(0, 9);
         this.properties = properties;
-        this.ideName = PlatformUtils.getPlatformPrefix();
+        this.ideName = ApplicationNamesInfo.getInstance().getLowercaseProductName();
         this.machineName = findLocalHostNameOr("unknown");
 
         // initialize configuration with required parameters
@@ -188,7 +191,9 @@ public class PluginContext {
         UUID solutionId = null;
 
         // try first to load codealike.json file from project folder
-        ProjectSettings projectSettings = configuration.loadProjectSettings(project.getBaseDir().getPath());
+        IProjectStore projectStore = ProjectKt.getStateStore(project);
+        Path existingBaseDirPath = projectStore.getProjectBasePath();
+        ProjectSettings projectSettings = configuration.loadProjectSettings(existingBaseDirPath.toString());
 
         if (projectSettings.getProjectId() == null) {
             // if configuration was not found in the expected place
@@ -204,7 +209,7 @@ public class PluginContext {
                 projectSettings.setProjectName(project.getName());
 
                 // and save the file for future uses
-                configuration.saveProjectSettings(project.getBaseDir().getPath(), projectSettings);
+                configuration.saveProjectSettings(existingBaseDirPath.toString(), projectSettings);
             } else {
                 // if we reached this branch
                 // it means not only no configuration was found
