@@ -1,7 +1,6 @@
 package com.codealike.client.intellij;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -27,7 +26,7 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Con
 
     @Nullable
     public static ProjectConfig getInstance(Project project) {
-        return ServiceManager.getService(project, ProjectConfig.class);
+        return project.getService(ProjectConfig.class);
     }
 
     public UUID getProjectId() {
