@@ -17,6 +17,7 @@ import com.codealike.client.core.internal.utils.TrackingConsole;
 import com.codealike.client.intellij.EventListeners.CustomCaretListener;
 import com.codealike.client.intellij.EventListeners.CustomDocumentListener;
 import com.codealike.client.intellij.EventListeners.CustomEditorMouseListener;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -24,6 +25,7 @@ import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -206,23 +208,24 @@ public class StateTracker {
         documentListener = new CustomDocumentListener();
         caretListener = new CustomCaretListener();
         editorMouseListener = new CustomEditorMouseListener();
+        Disposable disposable = Disposer.newDisposable();
 
         ApplicationManager.getApplication().invokeLater(() -> {
 
             EditorFactory
                     .getInstance()
                     .getEventMulticaster()
-                    .addDocumentListener(documentListener);
+                    .addDocumentListener(documentListener, disposable);
 
             EditorFactory
                     .getInstance()
                     .getEventMulticaster()
-                    .addCaretListener(caretListener);
+                    .addCaretListener(caretListener, disposable);
 
             EditorFactory
                     .getInstance()
                     .getEventMulticaster()
-                    .addEditorMouseListener(editorMouseListener);
+                    .addEditorMouseListener(editorMouseListener, disposable);
         });
 
         startIdleDetection();
