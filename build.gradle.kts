@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.codealike.client.intellij"
-version = "1.6.0.0"
+version = "1.7.0.0"
 
 repositories {
     mavenCentral()
