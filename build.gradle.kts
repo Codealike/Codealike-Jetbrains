@@ -6,6 +6,7 @@ plugins {
 group = "com.codealike.client.intellij"
 
 
+
 version = "1.7.3.0"
 
 
